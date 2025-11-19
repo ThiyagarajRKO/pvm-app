@@ -1,22 +1,17 @@
 'use client';
 
-import Link from 'next/link';
+import NewRecordLauncher from './NewRecordLauncher';
+import { usePathname } from 'next/navigation';
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 
 export default function FloatingNewRecord() {
+  const pathname = usePathname();
+
+  // Hide FAB when already in the new record route
+  if (pathname === '/records/new') return null;
   return (
     <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-4 z-40 sm:hidden">
-      <Link href="/records/new">
-        <Button
-          aria-label="Create new record"
-          title="Create new record"
-          className="flex h-12 w-12 items-center justify-center rounded-full p-0 shadow-lg"
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
-      </Link>
+      <NewRecordLauncher triggerIsFAB />
     </div>
   );
 }

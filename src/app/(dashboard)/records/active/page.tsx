@@ -11,6 +11,7 @@ import { TableShimmerLoader } from '@/components/ShimmerLoader';
 import { Plus, Download, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import FloatingNewRecord from '@/components/FloatingNewRecord';
+import NewRecordLauncher from '@/components/NewRecordLauncher';
 
 interface Record {
   id: number;
@@ -207,12 +208,7 @@ export default function ActiveRecordsPage() {
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <Link href="/records/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Record
-            </Button>
-          </Link>
+          <NewRecordLauncher />
         </div>
         <div className="flex items-center gap-2 sm:hidden">
           <Button variant="outline" className="flex-1" onClick={handleExport}>
