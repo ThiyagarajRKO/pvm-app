@@ -223,7 +223,10 @@ export default function ActiveRecordsPage() {
       </div>
 
       {/* Stats */}
-      <RecordStats {...stats} />
+      <RecordStats
+        {...stats}
+        exclude={['activeRecords', 'archivedRecords', 'bigRecords']}
+      />
 
       {/* Search and Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">

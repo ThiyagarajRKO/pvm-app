@@ -235,7 +235,10 @@ export default function RecordsPage() {
       </div>
 
       {/* Stats */}
-      <RecordStats {...stats} />
+      <RecordStats
+        {...stats}
+        exclude={['activeRecords', 'archivedRecords', 'bigRecords']}
+      />
 
       {/* Quick Filter Links */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3">
