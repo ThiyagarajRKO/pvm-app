@@ -199,7 +199,7 @@ export default function BigRecordsPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Star className="h-5 w-5 text-yellow-600" />
@@ -246,7 +246,7 @@ export default function BigRecordsPage() {
       <FloatingNewRecord />
 
       {/* Table */}
-      <Card>
+      <Card className="mb-[calc(4rem+env(safe-area-inset-bottom))] sm:mb-0">
         <CardHeader>
           <CardTitle>Big Records ({filteredRecords.length})</CardTitle>
         </CardHeader>

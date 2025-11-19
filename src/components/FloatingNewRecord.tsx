@@ -7,7 +7,7 @@ import { Plus } from 'lucide-react';
 
 export default function FloatingNewRecord() {
   return (
-    <div className="fixed bottom-6 right-4 z-40 sm:hidden">
+    <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-4 z-40 sm:hidden">
       <Link href="/records/new">
         <Button
           aria-label="Create new record"
