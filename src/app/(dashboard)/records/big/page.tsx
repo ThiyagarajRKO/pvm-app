@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import RecordTable from '@/components/RecordTable';
+import RecordFilters from '@/components/RecordFilters';
+import RecordStats from '@/components/RecordStats';
+import { TableShimmerLoader } from '@/components/ShimmerLoader';
 import { Plus, Download, Star } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -26,10 +29,37 @@ interface Record {
   updatedAt: string;
 }
 
+interface Stats {
+  totalRecords: number;
+  activeRecords: number;
+  archivedRecords: number;
+  bigRecords: number;
+  totalWeight: number;
+  totalAmount: number;
+  goldCount: number;
+  silverCount: number;
+}
+
 export default function BigRecordsPage() {
   const [records, setRecords] = useState<Record[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    totalRecords: 0,
+    activeRecords: 0,
+    archivedRecords: 0,
+    bigRecords: 0,
+    totalWeight: 0,
+    totalAmount: 0,
+    goldCount: 0,
+    silverCount: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     fetchRecords();
@@ -42,6 +72,41 @@ export default function BigRecordsPage() {
       if (!response.ok) throw new Error('Failed to fetch big records');
       const data = await response.json();
       setRecords(data.data || []);
+
+      // Calculate stats for big records
+      const bigRecords = data.data || [];
+      const totalRecords = bigRecords.length;
+      const activeRecords = bigRecords.filter(
+        (r: Record) => !r.itemReturnImageUrl
+      ).length;
+      const archivedRecords = bigRecords.filter(
+        (r: Record) => r.itemReturnImageUrl
+      ).length;
+      const totalWeight = bigRecords.reduce(
+        (sum: number, r: Record) => sum + r.weightGrams,
+        0
+      );
+      const totalAmount = bigRecords.reduce(
+        (sum: number, r: Record) => sum + r.amount,
+        0
+      );
+      const goldCount = bigRecords.filter(
+        (r: Record) => r.itemType === 'Gold'
+      ).length;
+      const silverCount = bigRecords.filter(
+        (r: Record) => r.itemType === 'Silver'
+      ).length;
+
+      setStats({
+        totalRecords,
+        activeRecords,
+        archivedRecords,
+        bigRecords: totalRecords,
+        totalWeight,
+        totalAmount,
+        goldCount,
+        silverCount,
+      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to fetch big records'
@@ -73,17 +138,43 @@ export default function BigRecordsPage() {
     toast.info('CSV export coming soon');
   };
 
+  // Filter and sort records
+  const filteredRecords = records
+    .filter((record) => {
+      const matchesSearch =
+        record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.mobile.includes(searchTerm) ||
+        record.place.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType =
+        itemTypeFilter === 'all' || record.itemType === itemTypeFilter;
+      return matchesSearch && matchesType;
+    })
+    .sort((a, b) => {
+      let aValue: any = a[sortBy as keyof Record];
+      let bValue: any = b[sortBy as keyof Record];
+
+      if (sortBy === 'date') {
+        aValue = new Date(aValue).getTime();
+        bValue = new Date(bValue).getTime();
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
   if (loading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Big Records</h1>
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-600" />
+            <h1 className="text-xl font-semibold">Big Records</h1>
+          </div>
         </div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center">Loading big records...</div>
-          </CardContent>
-        </Card>
+        <TableShimmerLoader />
       </div>
     );
   }
@@ -92,7 +183,10 @@ export default function BigRecordsPage() {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Big Records</h1>
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-600" />
+            <h1 className="text-xl font-semibold">Big Records</h1>
+          </div>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -124,12 +218,28 @@ export default function BigRecordsPage() {
         </div>
       </div>
 
+      {/* Stats */}
+      <RecordStats {...stats} />
+
+      {/* Search and Filters */}
+      <RecordFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        itemTypeFilter={itemTypeFilter}
+        onItemTypeFilterChange={setItemTypeFilter}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
+      />
+
+      {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Big Records ({records.length})</CardTitle>
+          <CardTitle>Big Records ({filteredRecords.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecordTable records={records} onDelete={handleDelete} />
+          <RecordTable records={filteredRecords} onDelete={handleDelete} />
         </CardContent>
       </Card>
     </div>

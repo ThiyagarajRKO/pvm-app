@@ -7,6 +7,13 @@ const nextConfig = {
   env: {
     CUSTOM_KEY: 'custom_value',
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push('pg');
+    }
+    return config;
+  },
   async headers() {
     return [
       {
