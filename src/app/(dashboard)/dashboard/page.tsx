@@ -48,7 +48,7 @@ const dashboardData = {
     activeRecords: 892,
     archivedRecords: 355,
   },
-  quickStats: [
+  todayStats: [
     {
       label: "Today's Records",
       value: 12,
@@ -57,23 +57,53 @@ const dashboardData = {
       color: 'text-blue-600',
     },
     {
+      label: "Today's Active",
+      value: 8,
+      change: '+10%',
+      icon: CheckCircle,
+      color: 'text-green-600',
+    },
+    {
+      label: "Today's Archived",
+      value: 3,
+      change: '+5%',
+      icon: Archive,
+      color: 'text-gray-600',
+    },
+    {
+      label: "Today's Big",
+      value: 2,
+      change: '+15%',
+      icon: Star,
+      color: 'text-yellow-600',
+    },
+  ],
+  totalStats: [
+    {
+      label: 'Total Records',
+      value: 1247,
+      change: '',
+      icon: FileText,
+      color: 'text-blue-600',
+    },
+    {
       label: 'Active Records',
       value: 892,
-      change: '+15%',
+      change: '',
       icon: CheckCircle,
       color: 'text-green-600',
     },
     {
       label: 'Archived Records',
       value: 355,
-      change: '+5%',
+      change: '',
       icon: Archive,
       color: 'text-gray-600',
     },
     {
       label: 'Big Records',
       value: 156,
-      change: '+12%',
+      change: '',
       icon: Star,
       color: 'text-yellow-600',
     },
@@ -171,60 +201,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Total Records
-                </p>
-                <p className="text-lg font-bold text-blue-600">
-                  {dashboardData.overview.totalRecords}
-                </p>
-              </div>
-              <FileText className="h-6 w-6 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Active Records
-                </p>
-                <p className="text-lg font-bold text-green-600">
-                  {dashboardData.overview.activeRecords}
-                </p>
-              </div>
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Archived Records
-                </p>
-                <p className="text-lg font-bold text-gray-600">
-                  {dashboardData.overview.archivedRecords}
-                </p>
-              </div>
-              <Archive className="h-6 w-6 text-gray-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Stats */}
+      {/* Today's Stats */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {dashboardData.quickStats.map((stat, index) => {
+        {dashboardData.todayStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <Card key={index} className="transition-shadow hover:shadow-md">
@@ -247,6 +226,39 @@ export default function DashboardPage() {
                     {stat.change} from last week
                   </span>
                 </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Total Stats */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+        {dashboardData.totalStats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index} className="transition-shadow hover:shadow-md">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      {stat.label}
+                    </p>
+                    <p className={`text-xl font-bold ${stat.color}`}>
+                      {stat.value}
+                    </p>
+                  </div>
+                  <Icon className={`h-6 w-6 ${stat.color}`} />
+                </div>
+                {stat.change && (
+                  <div className="mt-2">
+                    <span
+                      className={`text-sm ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {stat.change} from last week
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
