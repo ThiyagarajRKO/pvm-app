@@ -17,6 +17,7 @@ import {
   Star,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import FloatingNewRecord from '@/components/FloatingNewRecord';
 
 interface Record {
   id: number;
@@ -207,12 +208,12 @@ export default function RecordsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-600" />
           <h1 className="text-xl font-semibold">All Records</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="hidden flex-row gap-2 sm:flex">
           <Button variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
@@ -224,13 +225,20 @@ export default function RecordsPage() {
             </Button>
           </Link>
         </div>
+        {/* Mobile actions: export shown here as block, new record is floating */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <Button variant="outline" className="flex-1" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
       <RecordStats {...stats} />
 
       {/* Quick Filter Links */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3">
         <Link href="/records/active">
           <Card className="cursor-pointer transition-shadow hover:shadow-md">
             <CardContent className="p-4">
@@ -281,16 +289,23 @@ export default function RecordsPage() {
       </div>
 
       {/* Search and Filters */}
-      <RecordFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        itemTypeFilter={itemTypeFilter}
-        onItemTypeFilterChange={setItemTypeFilter}
-        sortBy={sortBy}
-        onSortByChange={setSortBy}
-        sortOrder={sortOrder}
-        onSortOrderChange={setSortOrder}
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="flex-1">
+          <RecordFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            itemTypeFilter={itemTypeFilter}
+            onItemTypeFilterChange={setItemTypeFilter}
+            sortBy={sortBy}
+            onSortByChange={setSortBy}
+            sortOrder={sortOrder}
+            onSortOrderChange={setSortOrder}
+          />
+        </div>
+      </div>
+
+      {/* Floating button for creating new record (mobile only) */}
+      <FloatingNewRecord />
 
       {/* Table */}
       <Card>

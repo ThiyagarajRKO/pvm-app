@@ -61,6 +61,20 @@ export function TableShimmerLoader({
           </div>
         ))}
       </div>
+      {/* Mobile list shimmer */}
+      <div className="mt-4 block md:hidden">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <ShimmerLoader className="mb-2 h-4 w-32" />
+                <ShimmerLoader className="h-4 w-48" />
+              </div>
+              <ShimmerLoader className="h-10 w-10" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

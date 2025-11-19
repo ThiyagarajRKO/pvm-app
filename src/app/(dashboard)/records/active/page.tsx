@@ -10,6 +10,7 @@ import RecordStats from '@/components/RecordStats';
 import { TableShimmerLoader } from '@/components/ShimmerLoader';
 import { Plus, Download, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import FloatingNewRecord from '@/components/FloatingNewRecord';
 
 interface Record {
   id: number;
@@ -196,12 +197,12 @@ export default function ActiveRecordsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <CheckCircle className="h-5 w-5 text-green-600" />
           <h1 className="text-xl font-semibold">Active Records</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="hidden flex-row gap-2 sm:flex">
           <Button variant="outline" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
@@ -213,22 +214,33 @@ export default function ActiveRecordsPage() {
             </Button>
           </Link>
         </div>
+        <div className="flex items-center gap-2 sm:hidden">
+          <Button variant="outline" className="flex-1" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
       <RecordStats {...stats} />
 
       {/* Search and Filters */}
-      <RecordFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        itemTypeFilter={itemTypeFilter}
-        onItemTypeFilterChange={setItemTypeFilter}
-        sortBy={sortBy}
-        onSortByChange={setSortBy}
-        sortOrder={sortOrder}
-        onSortOrderChange={setSortOrder}
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="flex-1">
+          <RecordFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            itemTypeFilter={itemTypeFilter}
+            onItemTypeFilterChange={setItemTypeFilter}
+            sortBy={sortBy}
+            onSortByChange={setSortBy}
+            sortOrder={sortOrder}
+            onSortOrderChange={setSortOrder}
+          />
+        </div>
+      </div>
+      <FloatingNewRecord />
 
       {/* Table */}
       <Card>
@@ -236,7 +248,11 @@ export default function ActiveRecordsPage() {
           <CardTitle>Active Records ({filteredRecords.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecordTable records={filteredRecords} onDelete={handleDelete} />
+          <RecordTable
+            records={filteredRecords}
+            onDelete={handleDelete}
+            variant="active"
+          />
         </CardContent>
       </Card>
     </div>
