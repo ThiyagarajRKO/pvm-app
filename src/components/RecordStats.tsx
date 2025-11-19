@@ -116,9 +116,7 @@ export default function RecordStats({
                     <p className="text-base font-medium text-muted-foreground sm:text-sm">
                       {stat.title}
                     </p>
-                    <p
-                      className={`text-xl font-bold sm:text-2xl ${stat.color}`}
-                    >
+                    <p className={`text-lg font-bold ${stat.color}`}>
                       {stat.value}
                     </p>
                   </div>
