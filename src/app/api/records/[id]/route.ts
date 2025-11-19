@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const RecordModel = getRecordModel();
+    const RecordModel = await getRecordModel();
     const id = Number(params.id);
     const record = await RecordModel.findByPk(id);
     if (!record)
@@ -24,7 +24,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const RecordModel = getRecordModel();
+    const RecordModel = await getRecordModel();
     const id = Number(params.id);
     const body = await req.json();
     const parsed = recordUpdateSchema.parse(body);
@@ -49,7 +49,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const RecordModel = getRecordModel();
+    const RecordModel = await getRecordModel();
     const id = Number(params.id);
     const record = await RecordModel.findByPk(id);
     if (!record) return NextResponse.json(null, { status: 204 });

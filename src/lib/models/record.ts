@@ -57,8 +57,9 @@ export class Record
 
 let initialized = false;
 
-function initializeModel() {
+async function initializeModel() {
   if (!initialized) {
+    const sequelize = await getSequelize();
     Record.init(
       {
         id: {
@@ -92,7 +93,7 @@ function initializeModel() {
         itemReturnImageUrl: { type: DataTypes.STRING, allowNull: true },
       },
       {
-        sequelize: getSequelize(),
+        sequelize,
         tableName: 'records',
         schema: 'public',
         timestamps: true,
@@ -102,8 +103,8 @@ function initializeModel() {
   }
 }
 
-export function getRecordModel() {
-  initializeModel();
+export async function getRecordModel() {
+  await initializeModel();
   return Record;
 }
 

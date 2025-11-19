@@ -44,7 +44,7 @@ export async function GET(req: Request) {
       [parsed.sortBy || 'createdAt', parsed.sortDir || 'desc'],
     ];
 
-    const RecordModel = getRecordModel();
+    const RecordModel = await getRecordModel();
 
     const [data, total] = await Promise.all([
       RecordModel.findAll({ where, limit, offset, order }),
@@ -81,7 +81,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const RecordModel = getRecordModel();
+    const RecordModel = await getRecordModel();
     const body = await req.json();
     const parsed = recordCreateSchema.parse(body);
 

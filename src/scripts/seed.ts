@@ -4,7 +4,7 @@ import { getSequelize } from '../lib/db';
 async function seedDatabase() {
   try {
     console.log('Connecting to database...');
-    const sequelize = getSequelize();
+    const sequelize = await getSequelize();
     await sequelize.authenticate();
     console.log('Database connected successfully.');
 
@@ -12,7 +12,7 @@ async function seedDatabase() {
     await sequelize.sync({ force: true }); // This will drop and recreate tables
     console.log('Database synced.');
 
-    const RecordModel = getRecordModel();
+    const RecordModel = await getRecordModel();
 
     // Sample data
     const sampleRecords = [
@@ -93,7 +93,7 @@ async function seedDatabase() {
   } catch (error) {
     console.error('Error seeding database:', error);
   } finally {
-    const sequelize = getSequelize();
+    const sequelize = await getSequelize();
     await sequelize.close();
     console.log('Database connection closed.');
   }

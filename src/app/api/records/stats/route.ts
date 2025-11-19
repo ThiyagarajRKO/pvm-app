@@ -3,7 +3,7 @@ import { getRecordModel } from '../../../../lib/models/record';
 
 export async function GET() {
   try {
-    const RecordModel = getRecordModel();
+    const RecordModel = await getRecordModel();
     const totalRecords = await RecordModel.count();
     const totalGoldCount = await RecordModel.count({
       where: { itemType: 'Gold' },

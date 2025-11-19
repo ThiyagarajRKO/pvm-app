@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,10 +10,11 @@ const DB_NAME = process.env.DB_NAME || 'pvm_v1';
 const DB_SCHEMA = process.env.DB_SCHEMA || 'auth';
 const DB_SSLMODE = process.env.DB_SSLMODE || 'disable';
 
-let sequelize: Sequelize | null = null;
+let sequelize: any = null;
 
-export function getSequelize() {
+export async function getSequelize() {
   if (!sequelize) {
+    const { Sequelize } = await import('sequelize');
     sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
       host: DB_HOST,
       port: DB_PORT,
@@ -25,20 +25,18 @@ export function getSequelize() {
     });
 
     // Authenticate and log on first connection
-    sequelize
-      .authenticate()
-      .then(() => {
-        console.log('Database connection has been successfully established');
-      })
-      .catch((error) => {
-        console.error('Database connection failed:', error);
-      });
+    try {
+      await sequelize.authenticate();
+      console.log('Database connection has been successfully established');
+    } catch (error) {
+      console.error('Database connection failed:', error);
+    }
   }
   return sequelize;
 }
 
 export async function ensureSchema() {
-  const seq = getSequelize();
+  const seq = await getSequelize();
   if (DB_SCHEMA) {
     await seq.createSchema(DB_SCHEMA, {});
   }
