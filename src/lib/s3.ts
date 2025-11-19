@@ -13,6 +13,29 @@ const ACCESS_KEY = process.env.AWS_ACCESS_KEY_ID!;
 const SECRET = process.env.AWS_SECRET_ACCESS_KEY!;
 const ENDPOINT = process.env.S3_ENDPOINT;
 const BUCKET = process.env.S3_BUCKET_NAME!;
+const PRESIGN_EXPIRY = process.env.S3_PRESIGN_EXPIRY || '15m';
+
+// Parse expiry time (e.g., '15m' -> 900 seconds)
+function parseExpiry(expiry: string): number {
+  const match = expiry.match(/^(\d+)([smhd])$/);
+  if (!match) return 900; // default 15 minutes
+
+  const value = parseInt(match[1]);
+  const unit = match[2];
+
+  switch (unit) {
+    case 's':
+      return value;
+    case 'm':
+      return value * 60;
+    case 'h':
+      return value * 60 * 60;
+    case 'd':
+      return value * 60 * 60 * 24;
+    default:
+      return 900;
+  }
+}
 
 const s3 = new S3Client({
   region: REGION,
@@ -40,9 +63,10 @@ export async function createPresignedPut({
     ContentType: contentType,
   });
 
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 900 }); // 15 min
+  const expiresIn = parseExpiry(PRESIGN_EXPIRY);
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn });
   const publicUrl = `${process.env.S3_PUBLIC_URL}/${folder}/${fileName}`;
-  return { uploadUrl, publicUrl, expiresIn: 900 };
+  return { uploadUrl, publicUrl, expiresIn };
 }
 
 export async function deleteS3Object(key: string) {

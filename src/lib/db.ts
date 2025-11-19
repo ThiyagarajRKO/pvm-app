@@ -7,9 +7,9 @@ const DB_HOST = process.env.DB_HOST || 'localhost';
 const DB_PORT = Number(process.env.DB_PORT || 5432);
 const DB_USER = process.env.DB_USER || 'postgres';
 const DB_PASSWORD = process.env.DB_PASSWORD || '';
-const DB_NAME = process.env.DB_NAME || 'pvm_db';
-const DB_SCHEMA = process.env.DB_SCHEMA || 'pvm';
-const DB_SSL = process.env.DB_SSL === 'true';
+const DB_NAME = process.env.DB_NAME || 'pvm_v1';
+const DB_SCHEMA = process.env.DB_SCHEMA || 'auth';
+const DB_SSLMODE = process.env.DB_SSLMODE || 'disable';
 
 let sequelize: Sequelize | null = null;
 
@@ -20,7 +20,7 @@ export function getSequelize() {
       port: DB_PORT,
       dialect: 'postgres',
       schema: DB_SCHEMA,
-      ssl: DB_SSL,
+      ssl: DB_SSLMODE !== 'disable',
       logging: false,
     });
   }
