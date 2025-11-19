@@ -64,6 +64,7 @@ import {
   AlertCircle,
   Database,
   Mail,
+  Archive,
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -94,17 +95,17 @@ const navigationGroups: NavigationGroup[] = [
       {
         name: 'Archived',
         href: '/records/archived',
-        icon: FileText,
+        icon: Archive,
       },
       {
         name: 'Active',
         href: '/records/active',
-        icon: FileText,
+        icon: CheckCircle,
       },
       {
         name: 'Big',
         href: '/records/big',
-        icon: FileText,
+        icon: Star,
       },
     ],
   },
@@ -246,6 +247,7 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
   React.useEffect(() => {
     if (!initialized) {
       const { activeGroups, activeSubgroups } = findActiveNavigationItems();
+      activeGroups.add('Records');
       setExpandedGroups(activeGroups);
       setExpandedSubgroups(activeSubgroups);
       setInitialized(true);
