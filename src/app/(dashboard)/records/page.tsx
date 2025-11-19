@@ -211,7 +211,7 @@ export default function RecordsPage() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-blue-600" />
-          <h1 className="text-xl font-semibold">All Records</h1>
+          <h1 className="text-base font-semibold sm:text-xl">All Records</h1>
         </div>
         <div className="hidden flex-row gap-2 sm:flex">
           <Button variant="outline" onClick={handleExport}>

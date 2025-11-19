@@ -200,7 +200,7 @@ export default function ActiveRecordsPage() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <CheckCircle className="h-5 w-5 text-green-600" />
-          <h1 className="text-xl font-semibold">Active Records</h1>
+          <h1 className="text-base font-semibold sm:text-xl">Active Records</h1>
         </div>
         <div className="hidden flex-row gap-2 sm:flex">
           <Button variant="outline" onClick={handleExport}>

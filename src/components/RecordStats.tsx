@@ -112,10 +112,12 @@ export default function RecordStats({
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-base font-medium text-muted-foreground sm:text-sm">
                       {stat.title}
                     </p>
-                    <p className={`text-2xl font-bold ${stat.color}`}>
+                    <p
+                      className={`text-xl font-bold sm:text-2xl ${stat.color}`}
+                    >
                       {stat.value}
                     </p>
                   </div>

@@ -165,19 +165,21 @@ export default function RecordTable({
 
                   <div className="mt-1 flex items-center justify-between">
                     <div>
-                      <p className="truncate font-medium">{record.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="truncate text-base font-medium sm:text-lg">
+                        {record.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground sm:text-base">
                         {record.place} • {record.mobile}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">
+                      <p className="text-base font-semibold sm:text-lg">
                         {variant === 'big' ? (
                           <span className="mr-1 text-yellow-500">★</span>
                         ) : null}
                         ₹{record.amount.toLocaleString()}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground sm:text-sm">
                         {record.weightGrams}g
                       </p>
                     </div>
