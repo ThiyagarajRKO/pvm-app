@@ -292,7 +292,7 @@ export default function DashboardPage() {
                       )}
                     </div>
                     <div>
-                      <h3 className="font-semibold">{record.name}</h3>
+                      <h3 className="text-sm font-semibold">{record.name}</h3>
                       <div className="flex items-center gap-3 text-xs text-gray-600">
                         <span>{record.weight}g</span>
                         <span>₹{record.amount.toLocaleString()}</span>
