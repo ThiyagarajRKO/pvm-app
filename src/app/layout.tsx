@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth';
 import { Toaster } from 'sonner';
+import '@/lib/init'; // Initialize database connection
 
 const inter = Inter({ subsets: ['latin'] });
 

@@ -2,6 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { getSequelize } from '../db';
 
 export type ItemType = 'Gold' | 'Silver';
+export type ItemCategory = 'archived' | 'active' | 'big';
 
 interface RecordAttributes {
   id: number;
@@ -12,6 +13,7 @@ interface RecordAttributes {
   place: string;
   weightGrams: number;
   itemType: ItemType;
+  itemCategory: ItemCategory;
   amount: number;
   mobile: string;
   personImageUrl?: string | null;
@@ -23,7 +25,12 @@ interface RecordAttributes {
 
 type RecordCreationAttributes = Optional<
   RecordAttributes,
-  'id' | 'date' | 'personImageUrl' | 'itemImageUrl' | 'itemReturnImageUrl'
+  | 'id'
+  | 'date'
+  | 'personImageUrl'
+  | 'itemImageUrl'
+  | 'itemReturnImageUrl'
+  | 'itemCategory'
 >;
 
 export class Record
@@ -38,6 +45,7 @@ export class Record
   declare place: string;
   declare weightGrams: number;
   declare itemType: ItemType;
+  declare itemCategory: ItemCategory;
   declare amount: number;
   declare mobile: string;
   declare personImageUrl?: string | null;
@@ -69,6 +77,14 @@ function initializeModel() {
         place: { type: DataTypes.STRING, allowNull: false },
         weightGrams: { type: DataTypes.FLOAT, allowNull: false },
         itemType: { type: DataTypes.ENUM('Gold', 'Silver'), allowNull: false },
+        itemCategory: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          defaultValue: 'active',
+          validate: {
+            isIn: [['archived', 'active', 'big']],
+          },
+        },
         amount: { type: DataTypes.FLOAT, allowNull: false },
         mobile: { type: DataTypes.STRING, allowNull: false },
         personImageUrl: { type: DataTypes.STRING, allowNull: true },
@@ -78,7 +94,7 @@ function initializeModel() {
       {
         sequelize: getSequelize(),
         tableName: 'records',
-        schema: process.env.DB_SCHEMA || 'pvm',
+        schema: 'public',
         timestamps: true,
       }
     );

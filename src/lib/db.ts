@@ -23,6 +23,16 @@ export function getSequelize() {
       ssl: DB_SSLMODE !== 'disable',
       logging: false,
     });
+
+    // Authenticate and log on first connection
+    sequelize
+      .authenticate()
+      .then(() => {
+        console.log('Database connection has been successfully established');
+      })
+      .catch((error) => {
+        console.error('Database connection failed:', error);
+      });
   }
   return sequelize;
 }
