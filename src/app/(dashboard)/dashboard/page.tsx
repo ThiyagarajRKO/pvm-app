@@ -36,16 +36,17 @@ import {
   TrendingUpIcon,
   Gem,
   Scale,
+  Archive,
+  Plus,
+  Download,
 } from 'lucide-react';
 
-// Mock data for PVM Pawn Shop dashboard
+// Mock data for PVM Records dashboard
 const dashboardData = {
   overview: {
     totalRecords: 1247,
-    totalGoldCount: 892,
-    totalSilverCount: 355,
-    totalAmount: 45678000,
-    totalWeightGrams: 12456.7,
+    activeRecords: 892,
+    archivedRecords: 355,
   },
   quickStats: [
     {
@@ -56,25 +57,25 @@ const dashboardData = {
       color: 'text-blue-600',
     },
     {
-      label: 'Gold Items',
+      label: 'Active Records',
       value: 892,
       change: '+15%',
-      icon: Gem,
-      color: 'text-yellow-600',
+      icon: CheckCircle,
+      color: 'text-green-600',
     },
     {
-      label: 'Silver Items',
+      label: 'Archived Records',
       value: 355,
       change: '+5%',
-      icon: Scale,
+      icon: Archive,
       color: 'text-gray-600',
     },
     {
-      label: 'Total Amount',
-      value: '₹4.57Cr',
+      label: 'Big Records',
+      value: 156,
       change: '+12%',
-      icon: DollarSign,
-      color: 'text-green-600',
+      icon: Star,
+      color: 'text-yellow-600',
     },
   ],
   recentRecords: [
@@ -85,6 +86,7 @@ const dashboardData = {
       amount: 150000,
       weight: 24.5,
       date: '2025-11-19',
+      status: 'Active',
     },
     {
       id: 1246,
@@ -93,6 +95,7 @@ const dashboardData = {
       amount: 25000,
       weight: 10.2,
       date: '2025-11-19',
+      status: 'Active',
     },
     {
       id: 1245,
@@ -101,117 +104,64 @@ const dashboardData = {
       amount: 200000,
       weight: 32.1,
       date: '2025-11-18',
-    },
-  ],
-  systemMetrics: [
-    {
-      label: 'Database Health',
-      value: '99.8%',
-      status: 'excellent',
-      icon: Database,
-    },
-    {
-      label: 'S3 Upload Status',
-      value: '100%',
-      status: 'excellent',
-      icon: CloudCog,
-    },
-    { label: 'API Response Time', value: '85ms', status: 'good', icon: Zap },
-    {
-      label: 'Security Score',
-      value: '95/100',
-      status: 'excellent',
-      icon: Shield,
+      status: 'Archived',
     },
   ],
   quickActions: [
     {
-      title: 'Add New Record',
+      title: 'New Record',
       description: 'Create a new pawn record',
-      icon: FileText,
-      color: 'bg-blue-50 text-blue-600 hover:bg-blue-100',
+      icon: Plus,
+      color: 'text-green-600',
       href: '/records/new',
     },
     {
-      title: 'View All Records',
-      description: 'Browse all pawn records',
-      icon: Eye,
-      color: 'bg-green-50 text-green-600 hover:bg-green-100',
-      href: '/records',
+      title: 'Active Records',
+      description: 'View all active records',
+      icon: CheckCircle,
+      color: 'text-blue-600',
+      href: '/records/active',
     },
     {
-      title: 'Export Data',
+      title: 'Archived Records',
+      description: 'View archived records',
+      icon: Archive,
+      color: 'text-orange-600',
+      href: '/records/archived',
+    },
+    {
+      title: 'Big Records',
+      description: 'View high-value records',
+      icon: TrendingUp,
+      color: 'text-purple-600',
+      href: '/records/big',
+    },
+    {
+      title: 'Export Records',
       description: 'Download records as CSV',
-      icon: BarChart3,
-      color: 'bg-purple-50 text-purple-600 hover:bg-purple-100',
-      href: '/records',
-    },
-    {
-      title: 'System Health',
-      description: 'Check system status',
-      icon: Activity,
-      color: 'bg-orange-50 text-orange-600 hover:bg-orange-100',
-      href: '/system-health',
-    },
-  ],
-  alerts: [
-    {
-      type: 'info',
-      message: 'Database backup completed successfully',
-      time: '2 hours ago',
-    },
-    {
-      type: 'success',
-      message: 'All S3 uploads are functioning normally',
-      time: '1 hour ago',
+      icon: Download,
+      color: 'text-gray-600',
+      href: '/records/export',
     },
   ],
 };
 
 export default function DashboardPage() {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'excellent':
-        return 'text-green-600';
-      case 'good':
-        return 'text-blue-600';
-      case 'warning':
-        return 'text-yellow-600';
-      case 'critical':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'warning':
-        return <AlertTriangle className="h-3 w-3 text-yellow-600" />;
-      case 'success':
-        return <CheckCircle className="h-3 w-3 text-green-600" />;
-      case 'info':
-        return <Activity className="h-3 w-3 text-blue-600" />;
-      default:
-        return <AlertTriangle className="h-3 w-3 text-gray-600" />;
-    }
-  };
-
   return (
     <div className="space-y-4 p-1">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            PVM Pawn Shop Dashboard
+            Records Dashboard
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Manage your pawn shop records and operations.
+            Overview of your pawn records and management statistics.
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
-            <Eye className="mr-2 h-3 w-3" />
+            <BarChart3 className="mr-2 h-3 w-3" />
             View Reports
           </Button>
           <Button size="sm">
@@ -221,36 +171,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Alerts */}
-      {dashboardData.alerts.length > 0 && (
-        <Card className="border-l-4 border-l-yellow-500">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Bell className="h-3 w-3" />
-              System Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-2">
-              {dashboardData.alerts.map((alert, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 rounded-lg bg-gray-50 p-2"
-                >
-                  {getAlertIcon(alert.type)}
-                  <div className="flex-1">
-                    <p className="text-xs font-medium">{alert.message}</p>
-                    <p className="text-xs text-gray-500">{alert.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
@@ -272,46 +194,13 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Gold Items
-                </p>
-                <p className="text-lg font-bold text-yellow-600">
-                  {dashboardData.overview.totalGoldCount}
-                </p>
-              </div>
-              <Gem className="h-6 w-6 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Silver Items
-                </p>
-                <p className="text-lg font-bold text-gray-600">
-                  {dashboardData.overview.totalSilverCount}
-                </p>
-              </div>
-              <Scale className="h-6 w-6 text-gray-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Total Amount
+                  Active Records
                 </p>
                 <p className="text-lg font-bold text-green-600">
-                  ₹{(dashboardData.overview.totalAmount / 10000000).toFixed(2)}
-                  Cr
+                  {dashboardData.overview.activeRecords}
                 </p>
               </div>
-              <DollarSign className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -321,13 +210,13 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Total Weight
+                  Archived Records
                 </p>
-                <p className="text-lg font-bold text-purple-600">
-                  {dashboardData.overview.totalWeightGrams.toFixed(1)}g
+                <p className="text-lg font-bold text-gray-600">
+                  {dashboardData.overview.archivedRecords}
                 </p>
               </div>
-              <Scale className="h-6 w-6 text-purple-600" />
+              <Archive className="h-6 w-6 text-gray-600" />
             </div>
           </CardContent>
         </Card>
@@ -395,6 +284,14 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-3 text-xs text-gray-600">
                         <span>{record.weight}g</span>
                         <span>₹{record.amount.toLocaleString()}</span>
+                        <Badge
+                          variant={
+                            record.status === 'Active' ? 'default' : 'secondary'
+                          }
+                          className="text-xs"
+                        >
+                          {record.status}
+                        </Badge>
                       </div>
                     </div>
                   </div>
@@ -411,7 +308,7 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>Record Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -435,72 +332,6 @@ export default function DashboardPage() {
                   </Button>
                 );
               })}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* System Performance */}
-        <Card>
-          <CardHeader>
-            <CardTitle>System Performance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-6 grid grid-cols-2 gap-3">
-              {dashboardData.systemMetrics.map((metric, index) => {
-                const Icon = metric.icon;
-                return (
-                  <div
-                    key={index}
-                    className="rounded-lg border p-4 text-center"
-                  >
-                    <Icon
-                      className={`mx-auto mb-2 h-6 w-6 ${getStatusColor(metric.status)}`}
-                    />
-                    <div className="text-xs text-gray-600">{metric.label}</div>
-                    <div
-                      className={`text-xl font-bold ${getStatusColor(metric.status)}`}
-                    >
-                      {metric.value}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {dashboardData.alerts.map((alert, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
-                >
-                  <div className="rounded-lg bg-gray-100 p-2">
-                    {getAlertIcon(alert.type)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {alert.type}
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        {alert.time}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-700">
-                      {alert.message}
-                    </p>
-                  </div>
-                </div>
-              ))}
             </div>
           </CardContent>
         </Card>

@@ -88,17 +88,22 @@ interface NavigationGroup {
 
 const navigationGroups: NavigationGroup[] = [
   {
-    name: 'Pawn Shop Management',
-    icon: Briefcase,
+    name: 'Records',
+    icon: FileText,
     items: [
       {
-        name: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutDashboard,
+        name: 'Archived',
+        href: '/records/archived',
+        icon: FileText,
       },
       {
-        name: 'Records',
-        href: '/records',
+        name: 'Active',
+        href: '/records/active',
+        icon: FileText,
+      },
+      {
+        name: 'Big',
+        href: '/records/big',
         icon: FileText,
       },
     ],

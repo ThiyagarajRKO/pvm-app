@@ -5,14 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import RecordTable from '@/components/RecordTable';
-import {
-  Plus,
-  Download,
-  FileText,
-  CheckCircle,
-  Archive,
-  Star,
-} from 'lucide-react';
+import { Plus, Download, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Record {
@@ -33,7 +26,7 @@ interface Record {
   updatedAt: string;
 }
 
-export default function RecordsPage() {
+export default function ArchivedRecordsPage() {
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,20 +38,23 @@ export default function RecordsPage() {
   const fetchRecords = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/records');
-      if (!response.ok) throw new Error('Failed to fetch records');
+      const response = await fetch('/api/records?status=archived');
+      if (!response.ok) throw new Error('Failed to fetch archived records');
       const data = await response.json();
       setRecords(data.data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch records');
-      toast.error('Failed to load records');
+      setError(
+        err instanceof Error ? err.message : 'Failed to fetch archived records'
+      );
+      toast.error('Failed to load archived records');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this record?')) return;
+    if (!confirm('Are you sure you want to delete this archived record?'))
+      return;
 
     try {
       const response = await fetch(`/api/records/${id}`, {
@@ -67,9 +63,9 @@ export default function RecordsPage() {
       if (!response.ok) throw new Error('Failed to delete record');
 
       setRecords(records.filter((record) => record.id !== id));
-      toast.success('Record deleted successfully');
+      toast.success('Archived record deleted successfully');
     } catch (err) {
-      toast.error('Failed to delete record');
+      toast.error('Failed to delete archived record');
     }
   };
 
@@ -82,11 +78,11 @@ export default function RecordsPage() {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Records</h1>
+          <h1 className="text-xl font-semibold">Archived Records</h1>
         </div>
         <Card>
           <CardContent className="p-6">
-            <div className="text-center">Loading records...</div>
+            <div className="text-center">Loading archived records...</div>
           </CardContent>
         </Card>
       </div>
@@ -97,7 +93,7 @@ export default function RecordsPage() {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Records</h1>
+          <h1 className="text-xl font-semibold">Archived Records</h1>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -112,8 +108,8 @@ export default function RecordsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-blue-600" />
-          <h1 className="text-xl font-semibold">All Records</h1>
+          <Archive className="h-5 w-5 text-gray-600" />
+          <h1 className="text-xl font-semibold">Archived Records</h1>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExport}>
@@ -129,60 +125,9 @@ export default function RecordsPage() {
         </div>
       </div>
 
-      {/* Quick Filter Links */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <Link href="/records/active">
-          <Card className="cursor-pointer transition-shadow hover:shadow-md">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-                <div>
-                  <h3 className="font-semibold">Active Records</h3>
-                  <p className="text-sm text-gray-600">
-                    View active pawn records
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/records/archived">
-          <Card className="cursor-pointer transition-shadow hover:shadow-md">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Archive className="h-8 w-8 text-gray-600" />
-                <div>
-                  <h3 className="font-semibold">Archived Records</h3>
-                  <p className="text-sm text-gray-600">
-                    View archived pawn records
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/records/big">
-          <Card className="cursor-pointer transition-shadow hover:shadow-md">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Star className="h-8 w-8 text-yellow-600" />
-                <div>
-                  <h3 className="font-semibold">Big Records</h3>
-                  <p className="text-sm text-gray-600">
-                    View high-value pawn records
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
       <Card>
         <CardHeader>
-          <CardTitle>All Records ({records.length})</CardTitle>
+          <CardTitle>Archived Records ({records.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <RecordTable records={records} onDelete={handleDelete} />
