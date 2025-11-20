@@ -36,14 +36,14 @@ export default function NewRecordPanel({
   const pathname = usePathname();
 
   const handleClose = () => {
-    // notify parent to close inline launcher
-    onClose?.();
-    // when redirectTo provided, navigate back, but avoid navigating to the same path
-    // to prevent unnecessary refresh/scroll. Also delay navigation slightly so the
-    // floating bar can re-appear without visual jump.
-    if (redirectTo && redirectTo !== pathname) {
-      setTimeout(() => router.push(redirectTo), 60);
+    // For inline panels, just close without navigation
+    if (onClose) {
+      onClose();
+      return;
     }
+
+    // For standalone usage, navigate to records list
+    router.push('/records/active');
   };
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(true);

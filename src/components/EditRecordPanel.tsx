@@ -61,13 +61,14 @@ export default function EditRecordPanel({
   }, []);
 
   const handleClose = () => {
-    // notify parent to close inline launcher
-    onClose?.();
-    // Only navigate if onClose is not provided (i.e., we're in a separate page)
-    // and redirectTo is different from current path
-    if (!onClose && redirectTo && redirectTo !== pathname) {
-      setTimeout(() => router.push(redirectTo), 60);
+    // For inline panels, just close without navigation
+    if (onClose) {
+      onClose();
+      return;
     }
+
+    // For standalone usage, navigate back to record detail
+    router.push(`/records/${record.id}`);
   };
 
   if (isMobile) {
