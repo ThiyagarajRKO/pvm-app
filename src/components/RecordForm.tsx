@@ -6,9 +6,10 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Card removed: groups now have their own container wrappers
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import PlaceSelect from '@/components/PlaceSelect';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -153,17 +154,14 @@ export default function RecordForm({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEdit ? 'Edit Record' : 'Create New Record'}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <fieldset className="space-y-4">
-              <legend className="mb-2 text-sm font-semibold">
-                Personal Information
-              </legend>
+    <div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <fieldset className="space-y-1">
+            <legend className="text-sm font-semibold">
+              Personal Information
+            </legend>
+            <div className="rounded-lg border bg-card p-4">
               <div
                 className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-3'}`}
               >
@@ -212,10 +210,12 @@ export default function RecordForm({
                   )}
                 />
               </div>
-            </fieldset>
+            </div>
+          </fieldset>
 
-            <fieldset className="space-y-4">
-              <legend className="mb-2 text-sm font-semibold">Address</legend>
+          <fieldset className="space-y-1">
+            <legend className="text-sm font-semibold">Address</legend>
+            <div className="rounded-lg border bg-card p-4">
               <div
                 className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-2'}`}
               >
@@ -240,19 +240,23 @@ export default function RecordForm({
                     <FormItem>
                       <FormLabel>Place</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter city/place" {...field} />
+                        <PlaceSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          contentClassName="max-h-[300px]"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-            </fieldset>
+            </div>
+          </fieldset>
 
-            <fieldset className="space-y-4">
-              <legend className="mb-2 text-sm font-semibold">
-                Item Details
-              </legend>
+          <fieldset className="space-y-1">
+            <legend className="text-sm font-semibold">Item Details</legend>
+            <div className="rounded-lg border bg-card p-4">
               <div
                 className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-3'}`}
               >
@@ -322,10 +326,12 @@ export default function RecordForm({
                   )}
                 />
               </div>
-            </fieldset>
+            </div>
+          </fieldset>
 
-            <fieldset className="space-y-4">
-              <legend className="mb-2 text-sm font-semibold">Images</legend>
+          <fieldset className="space-y-1">
+            <legend className="text-sm font-semibold">Images</legend>
+            <div className="rounded-lg border bg-card p-4">
               <div
                 className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-2'}`}
               >
@@ -376,30 +382,30 @@ export default function RecordForm({
                   )}
                 </div>
               </div>
-            </fieldset>
-
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => (onCancel ? onCancel() : router.back())}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                {isSubmitting
-                  ? 'Saving...'
-                  : isEdit
-                    ? 'Update Record'
-                    : 'Save Record'}
-              </Button>
             </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          </fieldset>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => (onCancel ? onCancel() : router.back())}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {isSubmitting
+                ? 'Saving...'
+                : isEdit
+                  ? 'Update Record'
+                  : 'Save Record'}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }
