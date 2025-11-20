@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import {
   LayoutDashboard,
   Users,
@@ -712,7 +713,7 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
   );
 
   const Header = () => (
-    <header className="flex h-16 items-center justify-between border-b bg-background px-4 lg:px-6">
+    <header className="fixed-header fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 lg:px-6">
       <div className="flex items-center">
         {/* Mobile menu button - styled like partner-web */}
         <div className="mr-4 lg:hidden">
@@ -814,7 +815,7 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -823,10 +824,13 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
         <ImpersonationBanner />
         <Header />
 
-        <main className="min-h-0 flex-1 overflow-auto">
-          <div className="p-4 lg:p-6">{children}</div>
+        <main className="min-h-0 flex-1 overflow-auto pt-16">
+          <div className="min-h-full p-4 lg:p-6">{children}</div>
         </main>
       </div>
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
 
       {/* Logout Confirmation Dialog */}
       <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>

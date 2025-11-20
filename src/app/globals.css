@@ -170,6 +170,15 @@
   @apply bg-border rounded hover:bg-accent;
 }
 
+/* Fix for mobile browsers where fixed elements can disappear after
+   navigation/viewport changes. Force a compositing layer on fixed headers. */
+.fixed-header {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+}
+
 /* Sidebar navigation styles */
 .sidebar-nav {
   /* Prevent horizontal overflow and text wrapping issues */
