@@ -7,8 +7,10 @@ import NewRecordPanel from './NewRecordPanel';
 
 export default function NewRecordLauncher({
   triggerIsFAB = false,
+  onSuccess,
 }: {
   triggerIsFAB?: boolean;
+  onSuccess?: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const [showTrigger, setShowTrigger] = React.useState(true);
@@ -58,6 +60,7 @@ export default function NewRecordLauncher({
           redirectTo={undefined}
           onClose={handleClose}
           onBeginClose={handleBeginClose}
+          onSuccess={onSuccess}
         />
       )}
     </>

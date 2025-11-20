@@ -222,7 +222,7 @@ export default function ActiveRecordsPage() {
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <NewRecordLauncher />
+          <NewRecordLauncher onSuccess={fetchRecords} />
         </div>
         <div className="flex items-center gap-2 sm:hidden">
           <Button variant="outline" className="flex-1" onClick={handleExport}>

@@ -11,10 +11,12 @@ export default function NewRecordPanel({
   redirectTo = '/records/active',
   onClose,
   onBeginClose,
+  onSuccess,
 }: {
   redirectTo?: string;
   onClose?: () => void;
   onBeginClose?: () => void;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [isMobile, setIsMobile] = React.useState(false);
@@ -63,6 +65,7 @@ export default function NewRecordPanel({
             setIsSheetOpen(false);
             onBeginClose?.();
           }}
+          onSuccess={onSuccess}
         />
       </MobileBottomSheet>
     );
@@ -84,6 +87,7 @@ export default function NewRecordPanel({
           setIsDialogOpen(false);
           onBeginClose?.();
         }}
+        onSuccess={onSuccess}
       />
     </DesktopSlidePanel>
   );
