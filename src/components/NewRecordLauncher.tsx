@@ -15,43 +15,29 @@ export default function NewRecordLauncher({
   defaultCategory?: 'active' | 'archived' | 'big';
 }) {
   const [open, setOpen] = React.useState(false);
-  const [showTrigger, setShowTrigger] = React.useState(true);
 
   const handleOpen = () => {
     setOpen(true);
-    setShowTrigger(false);
-  };
-
-  const handleBeginClose = () => {
-    // as soon as closing starts, show the trigger immediately
-    setShowTrigger(true);
   };
 
   const handleClose = () => {
-    // complete the close and unmount panel
     setOpen(false);
-    setShowTrigger(true);
   };
 
   return (
     <>
-      {/* Trigger button: always rendered but hidden when we don't want it visible */}
+      {/* Trigger button */}
       {triggerIsFAB ? (
         <Button
           aria-label="Create new record"
           title="Create new record"
           onClick={handleOpen}
-          className={`flex h-12 w-12 items-center justify-center rounded-full p-0 shadow-lg ${
-            showTrigger ? '' : 'pointer-events-none invisible'
-          }`}
+          className="flex h-12 w-12 items-center justify-center rounded-full p-0 shadow-lg"
         >
           <Plus className="h-5 w-5" />
         </Button>
       ) : (
-        <Button
-          onClick={handleOpen}
-          className={`${showTrigger ? '' : 'hidden'}`}
-        >
+        <Button onClick={handleOpen}>
           <Plus className="mr-2 h-4 w-4" />
           New Record
         </Button>
@@ -61,7 +47,7 @@ export default function NewRecordLauncher({
         <NewRecordPanel
           redirectTo={undefined}
           onClose={handleClose}
-          onBeginClose={handleBeginClose}
+          onBeginClose={() => {}}
           onSuccess={onSuccess}
           defaultCategory={defaultCategory}
         />
