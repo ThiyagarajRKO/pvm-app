@@ -752,7 +752,7 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
         </div>
       </div>
 
-      <div className="flex items-center space-x-4 pr-4">
+      <div className="flex items-center space-x-4">
         {/* Theme toggle button */}
         <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
           {darkMode ? (
