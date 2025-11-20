@@ -28,6 +28,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
 import {
   recordCreateSchema,
@@ -68,6 +78,10 @@ export default function RecordForm({
   const [itemError, setItemError] = useState<string | null>(null);
   const [personPreview, setPersonPreview] = useState<string | null>(null);
   const [itemPreview, setItemPreview] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState<'person' | 'item' | null>(
+    null
+  );
 
   const router = useRouter();
 
@@ -176,6 +190,11 @@ export default function RecordForm({
     if (input) input.value = '';
 
     uploadImage(file, type);
+  };
+
+  const confirmDeleteImage = (type: 'person' | 'item') => {
+    setImageToDelete(type);
+    setDeleteDialogOpen(true);
   };
 
   const removeImage = async (type: 'person' | 'item') => {
@@ -609,7 +628,7 @@ export default function RecordForm({
                         !personUploading && (
                           <button
                             type="button"
-                            onClick={() => removeImage('person')}
+                            onClick={() => confirmDeleteImage('person')}
                             className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
                           >
                             <X className="h-3 w-3" />
@@ -684,7 +703,7 @@ export default function RecordForm({
                       {(itemImageUrl || itemPreview) && !itemUploading && (
                         <button
                           type="button"
-                          onClick={() => removeImage('item')}
+                          onClick={() => confirmDeleteImage('item')}
                           className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
                         >
                           <X className="h-3 w-3" />
@@ -738,6 +757,44 @@ export default function RecordForm({
           </div>
         </form>
       </Form>
+
+      {/* Delete Image Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                <X className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <AlertDialogTitle>Delete Image</AlertDialogTitle>
+                <AlertDialogDescription className="mt-2">
+                  Are you sure you want to delete this{' '}
+                  {imageToDelete === 'person' ? 'person' : 'item'} image? This
+                  action cannot be undone.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (imageToDelete) {
+                  removeImage(imageToDelete);
+                  setDeleteDialogOpen(false);
+                  setImageToDelete(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Delete Image
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

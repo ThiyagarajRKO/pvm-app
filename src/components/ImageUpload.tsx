@@ -9,6 +9,16 @@ import {
   CheckCircle,
   Loader2,
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { api } from '@/lib/api-client';
 
 interface ImageFile {
@@ -50,6 +60,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string>('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState<{
+    type: 'existing' | 'file';
+    url?: string;
+    fileId?: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
@@ -192,6 +208,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     return url.pathname.substring(1); // Remove leading slash
   };
 
+  const confirmDeleteExistingImage = (imageUrl: string) => {
+    setImageToDelete({ type: 'existing', url: imageUrl });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteFile = (fileId: string, imageUrl?: string) => {
+    setImageToDelete({ type: 'file', fileId, url: imageUrl });
+    setDeleteDialogOpen(true);
+  };
+
   const removeFile = async (fileId: string, imageUrl?: string) => {
     // Remove from files state
     const fileToRemove = files.find((f) => f.id === fileId);
@@ -300,7 +326,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeExistingImage(imageUrl);
+                      confirmDeleteExistingImage(imageUrl);
                     }}
                     className="rounded-full bg-white bg-opacity-80 p-2 transition-colors hover:bg-opacity-100"
                   >
@@ -338,7 +364,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               </div>
               <button
                 type="button"
-                onClick={() => removeFile(fileData.id, fileData.url)}
+                onClick={() => confirmDeleteFile(fileData.id, fileData.url)}
                 className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
               >
                 <X className="h-3 w-3" />
@@ -374,6 +400,50 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
         </div>
       )}
+
+      {/* Delete Image Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                <X className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <AlertDialogTitle>Delete Image</AlertDialogTitle>
+                <AlertDialogDescription className="mt-2">
+                  Are you sure you want to delete this image? This action cannot
+                  be undone.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (imageToDelete) {
+                  if (imageToDelete.type === 'existing' && imageToDelete.url) {
+                    removeExistingImage(imageToDelete.url);
+                  } else if (
+                    imageToDelete.type === 'file' &&
+                    imageToDelete.fileId
+                  ) {
+                    removeFile(imageToDelete.fileId, imageToDelete.url);
+                  }
+                  setDeleteDialogOpen(false);
+                  setImageToDelete(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Delete Image
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
