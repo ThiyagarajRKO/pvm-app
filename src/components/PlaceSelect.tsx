@@ -56,8 +56,8 @@ export default function PlaceSelect({
 
   return (
     <Select value={value} onValueChange={onValueChange} onOpenChange={setOpen}>
-      <SelectTrigger>
-        <div className="w-full">
+      <SelectTrigger className="text-left">
+        <div className="w-full text-left">
           <SelectValue placeholder={placeholder} />
         </div>
       </SelectTrigger>
@@ -89,7 +89,7 @@ export default function PlaceSelect({
               </div>
             )}
             {filtered.map((p) => (
-              <SelectItem key={p} value={p}>
+              <SelectItem key={p} value={p} className="text-left">
                 {p}
               </SelectItem>
             ))}

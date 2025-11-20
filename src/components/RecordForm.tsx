@@ -40,6 +40,7 @@ interface RecordFormProps {
   isEdit?: boolean;
   recordId?: string;
   compact?: boolean;
+  isMobile?: boolean;
   onCancel?: () => void;
 }
 
@@ -48,6 +49,7 @@ export default function RecordForm({
   isEdit = false,
   recordId,
   compact = false,
+  isMobile = false,
   onCancel,
 }: RecordFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -202,9 +204,27 @@ export default function RecordForm({
                       <FormControl>
                         <Input
                           placeholder="Enter 10-digit mobile number"
-                          {...field}
+                          value={field.value}
+                          onChange={(e) => {
+                            // Strip non-digits and limit to 10 characters
+                            const digits = e.target.value
+                              .replace(/\D/g, '')
+                              .slice(0, 10);
+                            field.onChange(digits);
+                            // Trigger validation for this field so FormMessage updates live
+                            form.trigger('mobile');
+                          }}
+                          maxLength={10}
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                         />
                       </FormControl>
+                      {/* Live inline hint/error while typing */}
+                      {field.value && field.value.length !== 10 && (
+                        <p className="mt-1 text-xs text-destructive">
+                          Mobile must be 10 digits
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -385,10 +405,12 @@ export default function RecordForm({
             </div>
           </fieldset>
 
-          <div className="flex justify-end gap-2">
+          <div
+            className={`flex ${isMobile ? 'justify-between' : 'justify-end'} gap-2`}
+          >
             <Button
               type="button"
-              variant="outline"
+              variant={isMobile ? 'link' : 'outline'}
               onClick={() => (onCancel ? onCancel() : router.back())}
             >
               Cancel

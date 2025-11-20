@@ -70,6 +70,16 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  /* Hide scrollbars inside the mobile bottom sheet while preserving scroll behavior */
+  .mobile-bottom-sheet {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .mobile-bottom-sheet *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
 }
 
 /* Custom animations for admin panel */

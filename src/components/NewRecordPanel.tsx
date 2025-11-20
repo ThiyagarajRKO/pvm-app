@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Info } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import MobileBottomSheet from './MobileBottomSheet';
 import DesktopSlidePanel from './DesktopSlidePanel';
@@ -47,17 +48,17 @@ export default function NewRecordPanel({
     return (
       <MobileBottomSheet
         open={isSheetOpen}
-        onDismiss={() => {
-          // start close: hide local sheet and notify parent immediately
-          setIsSheetOpen(false);
-          onBeginClose?.();
-        }}
+        onDismiss={() => setIsSheetOpen(false)}
+        onBeginClose={() => onBeginClose?.()}
         onAfterDismiss={handleClose}
         title="Create New Record"
         initialSnapPct={0.8}
+        description="Quickly add a new record"
+        descriptionIcon={<Info className="h-4 w-4 opacity-70" />}
       >
         <RecordForm
           compact
+          isMobile
           onCancel={() => {
             setIsSheetOpen(false);
             onBeginClose?.();
