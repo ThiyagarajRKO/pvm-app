@@ -151,6 +151,11 @@ export default function RecordForm({
       } else {
         setItemError(validationError);
       }
+      // Reset file input on validation error
+      const input = document.getElementById(
+        `${type}ImageInput`
+      ) as HTMLInputElement;
+      if (input) input.value = '';
       return;
     }
 
@@ -163,6 +168,12 @@ export default function RecordForm({
       setItemPreview(previewUrl);
       setItemError(null);
     }
+
+    // Reset file input to allow re-selection of same file
+    const input = document.getElementById(
+      `${type}ImageInput`
+    ) as HTMLInputElement;
+    if (input) input.value = '';
 
     uploadImage(file, type);
   };
@@ -194,13 +205,22 @@ export default function RecordForm({
       setPersonImageUrl(null);
       setPersonPreview(null);
       setPersonError(null);
+      // Reset file input
+      const input = document.getElementById(
+        'personImageInput'
+      ) as HTMLInputElement;
+      if (input) input.value = '';
     } else {
       setItemImageUrl(null);
       setItemPreview(null);
       setItemError(null);
+      // Reset file input
+      const input = document.getElementById(
+        'itemImageInput'
+      ) as HTMLInputElement;
+      if (input) input.value = '';
     }
   };
-
   const schema = isEdit ? recordUpdateSchema : recordCreateSchema;
   const form = useForm<RecordFormData>({
     resolver: zodResolver(schema),
