@@ -156,20 +156,24 @@ export default function RecordTable({
     }
   };
   return (
-    <div className="rounded-md border">
+    <div className="mx-4 overflow-x-auto rounded-md border sm:mx-0">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>SL No</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Mobile</TableHead>
-            <TableHead>Place</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Weight</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead className="text-right">Interest</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="min-w-[60px]">SL No</TableHead>
+            <TableHead className="min-w-[80px]">Date</TableHead>
+            <TableHead className="min-w-[100px]">Name</TableHead>
+            <TableHead className="min-w-[100px]">Mobile</TableHead>
+            <TableHead className="hidden min-w-[80px] sm:table-cell">
+              Place
+            </TableHead>
+            <TableHead className="min-w-[60px]">Type</TableHead>
+            <TableHead className="min-w-[70px] text-right">Weight</TableHead>
+            <TableHead className="min-w-[90px] text-right">Amount</TableHead>
+            <TableHead className="hidden min-w-[60px] text-right md:table-cell">
+              Interest
+            </TableHead>
+            <TableHead className="min-w-[80px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -177,46 +181,50 @@ export default function RecordTable({
             ? // Show loading skeleton rows
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={`loading-${index}`}>
-                  <TableCell>
+                  <TableCell className="min-w-[60px]">
                     <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-[80px]">
                     <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-[100px]">
                     <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-[100px]">
                     <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden min-w-[80px] sm:table-cell">
                     <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-[60px]">
                     <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="min-w-[70px] text-right">
                     <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="min-w-[90px] text-right">
                     <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="hidden min-w-[60px] text-right md:table-cell">
                     <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="min-w-[80px] text-right">
                     <div className="ml-auto h-4 w-8 animate-pulse rounded bg-muted"></div>
                   </TableCell>
                 </TableRow>
               ))
             : records.map((record) => (
                 <TableRow key={record.id}>
-                  <TableCell className="font-medium">{record.slNo}</TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-[60px] font-medium">
+                    {record.slNo}
+                  </TableCell>
+                  <TableCell className="min-w-[80px]">
                     {new Date(record.date).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="font-medium">{record.name}</TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-[100px] font-medium">
+                    {record.name}
+                  </TableCell>
+                  <TableCell className="min-w-[100px]">
                     <button
                       onClick={() => handleCopyMobile(record.mobile)}
                       className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
@@ -235,8 +243,10 @@ export default function RecordTable({
                       )}
                     </button>
                   </TableCell>
-                  <TableCell>{record.place}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden min-w-[80px] sm:table-cell">
+                    {record.place}
+                  </TableCell>
+                  <TableCell className="min-w-[60px]">
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         record.itemType === 'Gold'
@@ -247,16 +257,16 @@ export default function RecordTable({
                       {record.itemType}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="min-w-[70px] text-right">
                     {record.weightGrams}g
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="min-w-[90px] text-right">
                     ₹{record.amount.toLocaleString()}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="hidden min-w-[60px] text-right md:table-cell">
                     {record.interest}%
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="min-w-[80px] text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
@@ -417,15 +427,17 @@ export default function RecordTable({
 
       {/* Move Confirmation Dialog */}
       <AlertDialog open={moveDialogOpen} onOpenChange={setMoveDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md">
           <AlertDialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
-                <ArrowRight className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20 sm:h-10 sm:w-10">
+                <ArrowRight className="h-4 w-4 text-blue-600 dark:text-blue-400 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <AlertDialogTitle>Move Record</AlertDialogTitle>
-                <AlertDialogDescription className="mt-2">
+                <AlertDialogTitle className="text-base sm:text-lg">
+                  Move Record
+                </AlertDialogTitle>
+                <AlertDialogDescription className="mt-1 text-sm sm:mt-2">
                   Are you sure you want to move this record to{' '}
                   <span className="font-semibold capitalize">
                     {moveTargetCategory}
@@ -437,8 +449,8 @@ export default function RecordTable({
           </AlertDialogHeader>
 
           {recordToMove && (
-            <div className="my-4 rounded-lg border bg-muted/50 p-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="my-2 rounded-lg border bg-muted/50 p-3 sm:my-4 sm:p-4">
+              <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2 sm:gap-4">
                 <div>
                   <span className="font-medium text-muted-foreground">
                     Name:
@@ -491,7 +503,7 @@ export default function RecordTable({
                     ₹{recordToMove.amount.toLocaleString()}
                   </p>
                 </div>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <span className="font-medium text-muted-foreground">
                     Current Category:
                   </span>
@@ -499,7 +511,7 @@ export default function RecordTable({
                     {recordToMove.itemCategory}
                   </span>
                 </div>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <span className="font-medium text-muted-foreground">
                     Moving to:
                   </span>
@@ -511,12 +523,17 @@ export default function RecordTable({
             </div>
           )}
 
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={moveLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
+            <AlertDialogCancel
+              disabled={moveLoading}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleMoveConfirm}
               disabled={moveLoading}
-              className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
             >
               {moveLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
