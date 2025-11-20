@@ -23,6 +23,12 @@ export function usePWA() {
   const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
+    // Only enable PWA features in production
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[PWA] PWA features disabled in development mode');
+      return;
+    }
+
     if ('serviceWorker' in navigator) {
       console.log('[PWA] Attempting to register service worker...');
 
