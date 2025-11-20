@@ -316,8 +316,8 @@ export default function ArchivedRecordsPage() {
     );
   }
   return (
-    <div className="space-y-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
+      <div className="mb-4 mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Archive className="h-5 w-5 text-gray-600" />
@@ -352,7 +352,7 @@ export default function ArchivedRecordsPage() {
       <FloatingNewRecord />
 
       {/* Table */}
-      <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] sm:mb-0">
+      <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] mt-8 sm:mb-0">
         {/* Mobile Layout */}
         <div className="mb-4 flex flex-col gap-4 sm:hidden">
           <div className="flex items-center justify-between">
@@ -564,7 +564,7 @@ export default function ArchivedRecordsPage() {
           </div>
         </div>
         <RecordTable
-          records={filteredRecords}
+          records={filteredRecords as any}
           onDelete={handleDelete}
           onEdit={setEditRecord}
           onMove={handleMove}
