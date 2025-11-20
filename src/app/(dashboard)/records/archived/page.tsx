@@ -317,7 +317,7 @@ export default function ArchivedRecordsPage() {
   }
   return (
     <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
-      <div className="mb-4 mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Archive className="h-5 w-5 text-gray-600" />

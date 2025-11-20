@@ -1,9 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { AuthProvider } from '@/lib/auth';
-import { Toaster } from 'sonner';
-import { PWAProvider } from '@/components/PWAProvider';
+import { ClientProviders } from '@/components/ClientProviders';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -55,20 +53,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#262083" />
       </head>
       <body className={`${inter.className} h-full overflow-hidden`}>
-        <AuthProvider>
-          <PWAProvider>{children}</PWAProvider>
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: 'hsl(var(--background))',
-                color: 'hsl(var(--foreground))',
-                border: '1px solid hsl(var(--border))',
-              },
-            }}
-          />
-        </AuthProvider>
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
   );

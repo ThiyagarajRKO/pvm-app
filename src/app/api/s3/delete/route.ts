@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { deleteS3Object } from '@/lib/s3';
+import { withAuth } from '@/lib/auth-middleware';
 
 const bodySchema = z.object({
   key: z.string().min(1),
 });
 
-export async function POST(req: Request) {
+export const POST = withAuth(async (req: Request, user) => {
   try {
     const json = await req.json();
     const parsed = bodySchema.safeParse(json);
@@ -22,4 +23,4 @@ export async function POST(req: Request) {
     console.error('Delete error', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
-}
+});

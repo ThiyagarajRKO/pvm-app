@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import db from '../../../../database/models';
+import { getUserModel } from '@/lib/models/user';
+import { getRoleModel } from '@/lib/models/role';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -16,10 +17,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const UserModel = await getUserModel();
+    const RoleModel = await getRoleModel();
+
+    // Set up associations
+    UserModel.belongsTo(RoleModel, { foreignKey: 'roleId', as: 'Role' });
+
     // Find user with role
-    const user = await (db as any).User.findOne({
+    const user = await UserModel.findOne({
       where: { email, isActive: true },
-      include: [{ model: (db as any).Role, as: 'Role' }],
+      include: [{ model: RoleModel, as: 'Role' }],
     });
 
     if (!user) {
@@ -42,9 +49,6 @@ export async function POST(request: NextRequest) {
     const token = jwt.sign(
       {
         userId: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.Role.name,
       },
       JWT_SECRET,
       { expiresIn: '24h' }
@@ -57,7 +61,7 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.Role.name,
+        role: (user as any).Role?.name,
       },
     });
 

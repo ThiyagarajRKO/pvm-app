@@ -4,29 +4,35 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-export function middleware(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public routes
-  const publicRoutes = ['/login', '/api/auth/login'];
+  // Public routes that don't require authentication
+  const publicRoutes = ['/login', '/api/auth/login', '/api/auth/logout'];
+
+  // Skip middleware for static files and Next.js internals
   if (
-    publicRoutes.includes(pathname) ||
     pathname.startsWith('/_next/') ||
-    pathname.startsWith('/api/')
+    pathname.startsWith('/favicon.ico') ||
+    pathname.includes('.') ||
+    pathname.startsWith('/api/') // API routes are handled by withAuth
   ) {
     return NextResponse.next();
   }
 
-  // Check for token
-  const token =
-    request.cookies.get('authToken')?.value ||
-    request.headers.get('authorization')?.replace('Bearer ', '');
+  // Allow public routes
+  if (publicRoutes.includes(pathname)) {
+    return NextResponse.next();
+  }
 
+  // For page routes, check authentication and redirect if needed
+  const token = request.cookies.get('authToken')?.value;
   if (!token) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   try {
+    // Basic token verification for pages (detailed validation happens in API routes)
     jwt.verify(token, JWT_SECRET);
     return NextResponse.next();
   } catch (error) {
@@ -35,14 +41,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

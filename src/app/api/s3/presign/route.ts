@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createPresignedPut } from '@/lib/s3';
+import { withAuth } from '@/lib/auth-middleware';
 
 const bodySchema = z.object({
   fileName: z.string().min(1),
@@ -11,7 +12,7 @@ const bodySchema = z.object({
 const ALLOWED = (process.env.S3_ALLOWED_TYPES || '').split(',');
 const MAX_FILE = Number(process.env.S3_MAX_FILE_SIZE || '10485760');
 
-export async function POST(req: Request) {
+export const POST = withAuth(async (req: Request, user) => {
   try {
     const json = await req.json();
     const parsed = bodySchema.safeParse(json);
@@ -44,4 +45,4 @@ export async function POST(req: Request) {
     console.error('Presign error', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
-}
+});

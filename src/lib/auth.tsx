@@ -1,7 +1,5 @@
-// Real authentication context for PVM
-'use client';
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { api } from './api-client';
 
 interface AuthContextType {
   session: any;
@@ -54,14 +52,10 @@ export function AuthProvider({ children }: { children: any }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await api.post('/api/auth/login', { email, password });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (response.data) {
+        const data = response.data;
         localStorage.setItem('authToken', data.token);
         setSession({
           user: {
@@ -82,7 +76,7 @@ export function AuthProvider({ children }: { children: any }) {
 
   const logout = async (redirectToLogin = true) => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await api.post('/api/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     }

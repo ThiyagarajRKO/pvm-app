@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getRecordModel } from '../../../../lib/models/record';
+import { withAuth } from '../../../../lib/auth-middleware';
 
-export async function GET() {
+export const GET = withAuth(async (req: Request, user) => {
   try {
     const RecordModel = await getRecordModel();
     const totalRecords = await RecordModel.count();
@@ -27,4 +28,4 @@ export async function GET() {
     console.error('Stats error', err);
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
-}
+});

@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getRecordModel } from '@/lib/models/record';
 import { recordCreateSchema } from '@/lib/validators/record';
 import { Op } from 'sequelize';
+import { withAuth } from '@/lib/auth-middleware';
 
 const querySchema = z.object({
   page: z.string().optional(),
@@ -18,7 +19,7 @@ const querySchema = z.object({
   sortDir: z.enum(['asc', 'desc']).optional(),
 });
 
-export async function GET(req: Request) {
+export const GET = withAuth(async (req: NextRequest, user) => {
   try {
     const url = new URL(req.url);
     const qs = Object.fromEntries(url.searchParams.entries());
@@ -86,9 +87,9 @@ export async function GET(req: Request) {
     console.error(err);
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
-}
+});
 
-export async function POST(req: Request) {
+export const POST = withAuth(async (req: NextRequest, user) => {
   try {
     const RecordModel = await getRecordModel();
     const body = await req.json();
@@ -128,4 +129,4 @@ export async function POST(req: Request) {
       );
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
-}
+});
