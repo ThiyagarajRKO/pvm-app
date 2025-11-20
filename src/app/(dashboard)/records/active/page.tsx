@@ -173,7 +173,18 @@ export default function ActiveRecordsPage() {
             <h1 className="text-xl font-semibold">Active Records</h1>
           </div>
         </div>
-        <TableShimmerLoader />
+        <TableShimmerLoader
+          columnStructure={[
+            { width: 'w-28', align: 'left' },
+            { width: 'w-48', align: 'left' },
+            { width: 'w-28', align: 'left' },
+            { width: 'w-32', align: 'left' },
+            { width: 'w-20', align: 'left' },
+            { width: 'w-20', align: 'right' },
+            { width: 'w-28', align: 'right' },
+            { width: 'w-24', align: 'right' },
+          ]}
+        />
       </div>
     );
   }

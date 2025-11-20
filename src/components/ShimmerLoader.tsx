@@ -18,12 +18,25 @@ export function ShimmerLoader({ className = '' }: ShimmerLoaderProps) {
 interface TableShimmerLoaderProps {
   rows?: number;
   columns?: number;
+  columnStructure?: { width?: string; align?: 'left' | 'right' }[];
 }
 
 export function TableShimmerLoader({
   rows = 5,
   columns = 8,
+  columnStructure,
 }: TableShimmerLoaderProps) {
+  const defaultStructure = [
+    { width: 'w-28', align: 'left' }, // Date
+    { width: 'w-48', align: 'left' }, // Name
+    { width: 'w-28', align: 'left' }, // Mobile
+    { width: 'w-32', align: 'left' }, // Place
+    { width: 'w-20', align: 'left' }, // Type
+    { width: 'w-20', align: 'right' }, // Weight
+    { width: 'w-28', align: 'right' }, // Amount
+    { width: 'w-24', align: 'right' }, // Actions
+  ];
+  const structure = columnStructure || defaultStructure.slice(0, columns);
   return (
     <div className="space-y-4">
       {/* Stats shimmer */}
@@ -43,23 +56,35 @@ export function TableShimmerLoader({
       </div>
 
       {/* Table shimmer */}
-      <div className="rounded-md border">
-        <div className="border-b bg-muted/50 px-4 py-3">
-          <div className="grid grid-cols-8 gap-4">
-            {Array.from({ length: columns }).map((_, i) => (
-              <ShimmerLoader key={i} className="h-4" />
-            ))}
-          </div>
-        </div>
-        {Array.from({ length: rows }).map((_, rowIndex) => (
-          <div key={rowIndex} className="border-b px-4 py-3">
-            <div className="grid grid-cols-8 gap-4">
-              {Array.from({ length: columns }).map((_, colIndex) => (
-                <ShimmerLoader key={colIndex} className="h-4" />
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full table-fixed">
+          <thead className="border-b bg-muted/50">
+            <tr>
+              {structure.map((col, i) => (
+                <th
+                  key={i}
+                  className={`px-4 py-3 align-middle ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.width || ''}`}
+                >
+                  <div className="skeleton h-4" />
+                </th>
               ))}
-            </div>
-          </div>
-        ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: rows }).map((_, rowIndex) => (
+              <tr key={rowIndex} className="border-b">
+                {structure.map((col, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className={`px-4 py-3 align-middle ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.width || ''}`}
+                  >
+                    <div className="skeleton h-4" />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       {/* Mobile list shimmer */}
       <div className="mt-4 block md:hidden">
