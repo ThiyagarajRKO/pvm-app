@@ -190,10 +190,144 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
-          <p className="mt-2 text-sm text-gray-600">Loading dashboard...</p>
+      <div className="space-y-4 p-1">
+        {/* Header Skeleton */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="h-6 w-48 animate-pulse rounded bg-gray-200 sm:h-7"></div>
+            <div className="mt-1 h-4 w-64 animate-pulse rounded bg-gray-200 sm:h-5"></div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <div className="h-8 w-20 animate-pulse rounded bg-gray-200 sm:w-24"></div>
+            <div className="h-8 w-20 animate-pulse rounded bg-gray-200 sm:w-24"></div>
+            <div className="h-8 w-20 animate-pulse rounded bg-gray-200 sm:w-24"></div>
+          </div>
+        </div>
+
+        {/* Overview Stats Skeleton */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="transition-shadow hover:shadow-md">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="mb-2 h-3 w-20 animate-pulse rounded bg-gray-200"></div>
+                    <div className="h-6 w-16 animate-pulse rounded bg-gray-200"></div>
+                  </div>
+                  <div className="h-6 w-6 animate-pulse rounded bg-gray-200"></div>
+                </div>
+                <div className="mt-2">
+                  <div className="h-4 w-24 animate-pulse rounded bg-gray-200"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Category Stats Skeleton */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="transition-shadow hover:shadow-md">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="mb-2 h-3 w-24 animate-pulse rounded bg-gray-200"></div>
+                    <div className="h-6 w-12 animate-pulse rounded bg-gray-200"></div>
+                  </div>
+                  <div className="h-6 w-6 animate-pulse rounded bg-gray-200"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Monthly Stats Skeleton */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="h-5 w-5 animate-pulse rounded bg-gray-200"></div>
+              <div className="h-6 w-40 animate-pulse rounded bg-gray-200"></div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="text-center">
+                  <div className="mx-auto mb-2 h-6 w-12 animate-pulse rounded bg-gray-200"></div>
+                  <div className="mx-auto mb-1 h-4 w-16 animate-pulse rounded bg-gray-200"></div>
+                  <div className="mx-auto h-3 w-20 animate-pulse rounded bg-gray-200"></div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* Recent Records Skeleton */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="h-6 w-32 animate-pulse rounded bg-gray-200"></div>
+                <div className="h-5 w-16 animate-pulse rounded bg-gray-200"></div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 sm:space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="relative flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4"
+                  >
+                    {/* Category Badge Skeleton - Top Right on Mobile Only */}
+                    <div className="absolute right-2 top-2 h-5 w-12 animate-pulse rounded bg-gray-200 sm:hidden"></div>
+
+                    <div className="flex items-center gap-3 pr-16 sm:pr-0">
+                      <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-200"></div>
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-2 h-4 w-32 animate-pulse rounded bg-gray-200"></div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="h-3 w-12 animate-pulse rounded bg-gray-200"></div>
+                          <div className="h-3 w-16 animate-pulse rounded bg-gray-200"></div>
+                          {/* Category Badge Skeleton - Inline on Desktop/Tablet */}
+                          <div className="hidden h-4 w-14 animate-pulse rounded bg-gray-200 sm:block"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
+                      <div className="h-4 w-8 animate-pulse rounded bg-gray-200"></div>
+                      <div className="mt-1 h-3 w-16 animate-pulse rounded bg-gray-200"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions Skeleton */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <div className="h-6 w-32 animate-pulse rounded bg-gray-200"></div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex h-auto w-full items-center justify-start rounded-md border p-3"
+                  >
+                    <div className="mr-3 h-3 w-3 animate-pulse rounded bg-gray-200"></div>
+                    <div className="flex-1 text-left">
+                      <div className="mb-1 h-3 w-24 animate-pulse rounded bg-gray-200"></div>
+                      <div className="h-3 w-32 animate-pulse rounded bg-gray-200"></div>
+                    </div>
+                    <div className="ml-auto h-3 w-3 animate-pulse rounded bg-gray-200"></div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
