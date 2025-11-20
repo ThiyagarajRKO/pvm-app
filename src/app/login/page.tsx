@@ -130,7 +130,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          © 2024 PVM Pawn Shop. All rights reserved.
+          © 2025 Prodtege Digitech. All rights reserved.
         </div>
       </div>
     </div>
