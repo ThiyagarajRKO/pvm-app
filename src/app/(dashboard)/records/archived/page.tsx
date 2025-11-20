@@ -3,22 +3,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Link from 'next/link';
 import RecordTable from '@/components/RecordTable';
-import RecordFilters from '@/components/RecordFilters';
 import RecordStats from '@/components/RecordStats';
 import { TableShimmerLoader } from '@/components/ShimmerLoader';
-import { Plus, Download, Archive } from 'lucide-react';
+import { Plus, Download, Archive, Search, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import EditRecordPanel from '@/components/EditRecordPanel';
 import NewRecordLauncher from '../../../../components/NewRecordLauncher';
 import FloatingNewRecord from '../../../../components/FloatingNewRecord';
+import { useDebounce } from '@/hooks/use-debounce';
+import StreetSelect from '@/components/StreetSelect';
+import PlaceSelect from '@/components/PlaceSelect';
 
 interface Record {
   id: number;
@@ -72,6 +79,17 @@ export default function ArchivedRecordsPage() {
   const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
   const [streetFilter, setStreetFilter] = useState<string>('');
   const [placeFilter, setPlaceFilter] = useState<string>('');
+
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const debouncedSearchTerm = useDebounce(localSearchTerm, 300);
+
+  useEffect(() => {
+    setSearchTerm(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    setLocalSearchTerm(searchTerm);
+  }, [searchTerm]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -306,10 +324,6 @@ export default function ArchivedRecordsPage() {
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <NewRecordLauncher
-            onSuccess={fetchRecords}
-            defaultCategory="archived"
-          />
         </div>
         <div className="flex items-center gap-2 sm:hidden">
           <Button variant="outline" className="flex-1" onClick={handleExport}>
@@ -326,28 +340,15 @@ export default function ArchivedRecordsPage() {
         loading={filtering}
       />
 
-      {/* Search and Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        <div className="flex-1">
-          <RecordFilters
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            itemTypeFilter={itemTypeFilter}
-            onItemTypeFilterChange={setItemTypeFilter}
-            streetFilter={streetFilter}
-            onStreetFilterChange={setStreetFilter}
-            placeFilter={placeFilter}
-            onPlaceFilterChange={setPlaceFilter}
-          />
-        </div>
-      </div>
       <FloatingNewRecord />
 
       {/* Table */}
       <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] sm:mb-0">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Show</span>
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              Show
+            </span>
             <Select
               value={pageSize.toString()}
               onValueChange={(value) => setPageSize(Number(value))}
@@ -362,7 +363,74 @@ export default function ArchivedRecordsPage() {
                 <SelectItem value="50">50</SelectItem>
               </SelectContent>
             </Select>
-            <span className="text-sm text-muted-foreground">entries</span>
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              entries
+            </span>
+          </div>
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <h4 className="font-medium leading-none">Filters</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium">Item Type</label>
+                      <Select
+                        value={itemTypeFilter}
+                        onValueChange={setItemTypeFilter}
+                      >
+                        <SelectTrigger className="mt-1 w-full">
+                          <SelectValue placeholder="Filter by type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Types</SelectItem>
+                          <SelectItem value="Gold">Gold</SelectItem>
+                          <SelectItem value="Silver">Silver</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Street</label>
+                      <StreetSelect
+                        value={streetFilter}
+                        onValueChange={setStreetFilter}
+                        placeholder="Filter by street"
+                        showClearButton={true}
+                        triggerClassName="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Place</label>
+                      <PlaceSelect
+                        value={placeFilter}
+                        onValueChange={setPlaceFilter}
+                        placeholder="Filter by place"
+                        showClearButton={true}
+                        triggerClassName="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <div className="relative flex-1 sm:w-80">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+              <Input
+                placeholder="Search by name, father's name, mobile, or place..."
+                value={localSearchTerm}
+                onChange={(e) => setLocalSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <NewRecordLauncher
+              onSuccess={fetchRecords}
+              defaultCategory="archived"
+            />
           </div>
         </div>
         <RecordTable

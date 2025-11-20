@@ -24,6 +24,7 @@ interface RecordFiltersProps {
   onStreetFilterChange: (value: string) => void;
   placeFilter: string;
   onPlaceFilterChange: (value: string) => void;
+  showSearch?: boolean;
 }
 
 export default function RecordFilters({
@@ -35,6 +36,7 @@ export default function RecordFilters({
   onStreetFilterChange,
   placeFilter,
   onPlaceFilterChange,
+  showSearch = true,
 }: RecordFiltersProps) {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const debouncedSearchTerm = useDebounce(localSearchTerm, 300);
@@ -50,15 +52,17 @@ export default function RecordFilters({
   }, [searchTerm]);
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
-        <Input
-          placeholder="Search by name, father's name, mobile, or place..."
-          value={localSearchTerm}
-          onChange={(e) => setLocalSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      {showSearch && (
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+          <Input
+            placeholder="Search by name, father's name, mobile, or place..."
+            value={localSearchTerm}
+            onChange={(e) => setLocalSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      )}
 
       <Select value={itemTypeFilter} onValueChange={onItemTypeFilterChange}>
         <SelectTrigger className="w-full sm:w-48">
