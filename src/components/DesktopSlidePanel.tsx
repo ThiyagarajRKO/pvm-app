@@ -52,7 +52,7 @@ export default function DesktopSlidePanel({
       {open && (
         <div className="fixed inset-0 z-50 flex">
           <motion.div
-            className="absolute inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-40 !mb-0 !ml-0 !mr-0 !mt-0 bg-black/50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -61,7 +61,7 @@ export default function DesktopSlidePanel({
           />
 
           <motion.aside
-            className="pointer-events-auto fixed bottom-0 right-0 top-0 z-50 bg-background shadow-lg"
+            className="pointer-events-auto fixed bottom-0 right-0 top-0 z-50 !mt-0 bg-background shadow-lg"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

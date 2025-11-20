@@ -10,8 +10,7 @@ import RecordStats from '@/components/RecordStats';
 import { TableShimmerLoader } from '@/components/ShimmerLoader';
 import { Plus, Download, Archive } from 'lucide-react';
 import { toast } from 'sonner';
-import FloatingNewRecord from '@/components/FloatingNewRecord';
-import NewRecordLauncher from '@/components/NewRecordLauncher';
+import EditRecordPanel from '@/components/EditRecordPanel';
 
 interface Record {
   id: number;
@@ -62,6 +61,9 @@ export default function ArchivedRecordsPage() {
   const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Edit state
+  const [editRecord, setEditRecord] = useState<Record | null>(null);
 
   useEffect(() => {
     fetchRecords();
@@ -264,10 +266,22 @@ export default function ArchivedRecordsPage() {
           <RecordTable
             records={filteredRecords}
             onDelete={handleDelete}
+            onEdit={setEditRecord}
             variant="archived"
           />
         </CardContent>
       </Card>
+      {editRecord && (
+        <EditRecordPanel
+          record={editRecord}
+          onClose={() => setEditRecord(null)}
+          onBeginClose={() => setEditRecord(null)}
+          onSuccess={() => {
+            setEditRecord(null);
+            fetchRecords();
+          }}
+        />
+      )}
     </div>
   );
 }

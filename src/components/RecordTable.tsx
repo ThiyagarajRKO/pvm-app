@@ -42,12 +42,14 @@ interface Record {
 interface RecordTableProps {
   records: Record[];
   onDelete?: (id: number) => void;
+  onEdit?: (record: Record) => void;
   variant?: 'default' | 'active' | 'archived' | 'big';
 }
 
 export default function RecordTable({
   records,
   onDelete,
+  onEdit,
   variant = 'default',
 }: RecordTableProps) {
   return (
@@ -98,11 +100,13 @@ export default function RecordTable({
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Link href={`/records/${record.id}/edit`}>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEdit?.(record)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -193,11 +197,13 @@ export default function RecordTable({
                     </Button>
                   </Link>
                   <div className="flex gap-1">
-                    <Link href={`/records/${record.id}/edit`}>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEdit?.(record)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"

@@ -42,6 +42,7 @@ interface RecordFormProps {
   compact?: boolean;
   isMobile?: boolean;
   onCancel?: () => void;
+  onSuccess?: () => void;
 }
 
 export default function RecordForm({
@@ -51,6 +52,7 @@ export default function RecordForm({
   compact = false,
   isMobile = false,
   onCancel,
+  onSuccess,
 }: RecordFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [personImageFile, setPersonImageFile] = useState<File | null>(null);
@@ -143,6 +145,7 @@ export default function RecordForm({
       else router.push('/records/active');
 
       toast.success(isEdit ? 'Record updated' : 'Record created');
+      onSuccess?.();
     } catch (error) {
       console.error('Error saving record:', error);
       toast.error('Failed to save record');

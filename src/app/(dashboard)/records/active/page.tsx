@@ -12,7 +12,7 @@ import { Plus, Download, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import FloatingNewRecord from '@/components/FloatingNewRecord';
 import NewRecordLauncher from '@/components/NewRecordLauncher';
-
+import EditRecordPanel from '@/components/EditRecordPanel';
 interface Record {
   id: number;
   date: string;
@@ -62,6 +62,9 @@ export default function ActiveRecordsPage() {
   const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Edit state
+  const [editRecord, setEditRecord] = useState<Record | null>(null);
 
   useEffect(() => {
     fetchRecords();
@@ -261,10 +264,22 @@ export default function ActiveRecordsPage() {
           <RecordTable
             records={filteredRecords}
             onDelete={handleDelete}
+            onEdit={setEditRecord}
             variant="active"
           />
         </CardContent>
       </Card>
+      {editRecord && (
+        <EditRecordPanel
+          record={editRecord}
+          onClose={() => setEditRecord(null)}
+          onBeginClose={() => setEditRecord(null)}
+          onSuccess={() => {
+            setEditRecord(null);
+            fetchRecords();
+          }}
+        />
+      )}
     </div>
   );
 }
