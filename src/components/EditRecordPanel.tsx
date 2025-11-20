@@ -16,6 +16,7 @@ interface Record {
   place: string;
   weightGrams: number;
   itemType: 'Gold' | 'Silver';
+  itemCategory: 'active' | 'archived' | 'big';
   amount: number;
   mobile: string;
   personImageUrl?: string;

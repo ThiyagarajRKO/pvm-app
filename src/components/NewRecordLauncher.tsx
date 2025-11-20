@@ -8,9 +8,11 @@ import NewRecordPanel from './NewRecordPanel';
 export default function NewRecordLauncher({
   triggerIsFAB = false,
   onSuccess,
+  defaultCategory = 'active',
 }: {
   triggerIsFAB?: boolean;
   onSuccess?: () => void;
+  defaultCategory?: 'active' | 'archived' | 'big';
 }) {
   const [open, setOpen] = React.useState(false);
   const [showTrigger, setShowTrigger] = React.useState(true);
@@ -61,6 +63,7 @@ export default function NewRecordLauncher({
           onClose={handleClose}
           onBeginClose={handleBeginClose}
           onSuccess={onSuccess}
+          defaultCategory={defaultCategory}
         />
       )}
     </>

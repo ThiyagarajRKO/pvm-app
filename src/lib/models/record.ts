@@ -21,6 +21,7 @@ interface RecordAttributes {
   itemReturnImageUrl?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
+  deletedAt?: Date;
 }
 
 type RecordCreationAttributes = Optional<
@@ -53,6 +54,7 @@ export class Record
   declare itemReturnImageUrl?: string | null;
   declare createdAt: Date;
   declare updatedAt: Date;
+  declare deletedAt?: Date;
 }
 
 let initialized = false;
@@ -97,6 +99,7 @@ async function initializeModel() {
         tableName: 'records',
         schema: 'public',
         timestamps: true,
+        paranoid: true,
       }
     );
     initialized = true;

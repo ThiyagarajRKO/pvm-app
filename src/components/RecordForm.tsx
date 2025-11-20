@@ -43,6 +43,7 @@ interface RecordFormProps {
   isMobile?: boolean;
   onCancel?: () => void;
   onSuccess?: () => void;
+  defaultCategory?: 'active' | 'archived' | 'big';
 }
 
 export default function RecordForm({
@@ -53,6 +54,7 @@ export default function RecordForm({
   isMobile = false,
   onCancel,
   onSuccess,
+  defaultCategory = 'active',
 }: RecordFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [personImageFile, setPersonImageFile] = useState<File | null>(null);
@@ -107,16 +109,17 @@ export default function RecordForm({
       mobile: initialData?.mobile || '',
       personImageUrl: initialData?.personImageUrl,
       itemImageUrl: initialData?.itemImageUrl,
+      itemCategory: initialData?.itemCategory || defaultCategory,
     },
   });
 
   const onSubmit = async (data: RecordFormData) => {
     setIsSubmitting(true);
     try {
-      let personImageUrl = personImageFile
+      const personImageUrl = personImageFile
         ? await uploadToS3(personImageFile, 'person')
         : undefined;
-      let itemImageUrl = itemImageFile
+      const itemImageUrl = itemImageFile
         ? await uploadToS3(itemImageFile, 'item')
         : undefined;
 

@@ -52,9 +52,9 @@ export async function DELETE(
     const RecordModel = await getRecordModel();
     const id = Number(params.id);
     const record = await RecordModel.findByPk(id);
-    if (!record) return NextResponse.json(null, { status: 204 });
+    if (!record) return new NextResponse(null, { status: 204 });
     await record.destroy();
-    return NextResponse.json(null, { status: 204 });
+    return new NextResponse(null, { status: 204 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'server error' }, { status: 500 });

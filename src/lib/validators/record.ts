@@ -20,6 +20,7 @@ export const recordCreateSchema = z.object({
     .transform((s) => s.trim()),
   weightGrams: z.preprocess((v) => Number(v), z.number().positive()),
   itemType: z.enum(['Gold', 'Silver']),
+  itemCategory: z.enum(['active', 'archived', 'big']),
   amount: z.preprocess((v) => Number(v), z.number().nonnegative()),
   mobile: z.string().regex(/^[0-9]{10}$/),
   personImageUrl: z.string().url().optional().nullable(),

@@ -11,6 +11,8 @@ import { TableShimmerLoader } from '@/components/ShimmerLoader';
 import { Plus, Download, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 import EditRecordPanel from '@/components/EditRecordPanel';
+import NewRecordLauncher from '../../../../components/NewRecordLauncher';
+import FloatingNewRecord from '../../../../components/FloatingNewRecord';
 
 interface Record {
   id: number;
@@ -21,6 +23,7 @@ interface Record {
   place: string;
   weightGrams: number;
   itemType: 'Gold' | 'Silver';
+  itemCategory: 'active' | 'archived' | 'big';
   amount: number;
   mobile: string;
   personImageUrl?: string;
@@ -62,41 +65,52 @@ export default function ArchivedRecordsPage() {
   const [sortBy, setSortBy] = useState<string>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   // Edit state
   const [editRecord, setEditRecord] = useState<Record | null>(null);
 
   useEffect(() => {
     fetchRecords();
-  }, []);
+  }, [currentPage, searchTerm, itemTypeFilter, sortBy, sortOrder]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, itemTypeFilter, sortBy, sortOrder]);
 
   const fetchRecords = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/records?status=archived');
+      const params = new URLSearchParams({
+        status: 'archived',
+        page: currentPage.toString(),
+        limit: '10',
+      });
+
+      if (searchTerm) params.append('search', searchTerm);
+      if (itemTypeFilter !== 'all') params.append('itemType', itemTypeFilter);
+      if (sortBy !== 'date')
+        params.append('sortBy', sortBy === 'date' ? 'createdAt' : sortBy);
+      params.append('sortDir', sortOrder);
+
+      const response = await fetch(`/api/records?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch archived records');
       const data = await response.json();
       setRecords(data.data || []);
+      setTotalPages(Math.ceil(data.total / 10));
 
       // Calculate stats for archived records
       const archivedRecords = data.data || [];
-      const totalRecords = archivedRecords.length;
+      const totalRecords = data.total;
       const bigRecords = archivedRecords.filter(
         (r: Record) => r.amount > 100000
       ).length;
-      const totalWeight = archivedRecords.reduce(
-        (sum: number, r: Record) => sum + r.weightGrams,
-        0
-      );
-      const totalAmount = archivedRecords.reduce(
-        (sum: number, r: Record) => sum + r.amount,
-        0
-      );
-      const goldCount = archivedRecords.filter(
-        (r: Record) => r.itemType === 'Gold'
-      ).length;
-      const silverCount = archivedRecords.filter(
-        (r: Record) => r.itemType === 'Silver'
-      ).length;
+      const totalWeight = data.stats.totalWeight;
+      const totalAmount = data.stats.totalAmount;
+      const goldCount = data.stats.goldCount;
+      const silverCount = data.stats.silverCount;
 
       setStats({
         totalRecords,
@@ -115,6 +129,28 @@ export default function ArchivedRecordsPage() {
       toast.error('Failed to load archived records');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMove = async (
+    id: number,
+    newCategory: 'active' | 'archived' | 'big'
+  ) => {
+    try {
+      const response = await fetch(`/api/records/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemCategory: newCategory }),
+      });
+      if (!response.ok) throw new Error('Failed to move record');
+
+      // Remove from current list and refresh
+      setRecords(records.filter((record) => record.id !== id));
+      toast.success(`Record moved to ${newCategory}`);
+    } catch (err) {
+      toast.error('Failed to move record');
     }
   };
 
@@ -140,32 +176,8 @@ export default function ArchivedRecordsPage() {
     toast.info('CSV export coming soon');
   };
 
-  // Filter and sort records
-  const filteredRecords = records
-    .filter((record) => {
-      const matchesSearch =
-        record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.mobile.includes(searchTerm) ||
-        record.place.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesType =
-        itemTypeFilter === 'all' || record.itemType === itemTypeFilter;
-      return matchesSearch && matchesType;
-    })
-    .sort((a, b) => {
-      let aValue: any = a[sortBy as keyof Record];
-      let bValue: any = b[sortBy as keyof Record];
-
-      if (sortBy === 'date') {
-        aValue = new Date(aValue).getTime();
-        bValue = new Date(bValue).getTime();
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
+  // Filter and sort records - now handled server-side
+  const filteredRecords = records;
 
   if (loading) {
     return (
@@ -206,10 +218,34 @@ export default function ArchivedRecordsPage() {
             <div className="text-center text-red-500">Error: {error}</div>
           </CardContent>
         </Card>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
-
   return (
     <div className="space-y-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -224,7 +260,10 @@ export default function ArchivedRecordsPage() {
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <NewRecordLauncher onSuccess={fetchRecords} />
+          <NewRecordLauncher
+            onSuccess={fetchRecords}
+            defaultCategory="archived"
+          />
         </div>
         <div className="flex items-center gap-2 sm:hidden">
           <Button variant="outline" className="flex-1" onClick={handleExport}>
@@ -267,6 +306,7 @@ export default function ArchivedRecordsPage() {
             records={filteredRecords}
             onDelete={handleDelete}
             onEdit={setEditRecord}
+            onMove={handleMove}
             variant="archived"
           />
         </CardContent>

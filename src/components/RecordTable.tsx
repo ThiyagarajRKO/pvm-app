@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -13,12 +13,32 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Eye,
   Edit,
   Trash2,
   Star,
   Archive as ArchiveIcon,
   CheckCircle,
+  MoreHorizontal,
+  ArrowRight,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface Record {
@@ -30,6 +50,7 @@ interface Record {
   place: string;
   weightGrams: number;
   itemType: 'Gold' | 'Silver';
+  itemCategory: 'active' | 'archived' | 'big';
   amount: number;
   mobile: string;
   personImageUrl?: string;
@@ -43,6 +64,7 @@ interface RecordTableProps {
   records: Record[];
   onDelete?: (id: number) => void;
   onEdit?: (record: Record) => void;
+  onMove?: (id: number, newCategory: 'active' | 'archived' | 'big') => void;
   variant?: 'default' | 'active' | 'archived' | 'big';
 }
 
@@ -50,8 +72,37 @@ export default function RecordTable({
   records,
   onDelete,
   onEdit,
+  onMove,
   variant = 'default',
 }: RecordTableProps) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<Record | null>(null);
+
+  const handleDeleteClick = (record: Record) => {
+    setRecordToDelete(record);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (recordToDelete) {
+      onDelete?.(recordToDelete.id);
+      setDeleteDialogOpen(false);
+      setRecordToDelete(null);
+    }
+  };
+
+  const getMoveOptions = (currentVariant: string) => {
+    const options = [];
+    if (currentVariant !== 'active')
+      options.push({ label: 'Move to Active', value: 'active' as const });
+    if (currentVariant !== 'archived')
+      options.push({ label: 'Move to Archived', value: 'archived' as const });
+    if (currentVariant !== 'big')
+      options.push({ label: 'Move to Big', value: 'big' as const });
+    return options;
+  };
+
+  const moveOptions = getMoveOptions(variant);
   return (
     <div className="rounded-md border">
       {/* Desktop / tablet table */}
@@ -94,28 +145,46 @@ export default function RecordTable({
                   ₹{record.amount.toLocaleString()}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
-                    <Link href={`/records/${record.id}`}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
+                        <MoreHorizontal className="h-4 w-4" />
                       </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit?.(record)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete?.(record.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/records/${record.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEdit?.(record)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(record)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                      {moveOptions.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          {moveOptions.map((option) => (
+                            <DropdownMenuItem
+                              key={option.value}
+                              onClick={() => onMove?.(record.id, option.value)}
+                            >
+                              <ArrowRight className="mr-2 h-4 w-4" />
+                              {option.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}
@@ -191,33 +260,131 @@ export default function RecordTable({
                 </div>
 
                 <div className="flex flex-shrink-0 flex-col items-end gap-1">
-                  <Link href={`/records/${record.id}`}>
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit?.(record)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete?.(record.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/records/${record.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEdit?.(record)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(record)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                      {moveOptions.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          {moveOptions.map((option) => (
+                            <DropdownMenuItem
+                              key={option.value}
+                              onClick={() => onMove?.(record.id, option.value)}
+                            >
+                              <ArrowRight className="mr-2 h-4 w-4" />
+                              {option.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </li>
           ))}
         </ul>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                <AlertDialogDescription className="mt-2">
+                  Are you sure you want to delete this record? This action
+                  cannot be undone.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          {recordToDelete && (
+            <div className="my-4 rounded-lg border bg-muted/50 p-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Name:
+                  </span>
+                  <p className="font-medium">{recordToDelete.name}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Mobile:
+                  </span>
+                  <p className="font-medium">{recordToDelete.mobile}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Item Type:
+                  </span>
+                  <Badge
+                    variant={
+                      recordToDelete.itemType === 'Gold'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                    className="text-xs"
+                  >
+                    {recordToDelete.itemType}
+                  </Badge>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Amount:
+                  </span>
+                  <p className="font-medium">
+                    ₹{recordToDelete.amount.toLocaleString()}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <span className="font-medium text-muted-foreground">
+                    Place:
+                  </span>
+                  <p className="font-medium">{recordToDelete.place}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
