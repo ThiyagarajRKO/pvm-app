@@ -33,7 +33,6 @@ import {
   Trash2,
   MoreHorizontal,
   AlertTriangle,
-  RotateCcw,
   Loader2,
   User,
   Package,
@@ -54,12 +53,15 @@ interface Record {
   itemType: 'Gold' | 'Silver';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
+  interest: number;
   mobile: string;
   personImageUrl?: string;
   itemImageUrl?: string;
   itemReturnImageUrl?: string;
   createdAt: string;
   updatedAt: string;
+  daysOld: number;
+  amountToBePaid: number | null;
 }
 
 export default function RecordDetailPage({
@@ -124,11 +126,6 @@ export default function RecordDetailPage({
     setEditPanelOpen(true);
   };
 
-  const handleReturnItemClick = () => {
-    console.log('Return item for record:', params.id);
-    // TODO: Implement return item functionality
-  };
-
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -172,14 +169,6 @@ export default function RecordDetailPage({
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-green-600 hover:text-green-600"
-                  onClick={handleReturnItemClick}
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Return Item
-                </Button>
-                <Button
-                  variant="ghost"
                   className="w-full justify-start text-destructive hover:text-destructive"
                   onClick={handleDeleteClick}
                 >
@@ -211,13 +200,6 @@ export default function RecordDetailPage({
             <DropdownMenuItem onSelect={handleEditClick}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={handleReturnItemClick}
-              className="text-green-600 focus:text-green-600"
-            >
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Return Item
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={handleDeleteClick}
@@ -321,6 +303,42 @@ export default function RecordDetailPage({
               </div>
             </CardContent>
           </Card>
+
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Calculated Amount</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="mb-4">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Interest Percentage
+                  </Label>
+                  <p className="text-sm font-medium">{record.interest}%</p>
+                </div>
+                <div className="mb-4">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    No of Days Old
+                  </Label>
+                  <p className="text-sm">{record.daysOld} days</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Amount to be Paid
+                  </Label>
+                  {record.amountToBePaid !== null ? (
+                    <p className="text-sm font-medium text-green-600">
+                      ₹{record.amountToBePaid.toLocaleString()}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Available after 30 days
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div>
@@ -369,24 +387,6 @@ export default function RecordDetailPage({
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Return Item</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Label htmlFor="returnImage" className="mb-2">
-                Upload Return Image
-              </Label>
-              <Input
-                id="returnImage"
-                type="file"
-                accept="image/*"
-                className="mb-2"
-              />
-              <Button className="w-full">Upload Return Image</Button>
             </CardContent>
           </Card>
         </div>

@@ -12,7 +12,28 @@ export const GET = withAuth(
       const record = await RecordModel.findByPk(id);
       if (!record)
         return NextResponse.json({ error: 'Not found' }, { status: 400 });
-      return NextResponse.json(record);
+
+      // Calculate additional fields
+      const recordData = record.toJSON();
+      const entryDate = new Date(recordData.date);
+      const today = new Date();
+      const daysOld = Math.floor(
+        (today.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      // Calculate amount to be paid only if >= 30 days old
+      let amountToBePaid = null;
+      if (daysOld >= 30) {
+        amountToBePaid = recordData.amount * (recordData.interest / 100);
+      }
+
+      const response = {
+        ...recordData,
+        daysOld,
+        amountToBePaid,
+      };
+
+      return NextResponse.json(response);
     } catch (err) {
       console.error(err);
       return NextResponse.json({ error: 'server error' }, { status: 500 });
