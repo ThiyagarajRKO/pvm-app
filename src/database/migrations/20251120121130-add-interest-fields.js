@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.addColumn('records', 'interest', {
       type: Sequelize.FLOAT,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 2.5,
     });
 
     await queryInterface.addColumn('records', 'returnedAmount', {
