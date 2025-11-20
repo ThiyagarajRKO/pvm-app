@@ -320,11 +320,65 @@ export default function BigRecordsPage() {
 
       {/* Table */}
       <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] sm:mb-0">
-        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Mobile Layout */}
+        <div className="mb-4 flex flex-col gap-4 sm:hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Show</span>
+              <Select
+                value={pageSize.toString()}
+                onValueChange={(value) => setPageSize(Number(value))}
+              >
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="15">15</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">entries</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 w-10 p-0"
+              onClick={() => setIsMobileFilterOpen(true)}
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+            <Input
+              placeholder="Search by name, father's name, mobile, or place..."
+              value={localSearchTerm}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
+              className="pl-10 pr-10"
+            />
+            {localSearchTerm && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0 hover:bg-muted"
+                onClick={() => {
+                  setLocalSearchTerm('');
+                  setSearchTerm('');
+                  setCurrentPage(1);
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Layout */}
+        <div className="mb-4 hidden flex-row items-center justify-between gap-4 sm:flex">
           <div className="flex items-center gap-2">
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              Show
-            </span>
+            <span className="text-sm text-muted-foreground">Show</span>
             <Select
               value={pageSize.toString()}
               onValueChange={(value) => setPageSize(Number(value))}
@@ -339,130 +393,115 @@ export default function BigRecordsPage() {
                 <SelectItem value="50">50</SelectItem>
               </SelectContent>
             </Select>
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              entries
-            </span>
-            <div className="sm:hidden">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsMobileFilterOpen(true)}
-              >
-                <Filter className="h-4 w-4" />
-              </Button>
-            </div>
+            <span className="text-sm text-muted-foreground">entries</span>
           </div>
-          <div className="flex w-full items-center gap-2 sm:w-auto">
-            <div className="hidden sm:block">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium leading-none">Filters</h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={resetFilters}
-                        className="h-8 px-2 text-xs"
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium leading-none">Filters</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={resetFilters}
+                      className="h-8 px-2 text-xs"
+                    >
+                      Reset All
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Item Type</label>
+                        {itemTypeFilter !== 'all' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-muted"
+                            onClick={() => {
+                              setItemTypeFilter('all');
+                              setCurrentPage(1);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                      <Select
+                        value={itemTypeFilter}
+                        onValueChange={setItemTypeFilter}
                       >
-                        Reset All
-                      </Button>
+                        <SelectTrigger className="mt-1 w-full">
+                          <SelectValue placeholder="Filter by type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Types</SelectItem>
+                          <SelectItem value="Gold">Gold</SelectItem>
+                          <SelectItem value="Silver">Silver</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-sm font-medium">
-                            Item Type
-                          </label>
-                          {itemTypeFilter !== 'all' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 hover:bg-muted"
-                              onClick={() => {
-                                setItemTypeFilter('all');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                        <Select
-                          value={itemTypeFilter}
-                          onValueChange={setItemTypeFilter}
-                        >
-                          <SelectTrigger className="mt-1 w-full">
-                            <SelectValue placeholder="Filter by type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Types</SelectItem>
-                            <SelectItem value="Gold">Gold</SelectItem>
-                            <SelectItem value="Silver">Silver</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Street</label>
+                        {streetFilter && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-muted"
+                            onClick={() => {
+                              setStreetFilter('');
+                              setCurrentPage(1);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-sm font-medium">Street</label>
-                          {streetFilter && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 hover:bg-muted"
-                              onClick={() => {
-                                setStreetFilter('');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                        <StreetSelect
-                          value={streetFilter}
-                          onValueChange={setStreetFilter}
-                          placeholder="Filter by street"
-                          showClearButton={false}
-                          triggerClassName="mt-1"
-                        />
+                      <StreetSelect
+                        value={streetFilter}
+                        onValueChange={setStreetFilter}
+                        placeholder="Filter by street"
+                        showClearButton={false}
+                        triggerClassName="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Place</label>
+                        {placeFilter && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-muted"
+                            onClick={() => {
+                              setPlaceFilter('');
+                              setCurrentPage(1);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-sm font-medium">Place</label>
-                          {placeFilter && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 hover:bg-muted"
-                              onClick={() => {
-                                setPlaceFilter('');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                        <PlaceSelect
-                          value={placeFilter}
-                          onValueChange={setPlaceFilter}
-                          placeholder="Filter by place"
-                          showClearButton={false}
-                          triggerClassName="mt-1"
-                        />
-                      </div>
+                      <PlaceSelect
+                        value={placeFilter}
+                        onValueChange={setPlaceFilter}
+                        placeholder="Filter by place"
+                        showClearButton={false}
+                        triggerClassName="mt-1"
+                      />
                     </div>
                   </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="relative flex-1 sm:w-80">
+                </div>
+              </PopoverContent>
+            </Popover>
+            <div className="relative w-80">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
               <Input
                 placeholder="Search by name, father's name, mobile, or place..."
@@ -485,12 +524,7 @@ export default function BigRecordsPage() {
                 </Button>
               )}
             </div>
-            <div className="hidden sm:block">
-              <NewRecordLauncher
-                onSuccess={fetchRecords}
-                defaultCategory="big"
-              />
-            </div>
+            <NewRecordLauncher onSuccess={fetchRecords} defaultCategory="big" />
           </div>
         </div>
         <RecordTable
