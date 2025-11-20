@@ -85,6 +85,11 @@ export default function RecordTable({
 }: RecordTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState<Record | null>(null);
+  const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+  const [recordToMove, setRecordToMove] = useState<Record | null>(null);
+  const [moveTargetCategory, setMoveTargetCategory] = useState<
+    'active' | 'archived' | 'big' | null
+  >(null);
   const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
 
   const handleDeleteClick = (record: Record) => {
@@ -97,6 +102,24 @@ export default function RecordTable({
       onDelete?.(recordToDelete.id);
       setDeleteDialogOpen(false);
       setRecordToDelete(null);
+    }
+  };
+
+  const handleMoveClick = (
+    record: Record,
+    targetCategory: 'active' | 'archived' | 'big'
+  ) => {
+    setRecordToMove(record);
+    setMoveTargetCategory(targetCategory);
+    setMoveDialogOpen(true);
+  };
+
+  const handleMoveConfirm = () => {
+    if (recordToMove && moveTargetCategory) {
+      onMove?.(recordToMove.id, moveTargetCategory);
+      setMoveDialogOpen(false);
+      setRecordToMove(null);
+      setMoveTargetCategory(null);
     }
   };
 
@@ -263,7 +286,7 @@ export default function RecordTable({
                               <DropdownMenuItem
                                 key={option.value}
                                 onClick={() =>
-                                  onMove?.(record.id, option.value)
+                                  handleMoveClick(record, option.value)
                                 }
                               >
                                 <ArrowRight className="mr-2 h-4 w-4" />
@@ -377,6 +400,115 @@ export default function RecordTable({
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Move Confirmation Dialog */}
+      <AlertDialog open={moveDialogOpen} onOpenChange={setMoveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
+                <ArrowRight className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <AlertDialogTitle>Move Record</AlertDialogTitle>
+                <AlertDialogDescription className="mt-2">
+                  Are you sure you want to move this record to{' '}
+                  <span className="font-semibold capitalize">
+                    {moveTargetCategory}
+                  </span>
+                  ?
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          {recordToMove && (
+            <div className="my-4 rounded-lg border bg-muted/50 p-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Name:
+                  </span>
+                  <p className="font-medium">{recordToMove.name}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Mobile:
+                  </span>
+                  <p className="font-medium">
+                    <button
+                      onClick={() => handleCopyMobile(recordToMove.mobile)}
+                      className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                      title="Click to copy mobile number"
+                    >
+                      <Phone className="h-3 w-3" />
+                      <a
+                        href={`tel:${recordToMove.mobile}`}
+                        className="hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {recordToMove.mobile}
+                      </a>
+                      {copiedNumber === recordToMove.mobile && (
+                        <Copy className="h-3 w-3 text-green-600" />
+                      )}
+                    </button>
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Item Type:
+                  </span>
+                  <span
+                    className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      recordToMove.itemType === 'Gold'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-gray-400 text-white'
+                    }`}
+                  >
+                    {recordToMove.itemType}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Amount:
+                  </span>
+                  <p className="font-medium">
+                    ₹{recordToMove.amount.toLocaleString()}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <span className="font-medium text-muted-foreground">
+                    Current Category:
+                  </span>
+                  <span className="ml-2 font-medium capitalize text-blue-600">
+                    {recordToMove.itemCategory}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <span className="font-medium text-muted-foreground">
+                    Moving to:
+                  </span>
+                  <span className="ml-2 font-medium capitalize text-green-600">
+                    {moveTargetCategory}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleMoveConfirm}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <ArrowRight className="mr-2 h-4 w-4" />
+              Move Record
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
