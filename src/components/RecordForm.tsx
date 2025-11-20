@@ -567,7 +567,7 @@ export default function RecordForm({
                 <p className="mt-2 text-sm text-muted-foreground">
                   Interest Rate:{' '}
                   <span className="font-medium">
-                    {form.watch('amount') >= 1000 ? '2.5%' : '3%'}
+                    {form.watch('amount') >= 10000 ? '2.5%' : '3%'}
                   </span>
                 </p>
               )}
