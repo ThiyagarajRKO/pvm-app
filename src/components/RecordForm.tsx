@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PlaceSelect from '@/components/PlaceSelect';
+import StreetSelect from '@/components/StreetSelect';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -287,12 +288,13 @@ export default function RecordForm({
                     <FormItem>
                       <FormLabel className="text-foreground">Street</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter street address"
-                          className={
+                        <StreetSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          contentClassName="max-h-[300px]"
+                          triggerClassName={
                             fieldState.error ? 'border-destructive' : ''
                           }
-                          {...field}
                         />
                       </FormControl>
                       <FormMessage className="text-xs" />

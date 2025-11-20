@@ -10,6 +10,8 @@ const querySchema = z.object({
   search: z.string().optional(),
   itemType: z.enum(['Gold', 'Silver']).optional(),
   status: z.enum(['active', 'archived', 'big']).optional(),
+  street: z.string().optional(),
+  place: z.string().optional(),
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
   sortBy: z.enum(['createdAt', 'amount', 'weightGrams']).optional(),
@@ -37,6 +39,8 @@ export async function GET(req: Request) {
     }
     if (parsed.itemType) where.itemType = parsed.itemType;
     if (parsed.status) where.itemCategory = parsed.status;
+    if (parsed.street) where.street = parsed.street;
+    if (parsed.place) where.place = parsed.place;
     if (parsed.dateFrom || parsed.dateTo) {
       where.date = {};
       if (parsed.dateFrom) where.date[Op.gte] = parsed.dateFrom;

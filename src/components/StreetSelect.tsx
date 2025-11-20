@@ -9,9 +9,9 @@ import {
   SelectItem,
   SelectValue,
 } from './ui/select';
-import { DEFAULT_PLACES } from '@/lib/constants';
+import { DEFAULT_STREETS } from '@/lib/constants';
 
-interface PlaceSelectProps {
+interface StreetSelectProps {
   value?: string;
   onValueChange?: (value: string) => void;
   placeholder?: string;
@@ -21,21 +21,21 @@ interface PlaceSelectProps {
   triggerClassName?: string;
 }
 
-export default function PlaceSelect({
+export default function StreetSelect({
   value,
   onValueChange,
-  placeholder = 'Select place',
+  placeholder = 'Select street',
   contentClassName = 'max-h-56',
   triggerClassName = '',
-}: PlaceSelectProps) {
+}: StreetSelectProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const searchRef = React.useRef<HTMLInputElement | null>(null);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return DEFAULT_PLACES;
-    return DEFAULT_PLACES.filter((p) => p.toLowerCase().includes(q));
+    if (!q) return DEFAULT_STREETS;
+    return DEFAULT_STREETS.filter((s) => s.toLowerCase().includes(q));
   }, [query]);
 
   React.useEffect(() => {
@@ -71,7 +71,7 @@ export default function PlaceSelect({
           <div className="sticky top-0 z-10 bg-popover p-2">
             <Input
               ref={searchRef}
-              placeholder="Search places..."
+              placeholder="Search streets..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full"
@@ -84,9 +84,9 @@ export default function PlaceSelect({
                 No results
               </div>
             )}
-            {filtered.map((p) => (
-              <SelectItem key={p} value={p} className="text-left">
-                {p}
+            {filtered.map((s) => (
+              <SelectItem key={s} value={s} className="text-left">
+                {s}
               </SelectItem>
             ))}
           </div>

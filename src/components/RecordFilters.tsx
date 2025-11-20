@@ -11,16 +11,18 @@ import {
 } from '@/components/ui/select';
 import { Search, Filter } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
+import StreetSelect from '@/components/StreetSelect';
+import PlaceSelect from '@/components/PlaceSelect';
 
 interface RecordFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   itemTypeFilter: string;
   onItemTypeFilterChange: (value: string) => void;
-  sortBy: string;
-  onSortByChange: (value: string) => void;
-  sortOrder: 'asc' | 'desc';
-  onSortOrderChange: (value: 'asc' | 'desc') => void;
+  streetFilter: string;
+  onStreetFilterChange: (value: string) => void;
+  placeFilter: string;
+  onPlaceFilterChange: (value: string) => void;
 }
 
 export default function RecordFilters({
@@ -28,10 +30,10 @@ export default function RecordFilters({
   onSearchChange,
   itemTypeFilter,
   onItemTypeFilterChange,
-  sortBy,
-  onSortByChange,
-  sortOrder,
-  onSortOrderChange,
+  streetFilter,
+  onStreetFilterChange,
+  placeFilter,
+  onPlaceFilterChange,
 }: RecordFiltersProps) {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const debouncedSearchTerm = useDebounce(localSearchTerm, 300);
@@ -69,28 +71,21 @@ export default function RecordFilters({
         </SelectContent>
       </Select>
 
-      <Select value={sortBy} onValueChange={onSortByChange}>
-        <SelectTrigger className="w-full sm:w-48">
-          <SelectValue placeholder="Sort by" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="date">Date</SelectItem>
-          <SelectItem value="name">Name</SelectItem>
-          <SelectItem value="itemType">Type</SelectItem>
-          <SelectItem value="weightGrams">Weight</SelectItem>
-          <SelectItem value="amount">Amount</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="w-full sm:w-48">
+        <StreetSelect
+          value={streetFilter}
+          onValueChange={onStreetFilterChange}
+          placeholder="Filter by street"
+        />
+      </div>
 
-      <Select value={sortOrder} onValueChange={onSortOrderChange}>
-        <SelectTrigger className="w-full sm:w-32">
-          <SelectValue placeholder="Order" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="desc">Descending</SelectItem>
-          <SelectItem value="asc">Ascending</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="w-full sm:w-48">
+        <PlaceSelect
+          value={placeFilter}
+          onValueChange={onPlaceFilterChange}
+          placeholder="Filter by place"
+        />
+      </div>
     </div>
   );
 }

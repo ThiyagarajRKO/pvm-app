@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -62,8 +62,8 @@ export default function ActiveRecordsPage() {
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [itemTypeFilter, setItemTypeFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('date');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [streetFilter, setStreetFilter] = useState<string>('');
+  const [placeFilter, setPlaceFilter] = useState<string>('');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,15 +72,7 @@ export default function ActiveRecordsPage() {
   // Edit state
   const [editRecord, setEditRecord] = useState<Record | null>(null);
 
-  useEffect(() => {
-    fetchRecords();
-  }, [currentPage, searchTerm, itemTypeFilter, sortBy, sortOrder]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, itemTypeFilter, sortBy, sortOrder]);
-
-  const fetchRecords = async () => {
+  const fetchRecords = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -91,9 +83,8 @@ export default function ActiveRecordsPage() {
 
       if (searchTerm) params.append('search', searchTerm);
       if (itemTypeFilter !== 'all') params.append('itemType', itemTypeFilter);
-      if (sortBy !== 'date')
-        params.append('sortBy', sortBy === 'date' ? 'createdAt' : sortBy);
-      params.append('sortDir', sortOrder);
+      if (streetFilter) params.append('street', streetFilter);
+      if (placeFilter) params.append('place', placeFilter);
 
       const response = await fetch(`/api/records?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch active records');
@@ -130,7 +121,22 @@ export default function ActiveRecordsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchTerm, itemTypeFilter, streetFilter, placeFilter]);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [
+    currentPage,
+    searchTerm,
+    itemTypeFilter,
+    streetFilter,
+    placeFilter,
+    fetchRecords,
+  ]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, itemTypeFilter, streetFilter, placeFilter]);
 
   const handleMove = async (
     id: number,
@@ -290,10 +296,10 @@ export default function ActiveRecordsPage() {
             onSearchChange={setSearchTerm}
             itemTypeFilter={itemTypeFilter}
             onItemTypeFilterChange={setItemTypeFilter}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-            sortOrder={sortOrder}
-            onSortOrderChange={setSortOrder}
+            streetFilter={streetFilter}
+            onStreetFilterChange={setStreetFilter}
+            placeFilter={placeFilter}
+            onPlaceFilterChange={setPlaceFilter}
           />
         </div>
       </div>
