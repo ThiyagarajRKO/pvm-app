@@ -244,7 +244,7 @@ export default function DashboardPage() {
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                       {stat.label}
                     </p>
-                    <p className={`text-xl font-bold ${stat.color}`}>
+                    <p className={`text-xl font-semibold ${stat.color}`}>
                       {stat.value}
                     </p>
                   </div>
