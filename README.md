@@ -138,7 +138,6 @@ pvm-app/
 │   ├── s3.ts            # S3 utilities
 │   ├── validators/      # Zod schemas
 │   └── client-s3.ts     # Client-side S3 helpers
-├── scripts/             # Database scripts
 └── public/              # Static assets
 ```
 
