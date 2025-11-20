@@ -18,9 +18,6 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
-    // Get auth token from cookie
-    const token = this.getAuthToken();
-
     const headers = new Headers(options.headers);
 
     // Set content type if not set
@@ -31,12 +28,13 @@ class ApiClient {
     try {
       const response = await fetch(url, {
         ...options,
+        credentials: 'include', // Include cookies for authentication
         headers,
       });
 
       // Handle authentication errors
       if (response.status === 401 || response.status === 403) {
-        // Clear session and redirect to login
+        // Clear any stored tokens and redirect to login
         this.handleAuthError();
         return {
           error:
@@ -107,20 +105,9 @@ class ApiClient {
     return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }
 
-  private getAuthToken(): string | null {
-    // Get token from localStorage (client-side only)
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('authToken');
-    }
-    return null;
-  }
-
   private handleAuthError(): void {
     if (typeof window !== 'undefined') {
-      // Clear any stored tokens
-      localStorage.removeItem('authToken');
-
-      // Redirect to login page
+      // Redirect to login page (cookies will be cleared by server if needed)
       window.location.href = '/login';
     }
   }

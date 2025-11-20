@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,8 +34,31 @@ import {
   MoreHorizontal,
   AlertTriangle,
   RotateCcw,
+  Loader2,
 } from 'lucide-react';
 import EditRecordPanel from '@/components/EditRecordPanel';
+import { api } from '@/lib/api-client';
+import { toast } from 'sonner';
+
+interface Record {
+  id: number;
+  slNo: string;
+  date: string;
+  name: string;
+  fatherName: string;
+  street: string;
+  place: string;
+  weightGrams: number;
+  itemType: 'Gold' | 'Silver';
+  itemCategory: 'active' | 'archived' | 'big';
+  amount: number;
+  mobile: string;
+  personImageUrl?: string;
+  itemImageUrl?: string;
+  itemReturnImageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function RecordDetailPage({
   params,
@@ -44,7 +67,35 @@ export default function RecordDetailPage({
 }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editPanelOpen, setEditPanelOpen] = useState(false);
+  const [record, setRecord] = useState<Record | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchRecord = async () => {
+      try {
+        const response = await api.get<Record>(`/records/${params.id}`);
+        if (response.error || !response.data) {
+          throw new Error(response.error || 'No data received');
+        }
+        setRecord(response.data);
+      } catch (error) {
+        console.error('Failed to fetch record:', error);
+        toast.error('Failed to load record');
+        // Only redirect for non-auth errors (API client handles auth redirects)
+        // if (
+        //   !error.message?.includes('Authentication') &&
+        //   !error.message?.includes('Access denied')
+        // ) {
+        //   router.push('/records/active');
+        // }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecord();
+  }, [params.id, router]);
 
   const handleBackClick = () => {
     router.back();
@@ -54,10 +105,17 @@ export default function RecordDetailPage({
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    // TODO: Implement delete functionality
-    console.log('Delete record:', params.id);
-    setDeleteDialogOpen(false);
+  const handleDeleteConfirm = async () => {
+    try {
+      await api.delete(`/records/${params.id}`);
+      toast.success('Record deleted successfully');
+      router.push('/records/active');
+    } catch (error) {
+      console.error('Failed to delete record:', error);
+      toast.error('Failed to delete record');
+    } finally {
+      setDeleteDialogOpen(false);
+    }
   };
 
   const handleEditClick = () => {
@@ -69,25 +127,21 @@ export default function RecordDetailPage({
     // TODO: Implement return item functionality
   };
 
-  // Mock data - will be replaced with API call
-  const record = {
-    id: Number(params.id),
-    slNo: 'SL001',
-    date: '2024-01-15',
-    name: 'John Doe',
-    fatherName: 'Robert Doe',
-    street: 'Main Street',
-    place: 'Mumbai',
-    weightGrams: 25.5,
-    itemType: 'Gold' as const,
-    itemCategory: 'active' as const,
-    amount: 150000,
-    mobile: '9876543210',
-    personImageUrl: '/placeholder-person.jpg',
-    itemImageUrl: '/placeholder-item.jpg',
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-15T10:00:00Z',
-  };
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!record) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-muted-foreground">Record not found</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -393,7 +447,19 @@ export default function RecordDetailPage({
           onClose={() => setEditPanelOpen(false)}
           onSuccess={() => {
             setEditPanelOpen(false);
-            // TODO: Refresh record data after successful edit
+            // Refresh record data after successful edit
+            const fetchRecord = async () => {
+              try {
+                const response = await api.get<Record>(`/records/${params.id}`);
+                if (response.error || !response.data) {
+                  throw new Error(response.error || 'No data received');
+                }
+                setRecord(response.data);
+              } catch (error) {
+                console.error('Failed to refresh record:', error);
+              }
+            };
+            fetchRecord();
           }}
         />
       )}
