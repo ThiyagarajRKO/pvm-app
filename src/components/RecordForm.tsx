@@ -9,8 +9,7 @@ import { z } from 'zod';
 // Card removed: groups now have their own container wrappers
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import PlaceSelect from '@/components/PlaceSelect';
-import StreetSelect from '@/components/StreetSelect';
+import AutocompleteInput from '@/components/AutocompleteInput';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -20,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { api } from '@/lib/api-client';
+import { DEFAULT_STREETS, DEFAULT_PLACES } from '@/lib/constants';
 import {
   Form,
   FormControl,
@@ -431,11 +431,12 @@ export default function RecordForm({
                     <FormItem>
                       <FormLabel className="text-foreground">Street</FormLabel>
                       <FormControl>
-                        <StreetSelect
+                        <AutocompleteInput
                           value={field.value}
                           onValueChange={field.onChange}
-                          contentClassName="max-h-[300px]"
-                          triggerClassName={
+                          placeholder="Enter street name"
+                          suggestions={DEFAULT_STREETS}
+                          className={
                             fieldState.error ? 'border-destructive' : ''
                           }
                         />
@@ -451,11 +452,12 @@ export default function RecordForm({
                     <FormItem>
                       <FormLabel className="text-foreground">Place</FormLabel>
                       <FormControl>
-                        <PlaceSelect
+                        <AutocompleteInput
                           value={field.value}
                           onValueChange={field.onChange}
-                          contentClassName="max-h-[300px]"
-                          triggerClassName={
+                          placeholder="Enter place name"
+                          suggestions={DEFAULT_PLACES}
+                          className={
                             fieldState.error ? 'border-destructive' : ''
                           }
                         />
