@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +46,11 @@ export default function RecordDetailPage({
 }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editPanelOpen, setEditPanelOpen] = useState(false);
+  const router = useRouter();
+
+  const handleBackClick = () => {
+    router.back();
+  };
 
   const handleDeleteClick = () => {
     setDeleteDialogOpen(true);
@@ -68,6 +74,7 @@ export default function RecordDetailPage({
   // Mock data - will be replaced with API call
   const record = {
     id: Number(params.id),
+    slNo: 'SL001',
     date: '2024-01-15',
     name: 'John Doe',
     fatherName: 'Robert Doe',
@@ -89,11 +96,9 @@ export default function RecordDetailPage({
       {/* Mobile Header */}
       <div className="block md:hidden">
         <div className="flex items-center justify-between">
-          <Link href="/records">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
+          <Button variant="outline" size="sm" onClick={handleBackClick}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <h1 className="text-lg font-semibold">Record #{record.id}</h1>
           <Popover>
             <PopoverTrigger asChild>
@@ -136,12 +141,10 @@ export default function RecordDetailPage({
       {/* Desktop Header */}
       <div className="hidden items-center justify-between md:flex">
         <div className="flex items-center gap-2">
-          <Link href="/records">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Records
-            </Button>
-          </Link>
+          <Button variant="outline" size="sm" onClick={handleBackClick}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Records
+          </Button>
           <h1 className="text-xl font-semibold">Record #{record.id}</h1>
         </div>
         <DropdownMenu>
@@ -181,6 +184,12 @@ export default function RecordDetailPage({
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    SL No
+                  </Label>
+                  <p className="text-sm font-medium">{record.slNo}</p>
+                </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">
                     Name

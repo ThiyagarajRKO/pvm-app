@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
 export const recordCreateSchema = z.object({
+  slNo: z
+    .string()
+    .min(1)
+    .transform((s) => s.trim()),
   date: z.string().optional(),
   name: z
     .string()

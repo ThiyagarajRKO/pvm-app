@@ -16,6 +16,7 @@ import FloatingNewRecord from '../../../../components/FloatingNewRecord';
 
 interface Record {
   id: number;
+  slNo: string;
   date: string;
   name: string;
   fatherName: string;

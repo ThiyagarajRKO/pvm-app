@@ -16,6 +16,7 @@ import NewRecordLauncher from '@/components/NewRecordLauncher';
 
 interface Record {
   id: number;
+  slNo: string;
   date: string;
   name: string;
   fatherName: string;

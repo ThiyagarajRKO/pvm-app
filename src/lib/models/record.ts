@@ -6,6 +6,7 @@ export type ItemCategory = 'archived' | 'active' | 'big';
 
 interface RecordAttributes {
   id: number;
+  slNo: string;
   date: Date;
   name: string;
   fatherName: string;
@@ -39,6 +40,7 @@ export class Record
   implements RecordAttributes
 {
   declare id: number;
+  declare slNo: string;
   declare date: Date;
   declare name: string;
   declare fatherName: string;
@@ -68,6 +70,11 @@ async function initializeModel() {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
+        },
+        slNo: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          unique: true,
         },
         date: {
           type: DataTypes.DATEONLY,

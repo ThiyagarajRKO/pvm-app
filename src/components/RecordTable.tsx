@@ -43,6 +43,7 @@ import {
 
 interface Record {
   id: number;
+  slNo: string;
   date: string;
   name: string;
   fatherName: string;
@@ -105,207 +106,95 @@ export default function RecordTable({
   const moveOptions = getMoveOptions(variant);
   return (
     <div className="rounded-md border">
-      {/* Desktop / tablet table */}
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Mobile</TableHead>
-              <TableHead>Place</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Weight</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>SL No</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Mobile</TableHead>
+            <TableHead>Place</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead className="text-right">Weight</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {records.map((record) => (
+            <TableRow key={record.id}>
+              <TableCell className="font-medium">{record.slNo}</TableCell>
+              <TableCell>
+                {new Date(record.date).toLocaleDateString()}
+              </TableCell>
+              <TableCell className="font-medium">{record.name}</TableCell>
+              <TableCell>{record.mobile}</TableCell>
+              <TableCell>{record.place}</TableCell>
+              <TableCell>
+                <Badge
+                  variant={record.itemType === 'Gold' ? 'default' : 'secondary'}
+                >
+                  {record.itemType}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-right">
+                {record.weightGrams}g
+              </TableCell>
+              <TableCell className="text-right">
+                ₹{record.amount.toLocaleString()}
+              </TableCell>
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/records/${record.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit?.(record)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(record)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                    {moveOptions.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        {moveOptions.map((option) => (
+                          <DropdownMenuItem
+                            key={option.value}
+                            onClick={() => onMove?.(record.id, option.value)}
+                          >
+                            <ArrowRight className="mr-2 h-4 w-4" />
+                            {option.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {records.map((record) => (
-              <TableRow key={record.id}>
-                <TableCell>
-                  {new Date(record.date).toLocaleDateString()}
-                </TableCell>
-                <TableCell className="font-medium">{record.name}</TableCell>
-                <TableCell>{record.mobile}</TableCell>
-                <TableCell>{record.place}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      record.itemType === 'Gold' ? 'default' : 'secondary'
-                    }
-                  >
-                    {record.itemType}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  {record.weightGrams}g
-                </TableCell>
-                <TableCell className="text-right">
-                  ₹{record.amount.toLocaleString()}
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/records/${record.id}`}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit?.(record)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteClick(record)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                      {moveOptions.length > 0 && (
-                        <>
-                          <DropdownMenuSeparator />
-                          {moveOptions.map((option) => (
-                            <DropdownMenuItem
-                              key={option.value}
-                              onClick={() => onMove?.(record.id, option.value)}
-                            >
-                              <ArrowRight className="mr-2 h-4 w-4" />
-                              {option.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
 
       {records.length === 0 && (
         <div className="py-8 text-center text-muted-foreground">
           No records found.
         </div>
       )}
-      {/* Mobile: collapsed card view */}
-      <div className="block md:hidden">
-        <ul className="divide-y">
-          {records.map((record) => (
-            <li key={record.id} className="p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(record.date).toLocaleDateString()}
-                    </p>
-                    <span className="text-xs text-gray-400">•</span>
-                    <Badge
-                      variant={
-                        record.itemType === 'Gold' ? 'default' : 'secondary'
-                      }
-                    >
-                      {record.itemType}
-                    </Badge>
-                    {variant === 'active' && (
-                      <div className="ml-1 flex items-center gap-1 text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        <span className="text-xs">Active</span>
-                      </div>
-                    )}
-                    {variant === 'archived' && (
-                      <div className="ml-1 flex items-center gap-1 text-gray-500">
-                        <ArchiveIcon className="h-4 w-4" />
-                        <span className="text-xs">Archived</span>
-                      </div>
-                    )}
-                    {variant === 'big' && (
-                      <div className="ml-1 flex items-center gap-1 text-yellow-600">
-                        <Star className="h-4 w-4" />
-                        <span className="text-xs">High value</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-1 flex items-center justify-between">
-                    <div>
-                      <p className="truncate text-base font-medium sm:text-lg">
-                        {record.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground sm:text-base">
-                        {record.place} • {record.mobile}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-base font-semibold sm:text-lg">
-                        {variant === 'big' ? (
-                          <span className="mr-1 text-yellow-500">★</span>
-                        ) : null}
-                        ₹{record.amount.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground sm:text-sm">
-                        {record.weightGrams}g
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-shrink-0 flex-col items-end gap-1">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/records/${record.id}`}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit?.(record)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteClick(record)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                      {moveOptions.length > 0 && (
-                        <>
-                          <DropdownMenuSeparator />
-                          {moveOptions.map((option) => (
-                            <DropdownMenuItem
-                              key={option.value}
-                              onClick={() => onMove?.(record.id, option.value)}
-                            >
-                              <ArrowRight className="mr-2 h-4 w-4" />
-                              {option.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

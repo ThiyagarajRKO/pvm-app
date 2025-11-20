@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRecordModel } from '@/lib/models/record';
 import { recordUpdateSchema } from '@/lib/validators/record';
+import { Op } from 'sequelize';
 
 export async function GET(
   req: Request,
@@ -31,6 +32,26 @@ export async function PUT(
     const record = await RecordModel.findByPk(id);
     if (!record)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    // Check if slNo already exists (excluding current record)
+    if (parsed.slNo) {
+      const existingRecord = await RecordModel.findOne({
+        where: { slNo: parsed.slNo, id: { [Op.ne]: id } },
+      });
+
+      if (existingRecord) {
+        return NextResponse.json(
+          {
+            error: 'validation',
+            issues: [
+              { path: ['slNo'], message: 'Serial number already exists' },
+            ],
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     await record.update(parsed as any);
     return NextResponse.json(record);
   } catch (err: any) {

@@ -15,6 +15,7 @@ import NewRecordLauncher from '@/components/NewRecordLauncher';
 import EditRecordPanel from '@/components/EditRecordPanel';
 interface Record {
   id: number;
+  slNo: string;
   date: string;
   name: string;
   fatherName: string;

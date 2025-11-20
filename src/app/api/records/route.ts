@@ -30,6 +30,7 @@ export async function GET(req: Request) {
     if (parsed.search) {
       where[Op.or] = [
         { name: { [Op.iLike]: `%${parsed.search}%` } },
+        { fatherName: { [Op.iLike]: `%${parsed.search}%` } },
         { place: { [Op.iLike]: `%${parsed.search}%` } },
         { mobile: { [Op.iLike]: `%${parsed.search}%` } },
       ];
@@ -86,6 +87,21 @@ export async function POST(req: Request) {
     const RecordModel = await getRecordModel();
     const body = await req.json();
     const parsed = recordCreateSchema.parse(body);
+
+    // Check if slNo already exists
+    const existingRecord = await RecordModel.findOne({
+      where: { slNo: parsed.slNo },
+    });
+
+    if (existingRecord) {
+      return NextResponse.json(
+        {
+          error: 'validation',
+          issues: [{ path: ['slNo'], message: 'Serial number already exists' }],
+        },
+        { status: 400 }
+      );
+    }
 
     const created = await RecordModel.create({
       date: parsed.date || new Date(),

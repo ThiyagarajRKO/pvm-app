@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, Filter } from 'lucide-react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface RecordFiltersProps {
   searchTerm: string;
@@ -32,14 +33,26 @@ export default function RecordFilters({
   sortOrder,
   onSortOrderChange,
 }: RecordFiltersProps) {
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const debouncedSearchTerm = useDebounce(localSearchTerm, 300);
+
+  // Update parent when debounced value changes
+  React.useEffect(() => {
+    onSearchChange(debouncedSearchTerm);
+  }, [debouncedSearchTerm, onSearchChange]);
+
+  // Update local state when prop changes (for external updates)
+  React.useEffect(() => {
+    setLocalSearchTerm(searchTerm);
+  }, [searchTerm]);
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
         <Input
-          placeholder="Search by name, mobile, or place..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search by name, father's name, mobile, or place..."
+          value={localSearchTerm}
+          onChange={(e) => setLocalSearchTerm(e.target.value)}
           className="pl-10"
         />
       </div>

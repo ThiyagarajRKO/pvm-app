@@ -17,6 +17,7 @@ async function seedDatabase() {
     // Sample data
     const sampleRecords = [
       {
+        slNo: 'SL001',
         date: new Date('2024-01-15'),
         name: 'Rajesh Kumar',
         fatherName: 'Suresh Kumar',
@@ -30,6 +31,7 @@ async function seedDatabase() {
         itemImageUrl: 'https://example.com/item1.jpg',
       },
       {
+        slNo: 'SL002',
         date: new Date('2024-01-14'),
         name: 'Priya Sharma',
         fatherName: 'Ravi Sharma',
@@ -43,6 +45,7 @@ async function seedDatabase() {
         itemImageUrl: 'https://example.com/item2.jpg',
       },
       {
+        slNo: 'SL003',
         date: new Date('2024-01-13'),
         name: 'Amit Singh',
         fatherName: 'Gurpreet Singh',
@@ -56,6 +59,7 @@ async function seedDatabase() {
         itemImageUrl: 'https://example.com/item3.jpg',
       },
       {
+        slNo: 'SL004',
         date: new Date('2024-01-12'),
         name: 'Kavita Patel',
         fatherName: 'Rajesh Patel',
@@ -69,6 +73,7 @@ async function seedDatabase() {
         itemImageUrl: 'https://example.com/item4.jpg',
       },
       {
+        slNo: 'SL005',
         date: new Date('2024-01-11'),
         name: 'Vikram Rao',
         fatherName: 'Shankar Rao',

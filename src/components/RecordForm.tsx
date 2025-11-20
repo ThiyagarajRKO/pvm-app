@@ -99,6 +99,7 @@ export default function RecordForm({
   const form = useForm<RecordFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
+      slNo: initialData?.slNo || '',
       name: initialData?.name || '',
       fatherName: initialData?.fatherName || '',
       street: initialData?.street || '',
@@ -167,8 +168,28 @@ export default function RecordForm({
             </legend>
             <div className="rounded-lg border bg-card p-4">
               <div
-                className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-3'}`}
+                className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-2'}`}
               >
+                <FormField
+                  control={form.control}
+                  name="slNo"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground">SL No</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter serial number"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="name"
