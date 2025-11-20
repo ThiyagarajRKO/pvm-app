@@ -215,8 +215,6 @@ export default function ActiveRecordsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this active record?')) return;
-
     try {
       const response = await api.delete(`/records/${id}`);
       if (response.error) throw new Error(response.error);

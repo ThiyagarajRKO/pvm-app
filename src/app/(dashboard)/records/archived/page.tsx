@@ -217,9 +217,6 @@ export default function ArchivedRecordsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this archived record?'))
-      return;
-
     try {
       const response = await api.delete(`/records/${id}`);
       if (response.error) throw new Error(response.error);
