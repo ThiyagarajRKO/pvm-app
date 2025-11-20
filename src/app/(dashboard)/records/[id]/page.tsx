@@ -3,10 +3,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
@@ -92,9 +90,9 @@ export default function RecordDetailPage({
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       {/* Mobile Header */}
-      <div className="block md:hidden">
+      <div className="mb-4 block md:hidden">
         <div className="flex items-center justify-between">
           <Button variant="outline" size="sm" onClick={handleBackClick}>
             <ArrowLeft className="h-4 w-4" />
@@ -139,7 +137,7 @@ export default function RecordDetailPage({
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden items-center justify-between md:flex">
+      <div className="mb-4 hidden items-center justify-between md:flex">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleBackClick}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -177,44 +175,44 @@ export default function RecordDetailPage({
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <Card>
+        <div className="lg:col-span-2">
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Personal Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     SL No
                   </Label>
                   <p className="text-sm font-medium">{record.slNo}</p>
                 </div>
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Name
                   </Label>
                   <p className="text-sm">{record.name}</p>
                 </div>
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Father Name
                   </Label>
                   <p className="text-sm">{record.fatherName}</p>
                 </div>
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Street
                   </Label>
                   <p className="text-sm">{record.street}</p>
                 </div>
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Place
                   </Label>
                   <p className="text-sm">{record.place}</p>
                 </div>
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Mobile
                   </Label>
@@ -236,21 +234,23 @@ export default function RecordDetailPage({
             <CardHeader>
               <CardTitle>Item Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Item Type
                   </Label>
-                  <Badge
-                    variant={
-                      record.itemType === 'Gold' ? 'default' : 'secondary'
-                    }
+                  <div
+                    className={`flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      record.itemType === 'Gold'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-gray-400 text-white'
+                    }`}
                   >
                     {record.itemType}
-                  </Badge>
+                  </div>
                 </div>
-                <div>
+                <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Weight (grams)
                   </Label>
@@ -267,8 +267,8 @@ export default function RecordDetailPage({
           </Card>
         </div>
 
-        <div className="space-y-4">
-          <Card>
+        <div>
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Person Image</CardTitle>
             </CardHeader>
@@ -281,7 +281,7 @@ export default function RecordDetailPage({
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Item Image</CardTitle>
             </CardHeader>
@@ -298,9 +298,16 @@ export default function RecordDetailPage({
             <CardHeader>
               <CardTitle>Return Item</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Label htmlFor="returnImage">Upload Return Image</Label>
-              <Input id="returnImage" type="file" accept="image/*" />
+            <CardContent>
+              <Label htmlFor="returnImage" className="mb-2">
+                Upload Return Image
+              </Label>
+              <Input
+                id="returnImage"
+                type="file"
+                accept="image/*"
+                className="mb-2"
+              />
               <Button className="w-full">Upload Return Image</Button>
             </CardContent>
           </Card>
@@ -341,12 +348,15 @@ export default function RecordDetailPage({
                 <span className="font-medium text-muted-foreground">
                   Item Type:
                 </span>
-                <Badge
-                  variant={record.itemType === 'Gold' ? 'default' : 'secondary'}
-                  className="text-xs"
+                <div
+                  className={`flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    record.itemType === 'Gold'
+                      ? 'bg-yellow-500 text-white'
+                      : 'bg-gray-400 text-white'
+                  }`}
                 >
                   {record.itemType}
-                </Badge>
+                </div>
               </div>
               <div>
                 <span className="font-medium text-muted-foreground">
