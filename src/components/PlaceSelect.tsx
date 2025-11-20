@@ -19,6 +19,8 @@ interface PlaceSelectProps {
   contentClassName?: string;
   // Optional className for the trigger
   triggerClassName?: string;
+  // Whether to show extra padding for clear button
+  showClearButton?: boolean;
 }
 
 export default function PlaceSelect({
@@ -27,6 +29,7 @@ export default function PlaceSelect({
   placeholder = 'Select place',
   contentClassName = 'max-h-56',
   triggerClassName = '',
+  showClearButton = false,
 }: PlaceSelectProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);

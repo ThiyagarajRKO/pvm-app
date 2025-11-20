@@ -19,6 +19,8 @@ interface StreetSelectProps {
   contentClassName?: string;
   // Optional className for the trigger
   triggerClassName?: string;
+  // Whether to show extra padding for clear button
+  showClearButton?: boolean;
 }
 
 export default function StreetSelect({
@@ -27,6 +29,7 @@ export default function StreetSelect({
   placeholder = 'Select street',
   contentClassName = 'max-h-56',
   triggerClassName = '',
+  showClearButton = false,
 }: StreetSelectProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);

@@ -69,6 +69,7 @@ interface RecordTableProps {
   onReturnItem?: (id: number) => void;
   onMove?: (id: number, newCategory: 'active' | 'archived' | 'big') => void;
   variant?: 'default' | 'active' | 'archived' | 'big';
+  loading?: boolean;
 }
 
 export default function RecordTable({
@@ -78,6 +79,7 @@ export default function RecordTable({
   onReturnItem,
   onMove,
   variant = 'default',
+  loading = false,
 }: RecordTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState<Record | null>(null);
@@ -124,84 +126,121 @@ export default function RecordTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {records.map((record) => (
-            <TableRow key={record.id}>
-              <TableCell className="font-medium">{record.slNo}</TableCell>
-              <TableCell>
-                {new Date(record.date).toLocaleDateString()}
-              </TableCell>
-              <TableCell className="font-medium">{record.name}</TableCell>
-              <TableCell>{record.mobile}</TableCell>
-              <TableCell>{record.place}</TableCell>
-              <TableCell>
-                <Badge
-                  variant={record.itemType === 'Gold' ? 'default' : 'secondary'}
-                >
-                  {record.itemType}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right">
-                {record.weightGrams}g
-              </TableCell>
-              <TableCell className="text-right">
-                ₹{record.amount.toLocaleString()}
-              </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/records/${record.id}`}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        View
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEdit?.(record)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDeleteClick(record)}
-                      className="text-destructive focus:text-destructive"
+          {loading
+            ? // Show loading skeleton rows
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={`loading-${index}`}>
+                  <TableCell>
+                    <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="ml-auto h-4 w-8 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                </TableRow>
+              ))
+            : records.map((record) => (
+                <TableRow key={record.id}>
+                  <TableCell className="font-medium">{record.slNo}</TableCell>
+                  <TableCell>
+                    {new Date(record.date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="font-medium">{record.name}</TableCell>
+                  <TableCell>{record.mobile}</TableCell>
+                  <TableCell>{record.place}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        record.itemType === 'Gold' ? 'default' : 'secondary'
+                      }
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => onReturnItem?.(record.id)}
-                      className="text-green-600 focus:text-green-600"
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      Return Item
-                    </DropdownMenuItem>
-                    {moveOptions.length > 0 && (
-                      <>
+                      {record.itemType}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {record.weightGrams}g
+                  </TableCell>
+                  <TableCell className="text-right">
+                    ₹{record.amount.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/records/${record.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit?.(record)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(record)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        {moveOptions.map((option) => (
-                          <DropdownMenuItem
-                            key={option.value}
-                            onClick={() => onMove?.(record.id, option.value)}
-                          >
-                            <ArrowRight className="mr-2 h-4 w-4" />
-                            {option.label}
-                          </DropdownMenuItem>
-                        ))}
-                      </>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+                        <DropdownMenuItem
+                          onClick={() => onReturnItem?.(record.id)}
+                          className="text-green-600 focus:text-green-600"
+                        >
+                          <RotateCcw className="mr-2 h-4 w-4" />
+                          Return Item
+                        </DropdownMenuItem>
+                        {moveOptions.length > 0 && (
+                          <>
+                            <DropdownMenuSeparator />
+                            {moveOptions.map((option) => (
+                              <DropdownMenuItem
+                                key={option.value}
+                                onClick={() =>
+                                  onMove?.(record.id, option.value)
+                                }
+                              >
+                                <ArrowRight className="mr-2 h-4 w-4" />
+                                {option.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
         </TableBody>
       </Table>
 
-      {records.length === 0 && (
+      {records.length === 0 && !loading && (
         <div className="py-8 text-center text-muted-foreground">
           No records found.
         </div>

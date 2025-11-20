@@ -2,7 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Link from 'next/link';
 import RecordTable from '@/components/RecordTable';
 import RecordFilters from '@/components/RecordFilters';
@@ -58,6 +64,7 @@ export default function ArchivedRecordsPage() {
     silverCount: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Filter states
@@ -68,69 +75,104 @@ export default function ArchivedRecordsPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Edit state
   const [editRecord, setEditRecord] = useState<Record | null>(null);
 
+  const fetchRecords = useCallback(
+    async (isInitialLoad = false) => {
+      try {
+        if (!isInitialLoad) setFiltering(true);
+        const params = new URLSearchParams({
+          status: 'archived',
+          page: currentPage.toString(),
+          limit: pageSize.toString(),
+        });
+
+        if (searchTerm) params.append('search', searchTerm);
+        if (itemTypeFilter !== 'all') params.append('itemType', itemTypeFilter);
+        if (streetFilter) params.append('street', streetFilter);
+        if (placeFilter) params.append('place', placeFilter);
+
+        const response = await fetch(`/api/records?${params.toString()}`);
+        if (!response.ok) throw new Error('Failed to fetch archived records');
+        const data = await response.json();
+        setRecords(data.data || []);
+        setTotalPages(Math.ceil(data.total / pageSize));
+        setTotalRecords(data.total);
+
+        // Calculate stats for archived records
+        const archivedRecords = data.data || [];
+        const totalRecords = data.total;
+        const bigRecords = archivedRecords.filter(
+          (r: Record) => r.amount > 100000
+        ).length;
+        const totalWeight = data.stats.totalWeight;
+        const totalAmount = data.stats.totalAmount;
+        const goldCount = data.stats.goldCount;
+        const silverCount = data.stats.silverCount;
+
+        setStats({
+          totalRecords,
+          activeRecords: 0,
+          archivedRecords: totalRecords,
+          bigRecords,
+          totalWeight,
+          totalAmount,
+          goldCount,
+          silverCount,
+        });
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Failed to fetch archived records'
+        );
+        toast.error('Failed to load archived records');
+      } finally {
+        setLoading(false);
+        setFiltering(false);
+      }
+    },
+    [
+      currentPage,
+      searchTerm,
+      itemTypeFilter,
+      streetFilter,
+      placeFilter,
+      pageSize,
+    ]
+  );
+
   useEffect(() => {
-    fetchRecords();
-  }, [currentPage, searchTerm, itemTypeFilter, streetFilter, placeFilter]);
+    fetchRecords(true);
+  }, []); // Only run on mount
+
+  useEffect(() => {
+    if (
+      currentPage > 1 ||
+      searchTerm ||
+      itemTypeFilter !== 'all' ||
+      streetFilter ||
+      placeFilter
+    ) {
+      fetchRecords(false);
+    }
+  }, [
+    currentPage,
+    searchTerm,
+    itemTypeFilter,
+    streetFilter,
+    placeFilter,
+    fetchRecords,
+  ]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, itemTypeFilter, streetFilter, placeFilter]);
-
-  const fetchRecords = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({
-        status: 'archived',
-        page: currentPage.toString(),
-        limit: '10',
-      });
-
-      if (searchTerm) params.append('search', searchTerm);
-      if (itemTypeFilter !== 'all') params.append('itemType', itemTypeFilter);
-      if (streetFilter) params.append('street', streetFilter);
-      if (placeFilter) params.append('place', placeFilter);
-
-      const response = await fetch(`/api/records?${params.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch archived records');
-      const data = await response.json();
-      setRecords(data.data || []);
-      setTotalPages(Math.ceil(data.total / 10));
-
-      // Calculate stats for archived records
-      const archivedRecords = data.data || [];
-      const totalRecords = data.total;
-      const bigRecords = archivedRecords.filter(
-        (r: Record) => r.amount > 100000
-      ).length;
-      const totalWeight = data.stats.totalWeight;
-      const totalAmount = data.stats.totalAmount;
-      const goldCount = data.stats.goldCount;
-      const silverCount = data.stats.silverCount;
-
-      setStats({
-        totalRecords,
-        activeRecords: 0,
-        archivedRecords: totalRecords,
-        bigRecords,
-        totalWeight,
-        totalAmount,
-        goldCount,
-        silverCount,
-      });
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to fetch archived records'
-      );
-      toast.error('Failed to load archived records');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [searchTerm, itemTypeFilter, streetFilter, placeFilter, pageSize]);
 
   const handleMove = async (
     id: number,
@@ -219,11 +261,9 @@ export default function ArchivedRecordsPage() {
             <h1 className="text-xl font-semibold">Archived Records</h1>
           </div>
         </div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center text-red-500">Error: {error}</div>
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border bg-card p-6">
+          <div className="text-center text-red-500">Error: {error}</div>
+        </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
@@ -283,6 +323,7 @@ export default function ArchivedRecordsPage() {
       <RecordStats
         {...stats}
         exclude={['activeRecords', 'archivedRecords', 'bigRecords']}
+        loading={filtering}
       />
 
       {/* Search and Filters */}
@@ -303,21 +344,72 @@ export default function ArchivedRecordsPage() {
       <FloatingNewRecord />
 
       {/* Table */}
-      <Card className="mb-[calc(4rem+env(safe-area-inset-bottom))] sm:mb-0">
-        <CardHeader>
-          <CardTitle>Archived Records ({filteredRecords.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <RecordTable
-            records={filteredRecords}
-            onDelete={handleDelete}
-            onEdit={setEditRecord}
-            onMove={handleMove}
-            onReturnItem={handleReturnItem}
-            variant="archived"
-          />
-        </CardContent>
-      </Card>
+      <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] sm:mb-0">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Show</span>
+            <Select
+              value={pageSize.toString()}
+              onValueChange={(value) => setPageSize(Number(value))}
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="15">15</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">entries</span>
+          </div>
+        </div>
+        <RecordTable
+          records={filteredRecords}
+          onDelete={handleDelete}
+          onEdit={setEditRecord}
+          onMove={handleMove}
+          onReturnItem={handleReturnItem}
+          variant="archived"
+          loading={filtering}
+        />
+
+        {/* Pagination Info */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            Showing{' '}
+            {filteredRecords.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}{' '}
+            to {Math.min(currentPage * pageSize, totalRecords)} of{' '}
+            {totalRecords} entries
+          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
       {editRecord && (
         <EditRecordPanel
           record={editRecord}

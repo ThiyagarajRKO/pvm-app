@@ -9,6 +9,7 @@ import {
   Star,
   TrendingUp,
   TrendingDown,
+  Loader2,
 } from 'lucide-react';
 
 interface RecordStatsProps {
@@ -21,6 +22,7 @@ interface RecordStatsProps {
   goldCount: number;
   silverCount: number;
   exclude?: Array<'activeRecords' | 'archivedRecords' | 'bigRecords'>;
+  loading?: boolean;
 }
 
 export default function RecordStats({
@@ -33,6 +35,7 @@ export default function RecordStats({
   goldCount,
   silverCount,
   exclude = [],
+  loading = false,
 }: RecordStatsProps) {
   const stats = [
     {
@@ -117,7 +120,11 @@ export default function RecordStats({
                       {stat.title}
                     </p>
                     <p className={`text-lg font-bold ${stat.color}`}>
-                      {stat.value}
+                      {loading ? (
+                        <Loader2 className="inline h-5 w-5 animate-spin" />
+                      ) : (
+                        stat.value
+                      )}
                     </p>
                   </div>
                   <div className={`rounded-lg p-2 ${stat.bgColor}`}>

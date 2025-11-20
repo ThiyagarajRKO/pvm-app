@@ -39,8 +39,10 @@ export async function GET(req: Request) {
     }
     if (parsed.itemType) where.itemType = parsed.itemType;
     if (parsed.status) where.itemCategory = parsed.status;
-    if (parsed.street) where.street = parsed.street;
-    if (parsed.place) where.place = parsed.place;
+    if (parsed.street && parsed.street.trim() !== '')
+      where.street = { [Op.iLike]: parsed.street };
+    if (parsed.place && parsed.place.trim() !== '')
+      where.place = { [Op.iLike]: parsed.place };
     if (parsed.dateFrom || parsed.dateTo) {
       where.date = {};
       if (parsed.dateFrom) where.date[Op.gte] = parsed.dateFrom;
