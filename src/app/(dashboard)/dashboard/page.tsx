@@ -39,144 +39,190 @@ import {
   Archive,
   Plus,
   Download,
+  Loader2,
 } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
-// Mock data for PVM Records dashboard
-const dashboardData = {
+// Types for dashboard data
+interface DashboardStats {
   overview: {
-    totalRecords: 1247,
-    activeRecords: 892,
-    archivedRecords: 355,
+    totalRecords: number;
+    totalGoldCount: number;
+    totalSilverCount: number;
+    totalWeightGrams: number;
+    totalAmount: number;
+    averageWeight: number;
+    averageAmount: number;
+  };
+  categories: {
+    active: number;
+    archived: number;
+    big: number;
+  };
+  currentMonth: {
+    records: number;
+    weight: number;
+    amount: number;
+    goldCount: number;
+    silverCount: number;
+  };
+  trends: {
+    monthly: {
+      records: number;
+      weight: number;
+      amount: number;
+    };
+    yearly: {
+      records: number;
+      weight: number;
+      amount: number;
+    };
+  };
+}
+
+interface RecentRecord {
+  id: number;
+  slNo: string;
+  date: string;
+  name: string;
+  fatherName: string;
+  street: string;
+  place: string;
+  weightGrams: number;
+  itemType: 'Gold' | 'Silver';
+  itemCategory: 'active' | 'archived' | 'big';
+  amount: number;
+  interest: number;
+  mobile: string;
+  personImageUrl?: string | null;
+  itemImageUrl?: string | null;
+  createdAt: string;
+}
+
+interface DashboardData {
+  stats: DashboardStats;
+  recentRecords: RecentRecord[];
+}
+
+const quickActions = [
+  {
+    title: 'New Record',
+    description: 'Create a new pawn record',
+    icon: Plus,
+    color: 'text-green-600',
+    href: '/records/new',
   },
-  todayStats: [
-    {
-      label: "Today's Records",
-      value: 12,
-      change: '+8%',
-      icon: Calendar,
-      color: 'text-blue-600',
-    },
-    {
-      label: "Today's Active",
-      value: 8,
-      change: '+10%',
-      icon: CheckCircle,
-      color: 'text-green-600',
-    },
-    {
-      label: "Today's Archived",
-      value: 3,
-      change: '+5%',
-      icon: Archive,
-      color: 'text-gray-600',
-    },
-    {
-      label: "Today's Big",
-      value: 2,
-      change: '+15%',
-      icon: Star,
-      color: 'text-yellow-600',
-    },
-  ],
-  totalStats: [
-    {
-      label: 'Total Records',
-      value: 1247,
-      change: '',
-      icon: FileText,
-      color: 'text-blue-600',
-    },
-    {
-      label: 'Active Records',
-      value: 892,
-      change: '',
-      icon: CheckCircle,
-      color: 'text-green-600',
-    },
-    {
-      label: 'Archived Records',
-      value: 355,
-      change: '',
-      icon: Archive,
-      color: 'text-gray-600',
-    },
-    {
-      label: 'Big Records',
-      value: 156,
-      change: '',
-      icon: Star,
-      color: 'text-yellow-600',
-    },
-  ],
-  recentRecords: [
-    {
-      id: 1247,
-      name: 'Rajesh Kumar',
-      itemType: 'Gold',
-      amount: 150000,
-      weight: 24.5,
-      date: '2025-11-19',
-      status: 'Active',
-    },
-    {
-      id: 1246,
-      name: 'Priya Sharma',
-      itemType: 'Silver',
-      amount: 25000,
-      weight: 10.2,
-      date: '2025-11-19',
-      status: 'Active',
-    },
-    {
-      id: 1245,
-      name: 'Amit Singh',
-      itemType: 'Gold',
-      amount: 200000,
-      weight: 32.1,
-      date: '2025-11-18',
-      status: 'Archived',
-    },
-  ],
-  quickActions: [
-    {
-      title: 'New Record',
-      description: 'Create a new pawn record',
-      icon: Plus,
-      color: 'text-green-600',
-      href: '/records/new',
-    },
-    {
-      title: 'Active Records',
-      description: 'View all active records',
-      icon: CheckCircle,
-      color: 'text-blue-600',
-      href: '/records/active',
-    },
-    {
-      title: 'Archived Records',
-      description: 'View archived records',
-      icon: Archive,
-      color: 'text-orange-600',
-      href: '/records/archived',
-    },
-    {
-      title: 'Big Records',
-      description: 'View high-value records',
-      icon: TrendingUp,
-      color: 'text-purple-600',
-      href: '/records/big',
-    },
-    {
-      title: 'Export Records',
-      description: 'Download records as CSV',
-      icon: Download,
-      color: 'text-gray-600',
-      href: '/records/export',
-    },
-  ],
-};
+  {
+    title: 'Active Records',
+    description: 'View all active records',
+    icon: CheckCircle,
+    color: 'text-blue-600',
+    href: '/records/active',
+  },
+  {
+    title: 'Archived Records',
+    description: 'View archived records',
+    icon: Archive,
+    color: 'text-orange-600',
+    href: '/records/archived',
+  },
+  {
+    title: 'Big Records',
+    description: 'View high-value records',
+    icon: TrendingUp,
+    color: 'text-purple-600',
+    href: '/records/big',
+  },
+  {
+    title: 'Export Records',
+    description: 'Download records as CSV',
+    icon: Download,
+    color: 'text-gray-600',
+    href: '/records/export',
+  },
+];
 
 export default function DashboardPage() {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get<DashboardData>('/dashboard');
+      if (response.error) {
+        setError(response.error);
+      } else {
+        setDashboardData(response.data!);
+      }
+    } catch (err) {
+      setError('Failed to load dashboard data');
+      console.error('Dashboard fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatWeight = (weight: number) => {
+    return `${weight.toFixed(1)}g`;
+  };
+
+  const formatPercentage = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)}%`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+          <p className="mt-2 text-sm text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-center">
+          <XCircle className="mx-auto h-8 w-8 text-red-600" />
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <Button
+            onClick={fetchDashboardData}
+            variant="outline"
+            size="sm"
+            className="mt-2"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dashboardData) return null;
+
+  const { stats, recentRecords } = dashboardData;
+
   return (
     <div className="space-y-4 p-1">
       {/* Header */}
@@ -190,6 +236,10 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchDashboardData}>
+            <RefreshCw className="mr-2 h-3 w-3" />
+            Refresh
+          </Button>
           <Button variant="outline" size="sm">
             <BarChart3 className="mr-2 h-3 w-3" />
             View Reports
@@ -201,69 +251,198 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Today's Stats */}
+      {/* Overview Stats */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {dashboardData.todayStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="transition-shadow hover:shadow-md">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                      {stat.label}
-                    </p>
-                    <p className={`text-xl font-bold ${stat.color}`}>
-                      {stat.value}
-                    </p>
-                  </div>
-                  <Icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                <div className="mt-2">
-                  <span
-                    className={`text-sm ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}
-                  >
-                    {stat.change} from last week
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Total Records
+                </p>
+                <p className="text-xl font-bold text-blue-600">
+                  {stats.overview.totalRecords.toLocaleString()}
+                </p>
+              </div>
+              <FileText className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="mt-2">
+              <span
+                className={`text-sm ${stats.trends.yearly.records >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {formatPercentage(stats.trends.yearly.records)} from last year
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Total Value
+                </p>
+                <p className="text-xl font-bold text-green-600">
+                  {formatCurrency(stats.overview.totalAmount)}
+                </p>
+              </div>
+              <DollarSign className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="mt-2">
+              <span
+                className={`text-sm ${stats.trends.yearly.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {formatPercentage(stats.trends.yearly.amount)} from last year
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Total Weight
+                </p>
+                <p className="text-xl font-bold text-yellow-600">
+                  {formatWeight(stats.overview.totalWeightGrams)}
+                </p>
+              </div>
+              <Scale className="h-6 w-6 text-yellow-600" />
+            </div>
+            <div className="mt-2">
+              <span
+                className={`text-sm ${stats.trends.yearly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {formatPercentage(stats.trends.yearly.weight)} from last year
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Average Value
+                </p>
+                <p className="text-xl font-bold text-purple-600">
+                  {formatCurrency(stats.overview.averageAmount)}
+                </p>
+              </div>
+              <TrendingUp className="h-6 w-6 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Total Stats */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {dashboardData.totalStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="transition-shadow hover:shadow-md">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                      {stat.label}
-                    </p>
-                    <p className={`text-xl font-semibold ${stat.color}`}>
-                      {stat.value}
-                    </p>
-                  </div>
-                  <Icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                {stat.change && (
-                  <div className="mt-2">
-                    <span
-                      className={`text-sm ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}
-                    >
-                      {stat.change} from last week
-                    </span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+      {/* Category Stats */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Active Records
+                </p>
+                <p className="text-xl font-bold text-green-600">
+                  {stats.categories.active.toLocaleString()}
+                </p>
+              </div>
+              <CheckCircle className="h-6 w-6 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Archived Records
+                </p>
+                <p className="text-xl font-bold text-orange-600">
+                  {stats.categories.archived.toLocaleString()}
+                </p>
+              </div>
+              <Archive className="h-6 w-6 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Big Records
+                </p>
+                <p className="text-xl font-bold text-purple-600">
+                  {stats.categories.big.toLocaleString()}
+                </p>
+              </div>
+              <Star className="h-6 w-6 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Monthly Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            This Month Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="text-center">
+              <p className="text-xl font-bold text-blue-600">
+                {stats.currentMonth.records}
+              </p>
+              <p className="text-sm text-gray-600">Records</p>
+              <p
+                className={`text-xs ${stats.trends.monthly.records >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {formatPercentage(stats.trends.monthly.records)} vs last month
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold text-green-600">
+                {formatCurrency(stats.currentMonth.amount)}
+              </p>
+              <p className="text-sm text-gray-600">Total Value</p>
+              <p
+                className={`text-xs ${stats.trends.monthly.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {formatPercentage(stats.trends.monthly.amount)} vs last month
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold text-yellow-600">
+                {formatWeight(stats.currentMonth.weight)}
+              </p>
+              <p className="text-sm text-gray-600">Total Weight</p>
+              <p
+                className={`text-xs ${stats.trends.monthly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {formatPercentage(stats.trends.monthly.weight)} vs last month
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold text-gray-600">
+                {stats.currentMonth.goldCount}G /{' '}
+                {stats.currentMonth.silverCount}S
+              </p>
+              <p className="text-sm text-gray-600">Gold/Silver</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Recent Records */}
@@ -276,7 +455,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {dashboardData.recentRecords.map((record) => (
+              {recentRecords.map((record) => (
                 <div
                   key={record.id}
                   className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50"
@@ -294,25 +473,35 @@ export default function DashboardPage() {
                     <div>
                       <h3 className="text-sm font-semibold">{record.name}</h3>
                       <div className="flex items-center gap-3 text-xs text-gray-600">
-                        <span>{record.weight}g</span>
-                        <span>₹{record.amount.toLocaleString()}</span>
+                        <span>{formatWeight(record.weightGrams)}</span>
+                        <span>{formatCurrency(record.amount)}</span>
                         <Badge
                           variant={
-                            record.status === 'Active' ? 'default' : 'secondary'
+                            record.itemCategory === 'active'
+                              ? 'default'
+                              : 'secondary'
                           }
                           className="text-xs"
                         >
-                          {record.status}
+                          {record.itemCategory}
                         </Badge>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold">#{record.id}</div>
-                    <div className="text-xs text-gray-500">{record.date}</div>
+                    <div className="text-sm font-semibold">#{record.slNo}</div>
+                    <div className="text-xs text-gray-500">
+                      {new Date(record.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
                 </div>
               ))}
+              {recentRecords.length === 0 && (
+                <div className="py-8 text-center text-gray-500">
+                  <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-2">No records found</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -324,7 +513,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {dashboardData.quickActions.map((action, index) => {
+              {quickActions.map((action, index) => {
                 const Icon = action.icon;
                 return (
                   <Button

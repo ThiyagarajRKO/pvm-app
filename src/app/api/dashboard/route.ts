@@ -1,0 +1,333 @@
+import { NextResponse } from 'next/server';
+import { getRecordModel } from '@/lib/models/record';
+import { withAuth } from '@/lib/auth-middleware';
+import { Op, fn, col, literal } from 'sequelize';
+
+export const GET = withAuth(async (req: Request, user) => {
+  try {
+    const RecordModel = await getRecordModel();
+
+    // Get current date info
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
+    const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const previousMonthYear =
+      currentMonth === 1 ? currentYear - 1 : currentYear;
+
+    // Helper function to get date range for a month
+    const getMonthRange = (year: number, month: number) => {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0); // Last day of the month
+      return {
+        [Op.gte]: startDate.toISOString().split('T')[0],
+        [Op.lte]: endDate.toISOString().split('T')[0],
+      };
+    };
+
+    // Date ranges
+    const currentMonthRange = getMonthRange(currentYear, currentMonth);
+    const previousMonthRange = getMonthRange(previousMonthYear, previousMonth);
+    const currentYearRange = {
+      [Op.gte]: `${currentYear}-01-01`,
+      [Op.lte]: `${currentYear}-12-31`,
+    };
+    const previousYearRange = {
+      [Op.gte]: `${currentYear - 1}-01-01`,
+      [Op.lte]: `${currentYear - 1}-12-31`,
+    };
+
+    // Single comprehensive aggregation query
+    const [statsResult] = (await RecordModel.findAll({
+      attributes: [
+        // Overall counts
+        [fn('COUNT', col('id')), 'totalRecords'],
+        [
+          fn('COUNT', literal('CASE WHEN "itemType" = \'Gold\' THEN 1 END')),
+          'totalGoldCount',
+        ],
+        [
+          fn('COUNT', literal('CASE WHEN "itemType" = \'Silver\' THEN 1 END')),
+          'totalSilverCount',
+        ],
+        [fn('SUM', col('weightGrams')), 'totalWeightGrams'],
+        [fn('SUM', col('amount')), 'totalAmount'],
+
+        // Category counts
+        [
+          fn(
+            'COUNT',
+            literal('CASE WHEN "itemCategory" = \'active\' THEN 1 END')
+          ),
+          'activeRecords',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal('CASE WHEN "itemCategory" = \'archived\' THEN 1 END')
+          ),
+          'archivedRecords',
+        ],
+        [
+          fn('COUNT', literal('CASE WHEN "itemCategory" = \'big\' THEN 1 END')),
+          'bigRecords',
+        ],
+
+        // Current month stats
+        [
+          fn(
+            'COUNT',
+            literal(
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' THEN 1 END`
+            )
+          ),
+          'currentMonthRecords',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' THEN "weightGrams" END`
+            )
+          ),
+          'currentMonthWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' THEN "amount" END`
+            )
+          ),
+          'currentMonthAmount',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal(
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "itemType" = 'Gold' THEN 1 END`
+            )
+          ),
+          'currentMonthGold',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal(
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "itemType" = 'Silver' THEN 1 END`
+            )
+          ),
+          'currentMonthSilver',
+        ],
+
+        // Previous month stats
+        [
+          fn(
+            'COUNT',
+            literal(
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' THEN 1 END`
+            )
+          ),
+          'previousMonthRecords',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' THEN "weightGrams" END`
+            )
+          ),
+          'previousMonthWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' THEN "amount" END`
+            )
+          ),
+          'previousMonthAmount',
+        ],
+
+        // Current year stats
+        [
+          fn(
+            'COUNT',
+            literal(
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' THEN 1 END`
+            )
+          ),
+          'currentYearRecords',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' THEN "weightGrams" END`
+            )
+          ),
+          'currentYearWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' THEN "amount" END`
+            )
+          ),
+          'currentYearAmount',
+        ],
+
+        // Previous year stats
+        [
+          fn(
+            'COUNT',
+            literal(
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' THEN 1 END`
+            )
+          ),
+          'previousYearRecords',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' THEN "weightGrams" END`
+            )
+          ),
+          'previousYearWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' THEN "amount" END`
+            )
+          ),
+          'previousYearAmount',
+        ],
+      ],
+      raw: true,
+    })) as any[];
+
+    // Extract values and convert to numbers
+    const stats = {
+      totalRecords: Number(statsResult.totalRecords || 0),
+      totalGoldCount: Number(statsResult.totalGoldCount || 0),
+      totalSilverCount: Number(statsResult.totalSilverCount || 0),
+      totalWeightGrams: Number(statsResult.totalWeightGrams || 0),
+      totalAmount: Number(statsResult.totalAmount || 0),
+      activeRecords: Number(statsResult.activeRecords || 0),
+      archivedRecords: Number(statsResult.archivedRecords || 0),
+      bigRecords: Number(statsResult.bigRecords || 0),
+      currentMonthRecords: Number(statsResult.currentMonthRecords || 0),
+      currentMonthWeight: Number(statsResult.currentMonthWeight || 0),
+      currentMonthAmount: Number(statsResult.currentMonthAmount || 0),
+      currentMonthGold: Number(statsResult.currentMonthGold || 0),
+      currentMonthSilver: Number(statsResult.currentMonthSilver || 0),
+      previousMonthRecords: Number(statsResult.previousMonthRecords || 0),
+      previousMonthWeight: Number(statsResult.previousMonthWeight || 0),
+      previousMonthAmount: Number(statsResult.previousMonthAmount || 0),
+      currentYearRecords: Number(statsResult.currentYearRecords || 0),
+      currentYearWeight: Number(statsResult.currentYearWeight || 0),
+      currentYearAmount: Number(statsResult.currentYearAmount || 0),
+      previousYearRecords: Number(statsResult.previousYearRecords || 0),
+      previousYearWeight: Number(statsResult.previousYearWeight || 0),
+      previousYearAmount: Number(statsResult.previousYearAmount || 0),
+    };
+
+    // Calculate trends (percentage changes)
+    const calculateTrend = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return ((current - previous) / previous) * 100;
+    };
+
+    const monthlyTrends = {
+      records: calculateTrend(
+        stats.currentMonthRecords,
+        stats.previousMonthRecords
+      ),
+      weight: calculateTrend(
+        stats.currentMonthWeight,
+        stats.previousMonthWeight
+      ),
+      amount: calculateTrend(
+        stats.currentMonthAmount,
+        stats.previousMonthAmount
+      ),
+    };
+
+    const yearlyTrends = {
+      records: calculateTrend(
+        stats.currentYearRecords,
+        stats.previousYearRecords
+      ),
+      weight: calculateTrend(stats.currentYearWeight, stats.previousYearWeight),
+      amount: calculateTrend(stats.currentYearAmount, stats.previousYearAmount),
+    };
+
+    // Get 3 most recent records
+    const recentRecords = await RecordModel.findAll({
+      limit: 3,
+      order: [['createdAt', 'DESC']],
+      attributes: [
+        'id',
+        'slNo',
+        'date',
+        'name',
+        'fatherName',
+        'street',
+        'place',
+        'weightGrams',
+        'itemType',
+        'itemCategory',
+        'amount',
+        'interest',
+        'mobile',
+        'personImageUrl',
+        'itemImageUrl',
+        'createdAt',
+      ],
+    });
+
+    // Additional insights
+    const averageWeight =
+      stats.totalRecords > 0 ? stats.totalWeightGrams / stats.totalRecords : 0;
+    const averageAmount =
+      stats.totalRecords > 0 ? stats.totalAmount / stats.totalRecords : 0;
+
+    return NextResponse.json({
+      stats: {
+        overview: {
+          totalRecords: stats.totalRecords,
+          totalGoldCount: stats.totalGoldCount,
+          totalSilverCount: stats.totalSilverCount,
+          totalWeightGrams: stats.totalWeightGrams,
+          totalAmount: stats.totalAmount,
+          averageWeight,
+          averageAmount,
+        },
+        categories: {
+          active: stats.activeRecords,
+          archived: stats.archivedRecords,
+          big: stats.bigRecords,
+        },
+        currentMonth: {
+          records: stats.currentMonthRecords,
+          weight: stats.currentMonthWeight,
+          amount: stats.currentMonthAmount,
+          goldCount: stats.currentMonthGold,
+          silverCount: stats.currentMonthSilver,
+        },
+        trends: {
+          monthly: monthlyTrends,
+          yearly: yearlyTrends,
+        },
+      },
+      recentRecords,
+    });
+  } catch (err) {
+    console.error('Dashboard stats error', err);
+    return NextResponse.json({ error: 'server error' }, { status: 500 });
+  }
+});
