@@ -1,14 +1,16 @@
 // Service Worker for PWA caching
-const CACHE_NAME = 'pvm-app-v1';
-const STATIC_CACHE = 'pvm-static-v1';
-const DYNAMIC_CACHE = 'pvm-dynamic-v1';
+const CACHE_NAME = 'pvm-app-v2';
+const STATIC_CACHE = 'pvm-static-v2';
+const DYNAMIC_CACHE = 'pvm-dynamic-v2';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/favicon-32x32.png',
-  // Add other critical assets here
+  '/login',
+  '/dashboard',
+  // Add other critical routes here
 ];
 
 // Install event - cache static assets

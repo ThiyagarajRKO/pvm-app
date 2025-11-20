@@ -39,10 +39,28 @@ export function usePWA() {
             '[PWA] Service Worker registered successfully:',
             registration
           );
-          console.log(
-            '[PWA] Service Worker state:',
-            registration.active?.state
-          );
+
+          // Wait for the service worker to be ready
+          registration.ready.then(() => {
+            console.log(
+              '[PWA] Service Worker ready, state:',
+              registration.active?.state
+            );
+          });
+
+          // Listen for updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              console.log('[PWA] New service worker found, installing...');
+              newWorker.addEventListener('statechange', () => {
+                console.log(
+                  '[PWA] Service worker state changed to:',
+                  newWorker.state
+                );
+              });
+            }
+          });
         })
         .catch((error) => {
           console.error('[PWA] Service Worker registration failed:', error);
