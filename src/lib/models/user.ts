@@ -34,6 +34,7 @@ let initialized = false;
 async function initializeModel() {
   if (!initialized) {
     const sequelize = await getSequelize();
+    const { getRoleModel } = await import('./role');
 
     User.init(
       {
@@ -76,6 +77,10 @@ async function initializeModel() {
         timestamps: true,
       }
     );
+
+    // Set up associations
+    const RoleModel = await getRoleModel();
+    User.belongsTo(RoleModel, { foreignKey: 'roleId', as: 'Role' });
 
     initialized = true;
   }

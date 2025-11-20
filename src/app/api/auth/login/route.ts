@@ -20,9 +20,6 @@ export async function POST(request: NextRequest) {
     const UserModel = await getUserModel();
     const RoleModel = await getRoleModel();
 
-    // Set up associations
-    UserModel.belongsTo(RoleModel, { foreignKey: 'roleId', as: 'Role' });
-
     // Find user with role
     const user = await UserModel.findOne({
       where: { email, isActive: true },
