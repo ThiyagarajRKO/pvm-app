@@ -55,7 +55,12 @@ export default function PlaceSelect({
   }, [open]);
 
   return (
-    <Select value={value} onValueChange={onValueChange} onOpenChange={setOpen}>
+    <Select
+      value={value}
+      onValueChange={onValueChange}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <SelectTrigger className="text-left">
         <div className="w-full text-left">
           <SelectValue placeholder={placeholder} />
