@@ -205,13 +205,15 @@ export default function RecordTable({
                   </TableCell>
                   <TableCell>{record.place}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        record.itemType === 'Gold' ? 'default' : 'secondary'
-                      }
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        record.itemType === 'Gold'
+                          ? 'bg-yellow-500 text-white'
+                          : 'bg-gray-400 text-white'
+                      }`}
                     >
                       {record.itemType}
-                    </Badge>
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     {record.weightGrams}g
@@ -340,16 +342,15 @@ export default function RecordTable({
                   <span className="font-medium text-muted-foreground">
                     Item Type:
                   </span>
-                  <Badge
-                    variant={
+                  <span
+                    className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                       recordToDelete.itemType === 'Gold'
-                        ? 'default'
-                        : 'secondary'
-                    }
-                    className="text-xs"
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-gray-400 text-white'
+                    }`}
                   >
                     {recordToDelete.itemType}
-                  </Badge>
+                  </span>
                 </div>
                 <div>
                   <span className="font-medium text-muted-foreground">
