@@ -7,7 +7,6 @@ const nextConfig = {
   env: {
     CUSTOM_KEY: 'custom_value',
   },
-  serverComponentsExternalPackages: ['pg', 'pg-pool'],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push({
