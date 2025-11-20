@@ -516,7 +516,7 @@ export default function RecordForm({
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger
@@ -527,7 +527,7 @@ export default function RecordForm({
                             <SelectValue placeholder="Select item type" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="z-[10000]">
                           <SelectItem value="Gold">Gold</SelectItem>
                           <SelectItem value="Silver">Silver</SelectItem>
                         </SelectContent>
