@@ -41,6 +41,7 @@ import {
   RotateCcw,
   Phone,
   Copy,
+  Loader2,
 } from 'lucide-react';
 
 interface Record {
@@ -90,6 +91,7 @@ export default function RecordTable({
   const [moveTargetCategory, setMoveTargetCategory] = useState<
     'active' | 'archived' | 'big' | null
   >(null);
+  const [moveLoading, setMoveLoading] = useState(false);
   const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
 
   const handleDeleteClick = (record: Record) => {
@@ -114,12 +116,20 @@ export default function RecordTable({
     setMoveDialogOpen(true);
   };
 
-  const handleMoveConfirm = () => {
+  const handleMoveConfirm = async () => {
     if (recordToMove && moveTargetCategory) {
-      onMove?.(recordToMove.id, moveTargetCategory);
-      setMoveDialogOpen(false);
-      setRecordToMove(null);
-      setMoveTargetCategory(null);
+      setMoveLoading(true);
+      try {
+        await onMove?.(recordToMove.id, moveTargetCategory);
+        setMoveDialogOpen(false);
+        setRecordToMove(null);
+        setMoveTargetCategory(null);
+      } catch (error) {
+        // Error handling is done in the parent component
+        console.error('Move operation failed:', error);
+      } finally {
+        setMoveLoading(false);
+      }
     }
   };
 
@@ -502,13 +512,18 @@ export default function RecordTable({
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={moveLoading}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleMoveConfirm}
-              className="bg-blue-600 text-white hover:bg-blue-700"
+              disabled={moveLoading}
+              className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Move Record
+              {moveLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRight className="mr-2 h-4 w-4" />
+              )}
+              {moveLoading ? 'Moving...' : 'Move Record'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
