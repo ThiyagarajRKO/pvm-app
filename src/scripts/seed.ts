@@ -58,7 +58,7 @@ async function seedDatabase() {
       try {
         await RecordModel.create(recordData as any);
         console.log(`Created record: ${recordData.slNo} - ${recordData.name}`);
-      } catch (error) {
+      } catch (error: any) {
         console.log(
           `Record ${recordData.slNo} may already exist:`,
           error.message
