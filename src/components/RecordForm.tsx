@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload, X, Eye, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,7 +29,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useRouter } from 'next/navigation';
-import { uploadToS3 } from '@/lib/client-s3';
 import {
   recordCreateSchema,
   recordUpdateSchema,
@@ -59,43 +58,148 @@ export default function RecordForm({
   defaultCategory = 'active',
 }: RecordFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [personImageFile, setPersonImageFile] = useState<File | null>(null);
-  const [itemImageFile, setItemImageFile] = useState<File | null>(null);
-  const [personImagePreview, setPersonImagePreview] = useState<string | null>(
-    null
-  );
-  const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
-  React.useEffect(() => {
-    let personUrl: string | undefined;
-    if (personImageFile) {
-      personUrl = URL.createObjectURL(personImageFile);
-      setPersonImagePreview(personUrl);
-    }
-    return () => {
-      if (personUrl) URL.revokeObjectURL(personUrl);
-    };
-  }, [personImageFile]);
 
-  React.useEffect(() => {
-    if (initialData?.personImageUrl) {
-      setPersonImagePreview(initialData.personImageUrl);
-    }
-    if (initialData?.itemImageUrl) {
-      setItemImagePreview(initialData.itemImageUrl);
-    }
-  }, [initialData]);
+  // Image upload states
+  const [personImageUrl, setPersonImageUrl] = useState<string | null>(null);
+  const [itemImageUrl, setItemImageUrl] = useState<string | null>(null);
+  const [personUploading, setPersonUploading] = useState(false);
+  const [itemUploading, setItemUploading] = useState(false);
+  const [personError, setPersonError] = useState<string | null>(null);
+  const [itemError, setItemError] = useState<string | null>(null);
+  const [personPreview, setPersonPreview] = useState<string | null>(null);
+  const [itemPreview, setItemPreview] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    let itemUrl: string | undefined;
-    if (itemImageFile) {
-      itemUrl = URL.createObjectURL(itemImageFile);
-      setItemImagePreview(itemUrl);
-    }
-    return () => {
-      if (itemUrl) URL.revokeObjectURL(itemUrl);
-    };
-  }, [itemImageFile]);
   const router = useRouter();
+
+  // Image upload functions
+  const validateFile = (file: File): string | null => {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (!allowedTypes.includes(file.type)) {
+      return `File type ${file.type} is not supported. Supported types: ${allowedTypes.join(', ')}`;
+    }
+    if (file.size > maxSize) {
+      return `File size ${Math.round(file.size / 1024 / 1024)}MB exceeds maximum 5MB`;
+    }
+    return null;
+  };
+
+  const uploadImage = async (
+    file: File,
+    type: 'person' | 'item'
+  ): Promise<void> => {
+    try {
+      if (type === 'person') {
+        setPersonUploading(true);
+        setPersonError(null);
+      } else {
+        setItemUploading(true);
+        setItemError(null);
+      }
+
+      // Get presigned URL
+      const presignResponse = await api.post('/api/s3/presign', {
+        fileName: file.name,
+        contentType: file.type,
+        folder: 'pawn-records',
+      });
+      if (presignResponse.error) throw new Error(presignResponse.error);
+      const { uploadUrl, publicUrl } = presignResponse.data;
+
+      // Upload to S3
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+
+      // Set the uploaded URL
+      if (type === 'person') {
+        setPersonImageUrl(publicUrl);
+        setPersonUploading(false);
+      } else {
+        setItemImageUrl(publicUrl);
+        setItemUploading(false);
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Upload failed';
+      if (type === 'person') {
+        setPersonError(errorMessage);
+        setPersonUploading(false);
+      } else {
+        setItemError(errorMessage);
+        setItemUploading(false);
+      }
+    }
+  };
+
+  const handleFileSelect = (file: File | null, type: 'person' | 'item') => {
+    if (!file) return;
+
+    const validationError = validateFile(file);
+    if (validationError) {
+      if (type === 'person') {
+        setPersonError(validationError);
+      } else {
+        setItemError(validationError);
+      }
+      return;
+    }
+
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    if (type === 'person') {
+      setPersonPreview(previewUrl);
+      setPersonError(null);
+    } else {
+      setItemPreview(previewUrl);
+      setItemError(null);
+    }
+
+    uploadImage(file, type);
+  };
+
+  const removeImage = async (type: 'person' | 'item') => {
+    const imageUrl = type === 'person' ? personImageUrl : itemImageUrl;
+    const previewUrl = type === 'person' ? personPreview : itemPreview;
+
+    if (!imageUrl && !previewUrl) return;
+
+    // Clean up preview URL
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    // Delete from server if uploaded
+    if (imageUrl) {
+      try {
+        const url = new URL(imageUrl);
+        const key = url.pathname.substring(1); // Remove leading slash
+        await api.post('/api/s3/delete', { key });
+      } catch (error) {
+        console.error('Failed to delete image:', error);
+      }
+    }
+
+    // Clear local state
+    if (type === 'person') {
+      setPersonImageUrl(null);
+      setPersonPreview(null);
+      setPersonError(null);
+    } else {
+      setItemImageUrl(null);
+      setItemPreview(null);
+      setItemError(null);
+    }
+  };
 
   const schema = isEdit ? recordUpdateSchema : recordCreateSchema;
   const form = useForm<RecordFormData>({
@@ -116,29 +220,34 @@ export default function RecordForm({
     },
   });
 
+  // Set initial uploaded URLs
+  React.useEffect(() => {
+    if (initialData?.personImageUrl) {
+      setPersonImageUrl(initialData.personImageUrl);
+      setPersonPreview(initialData.personImageUrl);
+    }
+    if (initialData?.itemImageUrl) {
+      setItemImageUrl(initialData.itemImageUrl);
+      setItemPreview(initialData.itemImageUrl);
+    }
+  }, [initialData]);
+
   const onSubmit = async (data: RecordFormData) => {
     setIsSubmitting(true);
     try {
-      const personImageUrl = personImageFile
-        ? await uploadToS3(personImageFile, 'person')
-        : undefined;
-      const itemImageUrl = itemImageFile
-        ? await uploadToS3(itemImageFile, 'item')
-        : undefined;
-
       const recordData = {
         ...data,
-        personImageUrl,
-        itemImageUrl,
+        personImageUrl: personImageUrl || undefined,
+        itemImageUrl: itemImageUrl || undefined,
       };
 
       const url = isEdit ? `/api/records/${recordId}` : '/api/records';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const response = await api.request(url, {
-        method,
-        body: recordData,
-      });
+      const response =
+        method === 'POST'
+          ? await api.post(url, recordData)
+          : await api.put(url, recordData);
       if (response.error) throw new Error(response.error);
       // close sheet if onCancel is provided (mobile) or navigate back on desktop
       if (onCancel) onCancel();
@@ -432,51 +541,155 @@ export default function RecordForm({
               <div
                 className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-2'}`}
               >
+                {/* Person Image */}
                 <div>
-                  <Label htmlFor="personImage">Person Image</Label>
-                  <Input
-                    id="personImage"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setPersonImageFile(e.target.files?.[0] || null)
-                    }
-                  />
+                  <Label className="text-sm font-medium">Person Image</Label>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {isEdit
-                      ? 'Leave empty to keep current image'
+                      ? 'Upload new image to replace current one'
                       : 'Upload person image'}
                   </p>
-                  {personImagePreview && (
-                    <img
-                      src={personImagePreview}
-                      alt="Person preview"
-                      className="mt-2 max-h-32 object-contain"
-                    />
+
+                  {/* Upload Area */}
+                  {!personImageUrl && !personUploading && (
+                    <div
+                      className="mt-2 cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-4 text-center transition-colors hover:border-gray-400"
+                      onClick={() =>
+                        document.getElementById('personImageInput')?.click()
+                      }
+                    >
+                      <Upload className="mx-auto mb-2 h-6 w-6 text-gray-400" />
+                      <p className="text-xs text-gray-600">
+                        Click to upload person image
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        JPEG, PNG, WebP • Max 5MB
+                      </p>
+                    </div>
                   )}
-                </div>
-                <div>
-                  <Label htmlFor="itemImage">Item Image</Label>
-                  <Input
-                    id="itemImage"
+
+                  {/* Preview */}
+                  {(personImageUrl || personPreview || personUploading) && (
+                    <div className="relative mt-2 inline-block">
+                      <img
+                        src={personImageUrl || personPreview || undefined}
+                        alt="Person"
+                        className="max-h-32 max-w-full rounded-lg border object-contain"
+                      />
+
+                      {/* Loading overlay */}
+                      {personUploading && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50">
+                          <Loader2 className="h-6 w-6 animate-spin text-white" />
+                        </div>
+                      )}
+
+                      {/* Delete button */}
+                      {(personImageUrl || personPreview) &&
+                        !personUploading && (
+                          <button
+                            type="button"
+                            onClick={() => removeImage('person')}
+                            className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                    </div>
+                  )}
+
+                  {/* Error */}
+                  {personError && (
+                    <div className="mt-2 flex items-center gap-2 text-red-600">
+                      <AlertCircle className="h-4 w-4" />
+                      <p className="text-xs">{personError}</p>
+                    </div>
+                  )}
+
+                  <input
+                    id="personImageInput"
                     type="file"
                     accept="image/*"
                     onChange={(e) =>
-                      setItemImageFile(e.target.files?.[0] || null)
+                      handleFileSelect(e.target.files?.[0] || null, 'person')
                     }
+                    className="hidden"
                   />
+                </div>
+
+                {/* Item Image */}
+                <div>
+                  <Label className="text-sm font-medium">Item Image</Label>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {isEdit
-                      ? 'Leave empty to keep current image'
+                      ? 'Upload new image to replace current one'
                       : 'Upload item image'}
                   </p>
-                  {itemImagePreview && (
-                    <img
-                      src={itemImagePreview}
-                      alt="Item preview"
-                      className="mt-2 max-h-32 object-contain"
-                    />
+
+                  {/* Upload Area */}
+                  {!itemImageUrl && !itemUploading && (
+                    <div
+                      className="mt-2 cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-4 text-center transition-colors hover:border-gray-400"
+                      onClick={() =>
+                        document.getElementById('itemImageInput')?.click()
+                      }
+                    >
+                      <Upload className="mx-auto mb-2 h-6 w-6 text-gray-400" />
+                      <p className="text-xs text-gray-600">
+                        Click to upload item image
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        JPEG, PNG, WebP • Max 5MB
+                      </p>
+                    </div>
                   )}
+
+                  {/* Preview */}
+                  {(itemImageUrl || itemPreview || itemUploading) && (
+                    <div className="relative mt-2 inline-block">
+                      <img
+                        src={itemImageUrl || itemPreview || undefined}
+                        alt="Item"
+                        className="max-h-32 max-w-full rounded-lg border object-contain"
+                      />
+
+                      {/* Loading overlay */}
+                      {itemUploading && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50">
+                          <Loader2 className="h-6 w-6 animate-spin text-white" />
+                        </div>
+                      )}
+
+                      {/* Delete button */}
+                      {(itemImageUrl || itemPreview) && !itemUploading && (
+                        <button
+                          type="button"
+                          onClick={() => removeImage('item')}
+                          className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Error */}
+                  {itemError && (
+                    <div className="mt-2 flex items-center gap-2 text-red-600">
+                      <AlertCircle className="h-4 w-4" />
+                      <p className="text-xs">{itemError}</p>
+                    </div>
+                  )}
+
+                  <input
+                    id="itemImageInput"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleFileSelect(e.target.files?.[0] || null, 'item')
+                    }
+                    className="hidden"
+                  />
                 </div>
               </div>
             </div>
