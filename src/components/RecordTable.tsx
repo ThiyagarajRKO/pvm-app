@@ -156,395 +156,397 @@ export default function RecordTable({
     }
   };
   return (
-    <div className="mx-4 overflow-x-auto rounded-md border sm:mx-0">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="min-w-[60px]">SL No</TableHead>
-            <TableHead className="min-w-[80px]">Date</TableHead>
-            <TableHead className="min-w-[100px]">Name</TableHead>
-            <TableHead className="min-w-[100px]">Mobile</TableHead>
-            <TableHead className="hidden min-w-[80px] sm:table-cell">
-              Place
-            </TableHead>
-            <TableHead className="min-w-[60px]">Type</TableHead>
-            <TableHead className="min-w-[70px] text-right">Weight</TableHead>
-            <TableHead className="min-w-[90px] text-right">Amount</TableHead>
-            <TableHead className="hidden min-w-[60px] text-right md:table-cell">
-              Interest
-            </TableHead>
-            <TableHead className="min-w-[80px] text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {loading
-            ? // Show loading skeleton rows
-              Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={`loading-${index}`}>
-                  <TableCell className="min-w-[60px]">
-                    <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="min-w-[80px]">
-                    <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="min-w-[100px]">
-                    <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="min-w-[100px]">
-                    <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="hidden min-w-[80px] sm:table-cell">
-                    <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="min-w-[60px]">
-                    <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="min-w-[70px] text-right">
-                    <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="min-w-[90px] text-right">
-                    <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="hidden min-w-[60px] text-right md:table-cell">
-                    <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                  <TableCell className="min-w-[80px] text-right">
-                    <div className="ml-auto h-4 w-8 animate-pulse rounded bg-muted"></div>
-                  </TableCell>
-                </TableRow>
-              ))
-            : records.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell className="min-w-[60px] font-medium">
-                    {record.slNo}
-                  </TableCell>
-                  <TableCell className="min-w-[80px]">
-                    {new Date(record.date).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="min-w-[100px] font-medium">
-                    {record.name}
-                  </TableCell>
-                  <TableCell className="min-w-[100px]">
-                    <button
-                      onClick={() => handleCopyMobile(record.mobile)}
-                      className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                      title="Click to copy mobile number"
-                    >
-                      <Phone className="h-3 w-3" />
-                      <a
-                        href={`tel:${record.mobile}`}
-                        className="hover:underline"
-                        onClick={(e) => e.stopPropagation()}
+    <div className="w-full overflow-x-auto">
+      <div className="mx-4 rounded-md border sm:mx-0">
+        <Table className="min-w-full">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[60px]">SL No</TableHead>
+              <TableHead className="min-w-[80px]">Date</TableHead>
+              <TableHead className="min-w-[100px]">Name</TableHead>
+              <TableHead className="min-w-[100px]">Mobile</TableHead>
+              <TableHead className="hidden min-w-[80px] sm:table-cell">
+                Place
+              </TableHead>
+              <TableHead className="min-w-[60px]">Type</TableHead>
+              <TableHead className="min-w-[70px] text-right">Weight</TableHead>
+              <TableHead className="min-w-[90px] text-right">Amount</TableHead>
+              <TableHead className="hidden min-w-[60px] text-right md:table-cell">
+                Interest
+              </TableHead>
+              <TableHead className="min-w-[80px] text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading
+              ? // Show loading skeleton rows
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={`loading-${index}`}>
+                    <TableCell className="min-w-[60px]">
+                      <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[80px]">
+                      <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[100px]">
+                      <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[100px]">
+                      <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="hidden min-w-[80px] sm:table-cell">
+                      <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[60px]">
+                      <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[70px] text-right">
+                      <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[90px] text-right">
+                      <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="hidden min-w-[60px] text-right md:table-cell">
+                      <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[80px] text-right">
+                      <div className="ml-auto h-4 w-8 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              : records.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell className="min-w-[60px] font-medium">
+                      {record.slNo}
+                    </TableCell>
+                    <TableCell className="min-w-[80px]">
+                      {new Date(record.date).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="min-w-[100px] font-medium">
+                      {record.name}
+                    </TableCell>
+                    <TableCell className="min-w-[100px]">
+                      <button
+                        onClick={() => handleCopyMobile(record.mobile)}
+                        className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                        title="Click to copy mobile number"
                       >
-                        {record.mobile}
-                      </a>
-                      {copiedNumber === record.mobile && (
-                        <Copy className="h-3 w-3 text-green-600" />
-                      )}
-                    </button>
-                  </TableCell>
-                  <TableCell className="hidden min-w-[80px] sm:table-cell">
-                    {record.place}
-                  </TableCell>
-                  <TableCell className="min-w-[60px]">
+                        <Phone className="h-3 w-3" />
+                        <a
+                          href={`tel:${record.mobile}`}
+                          className="hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {record.mobile}
+                        </a>
+                        {copiedNumber === record.mobile && (
+                          <Copy className="h-3 w-3 text-green-600" />
+                        )}
+                      </button>
+                    </TableCell>
+                    <TableCell className="hidden min-w-[80px] sm:table-cell">
+                      {record.place}
+                    </TableCell>
+                    <TableCell className="min-w-[60px]">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          record.itemType === 'Gold'
+                            ? 'bg-yellow-500 text-white'
+                            : 'bg-gray-400 text-white'
+                        }`}
+                      >
+                        {record.itemType}
+                      </span>
+                    </TableCell>
+                    <TableCell className="min-w-[70px] text-right">
+                      {record.weightGrams}g
+                    </TableCell>
+                    <TableCell className="min-w-[90px] text-right">
+                      ₹{record.amount.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="hidden min-w-[60px] text-right md:table-cell">
+                      {record.interest}%
+                    </TableCell>
+                    <TableCell className="min-w-[80px] text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/records/${record.id}`}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onEdit?.(record)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteClick(record)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => onReturnItem?.(record.id)}
+                            className="text-green-600 focus:text-green-600"
+                          >
+                            <RotateCcw className="mr-2 h-4 w-4" />
+                            Return Item
+                          </DropdownMenuItem>
+                          {moveOptions.length > 0 && (
+                            <>
+                              <DropdownMenuSeparator />
+                              {moveOptions.map((option) => (
+                                <DropdownMenuItem
+                                  key={option.value}
+                                  onClick={() =>
+                                    handleMoveClick(record, option.value)
+                                  }
+                                >
+                                  <ArrowRight className="mr-2 h-4 w-4" />
+                                  {option.label}
+                                </DropdownMenuItem>
+                              ))}
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+          </TableBody>
+        </Table>
+
+        {records.length === 0 && !loading && (
+          <div className="py-8 text-center text-muted-foreground">
+            No records found.
+          </div>
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                  <AlertTriangle className="h-5 w-5 text-destructive" />
+                </div>
+                <div>
+                  <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                  <AlertDialogDescription className="mt-2">
+                    Are you sure you want to delete this record? This action
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </div>
+              </div>
+            </AlertDialogHeader>
+
+            {recordToDelete && (
+              <div className="my-4 rounded-lg border bg-muted/50 p-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Name:
+                    </span>
+                    <p className="font-medium">{recordToDelete.name}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Mobile:
+                    </span>
+                    <p className="font-medium">
+                      <button
+                        onClick={() => handleCopyMobile(recordToDelete.mobile)}
+                        className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                        title="Click to copy mobile number"
+                      >
+                        <Phone className="h-3 w-3" />
+                        <a
+                          href={`tel:${recordToDelete.mobile}`}
+                          className="hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {recordToDelete.mobile}
+                        </a>
+                        {copiedNumber === recordToDelete.mobile && (
+                          <Copy className="h-3 w-3 text-green-600" />
+                        )}
+                      </button>
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Item Type:
+                    </span>
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        record.itemType === 'Gold'
+                      className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        recordToDelete.itemType === 'Gold'
                           ? 'bg-yellow-500 text-white'
                           : 'bg-gray-400 text-white'
                       }`}
                     >
-                      {record.itemType}
+                      {recordToDelete.itemType}
                     </span>
-                  </TableCell>
-                  <TableCell className="min-w-[70px] text-right">
-                    {record.weightGrams}g
-                  </TableCell>
-                  <TableCell className="min-w-[90px] text-right">
-                    ₹{record.amount.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="hidden min-w-[60px] text-right md:table-cell">
-                    {record.interest}%
-                  </TableCell>
-                  <TableCell className="min-w-[80px] text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/records/${record.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEdit?.(record)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteClick(record)}
-                          className="text-destructive focus:text-destructive"
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Amount:
+                    </span>
+                    <p className="font-medium">
+                      ₹{recordToDelete.amount.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="font-medium text-muted-foreground">
+                      Place:
+                    </span>
+                    <p className="font-medium">{recordToDelete.place}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Record
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Move Confirmation Dialog */}
+        <AlertDialog open={moveDialogOpen} onOpenChange={setMoveDialogOpen}>
+          <AlertDialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md">
+            <AlertDialogHeader>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20 sm:h-10 sm:w-10">
+                  <ArrowRight className="h-4 w-4 text-blue-600 dark:text-blue-400 sm:h-5 sm:w-5" />
+                </div>
+                <div>
+                  <AlertDialogTitle className="text-base sm:text-lg">
+                    Move Record
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="mt-1 text-sm sm:mt-2">
+                    Are you sure you want to move this record to{' '}
+                    <span className="font-semibold capitalize">
+                      {moveTargetCategory}
+                    </span>
+                    ?
+                  </AlertDialogDescription>
+                </div>
+              </div>
+            </AlertDialogHeader>
+
+            {recordToMove && (
+              <div className="my-2 rounded-lg border bg-muted/50 p-3 sm:my-4 sm:p-4">
+                <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2 sm:gap-4">
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Name:
+                    </span>
+                    <p className="font-medium">{recordToMove.name}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Mobile:
+                    </span>
+                    <p className="font-medium">
+                      <button
+                        onClick={() => handleCopyMobile(recordToMove.mobile)}
+                        className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                        title="Click to copy mobile number"
+                      >
+                        <Phone className="h-3 w-3" />
+                        <a
+                          href={`tel:${recordToMove.mobile}`}
+                          className="hover:underline"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => onReturnItem?.(record.id)}
-                          className="text-green-600 focus:text-green-600"
-                        >
-                          <RotateCcw className="mr-2 h-4 w-4" />
-                          Return Item
-                        </DropdownMenuItem>
-                        {moveOptions.length > 0 && (
-                          <>
-                            <DropdownMenuSeparator />
-                            {moveOptions.map((option) => (
-                              <DropdownMenuItem
-                                key={option.value}
-                                onClick={() =>
-                                  handleMoveClick(record, option.value)
-                                }
-                              >
-                                <ArrowRight className="mr-2 h-4 w-4" />
-                                {option.label}
-                              </DropdownMenuItem>
-                            ))}
-                          </>
+                          {recordToMove.mobile}
+                        </a>
+                        {copiedNumber === recordToMove.mobile && (
+                          <Copy className="h-3 w-3 text-green-600" />
                         )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-        </TableBody>
-      </Table>
-
-      {records.length === 0 && !loading && (
-        <div className="py-8 text-center text-muted-foreground">
-          No records found.
-        </div>
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-              </div>
-              <div>
-                <AlertDialogTitle>Delete Record</AlertDialogTitle>
-                <AlertDialogDescription className="mt-2">
-                  Are you sure you want to delete this record? This action
-                  cannot be undone.
-                </AlertDialogDescription>
-              </div>
-            </div>
-          </AlertDialogHeader>
-
-          {recordToDelete && (
-            <div className="my-4 rounded-lg border bg-muted/50 p-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Name:
-                  </span>
-                  <p className="font-medium">{recordToDelete.name}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Mobile:
-                  </span>
-                  <p className="font-medium">
-                    <button
-                      onClick={() => handleCopyMobile(recordToDelete.mobile)}
-                      className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                      title="Click to copy mobile number"
+                      </button>
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Item Type:
+                    </span>
+                    <span
+                      className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        recordToMove.itemType === 'Gold'
+                          ? 'bg-yellow-500 text-white'
+                          : 'bg-gray-400 text-white'
+                      }`}
                     >
-                      <Phone className="h-3 w-3" />
-                      <a
-                        href={`tel:${recordToDelete.mobile}`}
-                        className="hover:underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {recordToDelete.mobile}
-                      </a>
-                      {copiedNumber === recordToDelete.mobile && (
-                        <Copy className="h-3 w-3 text-green-600" />
-                      )}
-                    </button>
-                  </p>
-                </div>
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Item Type:
-                  </span>
-                  <span
-                    className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      recordToDelete.itemType === 'Gold'
-                        ? 'bg-yellow-500 text-white'
-                        : 'bg-gray-400 text-white'
-                    }`}
-                  >
-                    {recordToDelete.itemType}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Amount:
-                  </span>
-                  <p className="font-medium">
-                    ₹{recordToDelete.amount.toLocaleString()}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <span className="font-medium text-muted-foreground">
-                    Place:
-                  </span>
-                  <p className="font-medium">{recordToDelete.place}</p>
+                      {recordToMove.itemType}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Amount:
+                    </span>
+                    <p className="font-medium">
+                      ₹{recordToMove.amount.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="font-medium text-muted-foreground">
+                      Current Category:
+                    </span>
+                    <span className="ml-2 font-medium capitalize text-blue-600">
+                      {recordToMove.itemCategory}
+                    </span>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="font-medium text-muted-foreground">
+                      Moving to:
+                    </span>
+                    <span className="ml-2 font-medium capitalize text-green-600">
+                      {moveTargetCategory}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Record
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Move Confirmation Dialog */}
-      <AlertDialog open={moveDialogOpen} onOpenChange={setMoveDialogOpen}>
-        <AlertDialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20 sm:h-10 sm:w-10">
-                <ArrowRight className="h-4 w-4 text-blue-600 dark:text-blue-400 sm:h-5 sm:w-5" />
-              </div>
-              <div>
-                <AlertDialogTitle className="text-base sm:text-lg">
-                  Move Record
-                </AlertDialogTitle>
-                <AlertDialogDescription className="mt-1 text-sm sm:mt-2">
-                  Are you sure you want to move this record to{' '}
-                  <span className="font-semibold capitalize">
-                    {moveTargetCategory}
-                  </span>
-                  ?
-                </AlertDialogDescription>
-              </div>
-            </div>
-          </AlertDialogHeader>
-
-          {recordToMove && (
-            <div className="my-2 rounded-lg border bg-muted/50 p-3 sm:my-4 sm:p-4">
-              <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2 sm:gap-4">
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Name:
-                  </span>
-                  <p className="font-medium">{recordToMove.name}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Mobile:
-                  </span>
-                  <p className="font-medium">
-                    <button
-                      onClick={() => handleCopyMobile(recordToMove.mobile)}
-                      className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                      title="Click to copy mobile number"
-                    >
-                      <Phone className="h-3 w-3" />
-                      <a
-                        href={`tel:${recordToMove.mobile}`}
-                        className="hover:underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {recordToMove.mobile}
-                      </a>
-                      {copiedNumber === recordToMove.mobile && (
-                        <Copy className="h-3 w-3 text-green-600" />
-                      )}
-                    </button>
-                  </p>
-                </div>
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Item Type:
-                  </span>
-                  <span
-                    className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      recordToMove.itemType === 'Gold'
-                        ? 'bg-yellow-500 text-white'
-                        : 'bg-gray-400 text-white'
-                    }`}
-                  >
-                    {recordToMove.itemType}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-muted-foreground">
-                    Amount:
-                  </span>
-                  <p className="font-medium">
-                    ₹{recordToMove.amount.toLocaleString()}
-                  </p>
-                </div>
-                <div className="sm:col-span-2">
-                  <span className="font-medium text-muted-foreground">
-                    Current Category:
-                  </span>
-                  <span className="ml-2 font-medium capitalize text-blue-600">
-                    {recordToMove.itemCategory}
-                  </span>
-                </div>
-                <div className="sm:col-span-2">
-                  <span className="font-medium text-muted-foreground">
-                    Moving to:
-                  </span>
-                  <span className="ml-2 font-medium capitalize text-green-600">
-                    {moveTargetCategory}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
-            <AlertDialogCancel
-              disabled={moveLoading}
-              className="w-full sm:w-auto"
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleMoveConfirm}
-              disabled={moveLoading}
-              className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
-            >
-              {moveLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <ArrowRight className="mr-2 h-4 w-4" />
-              )}
-              {moveLoading ? 'Moving...' : 'Move Record'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
+              <AlertDialogCancel
+                disabled={moveLoading}
+                className="w-full sm:w-auto"
+              >
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleMoveConfirm}
+                disabled={moveLoading}
+                className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
+              >
+                {moveLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                )}
+                {moveLoading ? 'Moving...' : 'Move Record'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 }

@@ -105,13 +105,13 @@ interface DashboardData {
 }
 
 const quickActions = [
-  {
-    title: 'New Record',
-    description: 'Create a new pawn record',
-    icon: Plus,
-    color: 'text-green-600',
-    href: '/records/new',
-  },
+  // {
+  //   title: 'Search Records',
+  //   description: 'Find and filter records quickly',
+  //   icon: Eye,
+  //   color: 'text-indigo-600',
+  //   href: '/records/search',
+  // },
   {
     title: 'Active Records',
     description: 'View all active records',
@@ -134,11 +134,11 @@ const quickActions = [
     href: '/records/big',
   },
   {
-    title: 'Export Records',
-    description: 'Download records as CSV',
-    icon: Download,
-    color: 'text-gray-600',
-    href: '/records/export',
+    title: 'Generate Report',
+    description: 'Create detailed analytics report',
+    icon: BarChart3,
+    color: 'text-teal-600',
+    href: '/reports/generate',
   },
 ];
 
