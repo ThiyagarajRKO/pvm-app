@@ -75,6 +75,12 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  /* Override react-spring-bottom-sheet z-index to appear above floating bar */
+  .mobile-bottom-sheet [data-rsbs-overlay],
+  .mobile-bottom-sheet [data-rsbs-backdrop],
+  .mobile-bottom-sheet [data-rsbs-root]:after {
+    z-index: 9999 !important;
+  }
   .mobile-bottom-sheet *::-webkit-scrollbar {
     width: 0;
     height: 0;
