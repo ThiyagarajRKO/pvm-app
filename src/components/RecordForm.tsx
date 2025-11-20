@@ -11,13 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AutocompleteInput from '@/components/AutocompleteInput';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { api } from '@/lib/api-client';
 import { DEFAULT_STREETS, DEFAULT_PLACES } from '@/lib/constants';
 import {
@@ -514,24 +507,36 @@ export default function RecordForm({
                       <FormLabel className="text-foreground">
                         Item Type
                       </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger
-                            className={
-                              fieldState.error ? 'border-destructive' : ''
-                            }
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          {
+                            type: 'Gold',
+                            icon: '🥇',
+                            color: 'bg-yellow-300',
+                            hoverColor: 'hover:bg-yellow-400',
+                          },
+                          {
+                            type: 'Silver',
+                            icon: '🥈',
+                            color: 'bg-gray-300',
+                            hoverColor: 'hover:bg-gray-400',
+                          },
+                        ].map(({ type, icon, color, hoverColor }) => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => field.onChange(type)}
+                            className={`flex items-center justify-center gap-2 rounded-lg border-2 p-3 transition-all duration-200 ${
+                              field.value === type
+                                ? `${color} border-transparent text-white shadow-md`
+                                : `border-gray-300 bg-white text-gray-700 ${hoverColor} hover:text-white hover:shadow-sm`
+                            } ${fieldState.error ? 'border-red-300' : ''}`}
                           >
-                            <SelectValue placeholder="Select item type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="z-[10000]">
-                          <SelectItem value="Gold">Gold</SelectItem>
-                          <SelectItem value="Silver">Silver</SelectItem>
-                        </SelectContent>
-                      </Select>
+                            <span className="text-lg">{icon}</span>
+                            <span className="text-sm font-medium">{type}</span>
+                          </button>
+                        ))}
+                      </div>
                       <FormMessage className="text-xs" />
                     </FormItem>
                   )}
