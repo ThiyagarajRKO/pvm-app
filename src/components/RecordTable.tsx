@@ -54,6 +54,7 @@ interface Record {
   itemType: 'Gold' | 'Silver';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
+  interest: number;
   mobile: string;
   personImageUrl?: string;
   itemImageUrl?: string;
@@ -122,6 +123,7 @@ export default function RecordTable({
             <TableHead>Type</TableHead>
             <TableHead className="text-right">Weight</TableHead>
             <TableHead className="text-right">Amount</TableHead>
+            <TableHead className="text-right">Interest</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -155,6 +157,9 @@ export default function RecordTable({
                     <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
                   </TableCell>
                   <TableCell className="text-right">
+                    <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
                     <div className="ml-auto h-4 w-8 animate-pulse rounded bg-muted"></div>
                   </TableCell>
                 </TableRow>
@@ -182,6 +187,9 @@ export default function RecordTable({
                   </TableCell>
                   <TableCell className="text-right">
                     ₹{record.amount.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {record.interest}%
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

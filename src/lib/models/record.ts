@@ -16,6 +16,8 @@ interface RecordAttributes {
   itemType: ItemType;
   itemCategory: ItemCategory;
   amount: number;
+  interest: number;
+  returnedAmount: number;
   mobile: string;
   personImageUrl?: string | null;
   itemImageUrl?: string | null;
@@ -50,6 +52,8 @@ export class Record
   declare itemType: ItemType;
   declare itemCategory: ItemCategory;
   declare amount: number;
+  declare interest: number;
+  declare returnedAmount: number;
   declare mobile: string;
   declare personImageUrl?: string | null;
   declare itemImageUrl?: string | null;
@@ -96,6 +100,12 @@ async function initializeModel() {
           },
         },
         amount: { type: DataTypes.FLOAT, allowNull: false },
+        interest: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
+        returnedAmount: {
+          type: DataTypes.FLOAT,
+          allowNull: false,
+          defaultValue: 2.5,
+        },
         mobile: { type: DataTypes.STRING, allowNull: false },
         personImageUrl: { type: DataTypes.STRING, allowNull: true },
         itemImageUrl: { type: DataTypes.STRING, allowNull: true },

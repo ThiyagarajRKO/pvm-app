@@ -105,8 +105,8 @@ export default function RecordStats({
   ];
 
   return (
-    // Show 5 stats in a row on tablets and laptops (md+)
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5">
+    // Show stats in a responsive grid
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
       {stats
         .filter((s) => !exclude.includes(s.key as any))
         .map((stat, index) => {

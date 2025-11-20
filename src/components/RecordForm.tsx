@@ -349,7 +349,11 @@ export default function RecordForm({
                           }
                           {...field}
                           onChange={(e) =>
-                            field.onChange(parseFloat(e.target.value) || 0)
+                            field.onChange(
+                              e.target.value === ''
+                                ? undefined
+                                : parseFloat(e.target.value)
+                            )
                           }
                         />
                       </FormControl>
@@ -402,7 +406,11 @@ export default function RecordForm({
                           }
                           {...field}
                           onChange={(e) =>
-                            field.onChange(parseInt(e.target.value) || 0)
+                            field.onChange(
+                              e.target.value === ''
+                                ? undefined
+                                : parseInt(e.target.value)
+                            )
                           }
                         />
                       </FormControl>
@@ -411,6 +419,15 @@ export default function RecordForm({
                   )}
                 />
               </div>
+
+              {form.watch('amount') && form.watch('amount') > 0 && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Interest Rate:{' '}
+                  <span className="font-medium">
+                    {form.watch('amount') >= 1000 ? '2.5%' : '3%'}
+                  </span>
+                </p>
+              )}
             </div>
           </fieldset>
 
