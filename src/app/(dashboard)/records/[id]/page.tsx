@@ -35,6 +35,8 @@ import {
   AlertTriangle,
   RotateCcw,
   Loader2,
+  User,
+  Package,
 } from 'lucide-react';
 import EditRecordPanel from '@/components/EditRecordPanel';
 import { api } from '@/lib/api-client';
@@ -327,11 +329,22 @@ export default function RecordDetailPage({
               <CardTitle>Person Image</CardTitle>
             </CardHeader>
             <CardContent>
-              <img
-                src={record.personImageUrl}
-                alt="Person"
-                className="h-48 w-full rounded-md object-cover"
-              />
+              {record.personImageUrl ? (
+                <img
+                  src={record.personImageUrl}
+                  alt="Person"
+                  className="h-48 w-full rounded-md object-cover"
+                />
+              ) : (
+                <div className="flex h-48 w-full items-center justify-center rounded-md bg-muted">
+                  <div className="text-center">
+                    <User className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      No person image
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -340,11 +353,22 @@ export default function RecordDetailPage({
               <CardTitle>Item Image</CardTitle>
             </CardHeader>
             <CardContent>
-              <img
-                src={record.itemImageUrl}
-                alt="Item"
-                className="h-48 w-full rounded-md object-cover"
-              />
+              {record.itemImageUrl ? (
+                <img
+                  src={record.itemImageUrl}
+                  alt="Item"
+                  className="h-48 w-full rounded-md object-cover"
+                />
+              ) : (
+                <div className="flex h-48 w-full items-center justify-center rounded-md bg-muted">
+                  <div className="text-center">
+                    <Package className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      No item image
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
