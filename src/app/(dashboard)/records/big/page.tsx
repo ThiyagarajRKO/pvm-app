@@ -171,6 +171,12 @@ export default function BigRecordsPage() {
     }
   };
 
+  const handleReturnItem = async (id: number) => {
+    // TODO: Implement return item functionality
+    console.log('Return item for record:', id);
+    toast.info('Return item functionality coming soon');
+  };
+
   const handleExport = () => {
     // TODO: Implement CSV export
     toast.info('CSV export coming soon');
@@ -278,6 +284,7 @@ export default function BigRecordsPage() {
             onDelete={handleDelete}
             onEdit={setEditRecord}
             onMove={handleMove}
+            onReturnItem={handleReturnItem}
             variant="big"
           />
         </CardContent>

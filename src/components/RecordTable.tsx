@@ -39,6 +39,7 @@ import {
   MoreHorizontal,
   ArrowRight,
   AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
 
 interface Record {
@@ -65,6 +66,7 @@ interface RecordTableProps {
   records: Record[];
   onDelete?: (id: number) => void;
   onEdit?: (record: Record) => void;
+  onReturnItem?: (id: number) => void;
   onMove?: (id: number, newCategory: 'active' | 'archived' | 'big') => void;
   variant?: 'default' | 'active' | 'archived' | 'big';
 }
@@ -73,6 +75,7 @@ export default function RecordTable({
   records,
   onDelete,
   onEdit,
+  onReturnItem,
   onMove,
   variant = 'default',
 }: RecordTableProps) {
@@ -167,6 +170,14 @@ export default function RecordTable({
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => onReturnItem?.(record.id)}
+                      className="text-green-600 focus:text-green-600"
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Return Item
                     </DropdownMenuItem>
                     {moveOptions.length > 0 && (
                       <>
