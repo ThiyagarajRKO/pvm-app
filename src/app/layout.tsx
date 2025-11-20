@@ -1,5 +1,5 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { ClientProviders } from '@/components/ClientProviders';
 
@@ -10,9 +10,6 @@ export const metadata: Metadata = {
   description:
     'Comprehensive pawn shop management system for tracking records, inventory, and customer data',
   manifest: '/manifest.json',
-  themeColor: '#262083',
-  viewport:
-    'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -32,6 +29,14 @@ export const metadata: Metadata = {
     title: 'PVM - Pawn Shop Management',
     description: 'Comprehensive pawn shop management system',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#262083',
 };
 
 export default function RootLayout({

@@ -41,7 +41,7 @@ export function usePWA() {
           );
 
           // Wait for the service worker to be ready
-          registration.ready.then(() => {
+          (registration as any).ready?.then(() => {
             console.log(
               '[PWA] Service Worker ready, state:',
               registration.active?.state
