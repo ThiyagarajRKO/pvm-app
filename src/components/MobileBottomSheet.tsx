@@ -75,6 +75,7 @@ export default function MobileBottomSheet({
       open={localOpen}
       onDismiss={handleDismiss}
       snapPoints={({ maxHeight }) => [
+        maxHeight * 1.0, // Full screen
         maxHeight * initialSnapPct,
         maxHeight * 0.5,
       ]}

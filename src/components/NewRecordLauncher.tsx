@@ -32,9 +32,9 @@ export default function NewRecordLauncher({
           aria-label="Create new record"
           title="Create new record"
           onClick={handleOpen}
-          className="flex h-12 w-12 items-center justify-center rounded-full p-0 shadow-lg"
+          className="flex h-14 w-14 items-center justify-center rounded-full p-0 shadow-lg"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-6 w-6" />
         </Button>
       ) : (
         <Button onClick={handleOpen}>
