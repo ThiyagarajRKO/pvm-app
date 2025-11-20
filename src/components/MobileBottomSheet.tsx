@@ -13,6 +13,7 @@ export default function MobileBottomSheet({
   onSpringEnd,
   title,
   children,
+  initialSnapPct = 0.75,
 }: {
   open?: boolean;
   onDismiss?: () => void;
@@ -20,6 +21,7 @@ export default function MobileBottomSheet({
   onSpringEnd?: (event: any) => void;
   title?: string;
   children?: React.ReactNode;
+  initialSnapPct?: number; // fraction of maxHeight to use as initial snap
 }) {
   const [localOpen, setLocalOpen] = React.useState(open);
   const alreadyDismissedRef = React.useRef(false);
@@ -50,7 +52,12 @@ export default function MobileBottomSheet({
       onSpringEnd={internalOnSpringEnd}
       open={localOpen}
       onDismiss={handleDismiss}
-      snapPoints={({ maxHeight }) => [maxHeight * 0.9, maxHeight * 0.5]}
+      snapPoints={({ maxHeight }) => [
+        maxHeight * initialSnapPct,
+        maxHeight * 0.5,
+      ]}
+      // Force the initial snap to initialSnapPct so it opens larger than 50%
+      defaultSnap={({ maxHeight }) => maxHeight * initialSnapPct}
     >
       <div className="flex items-center justify-between border-b px-4 py-3">
         <h3 className="text-lg font-medium">{title}</h3>

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import MobileBottomSheet from './MobileBottomSheet';
 import DesktopSlidePanel from './DesktopSlidePanel';
 import RecordForm from './RecordForm';
@@ -9,9 +9,11 @@ import RecordForm from './RecordForm';
 export default function NewRecordPanel({
   redirectTo = '/records/active',
   onClose,
+  onBeginClose,
 }: {
   redirectTo?: string;
   onClose?: () => void;
+  onBeginClose?: () => void;
 }) {
   const router = useRouter();
   const [isMobile, setIsMobile] = React.useState(false);
@@ -26,12 +28,17 @@ export default function NewRecordPanel({
     return () => m.removeEventListener('change', update);
   }, []);
 
+  const pathname = usePathname();
+
   const handleClose = () => {
     // notify parent to close inline launcher
     onClose?.();
-
-    // when redirectTo provided, navigate back
-    if (redirectTo) router.push(redirectTo);
+    // when redirectTo provided, navigate back, but avoid navigating to the same path
+    // to prevent unnecessary refresh/scroll. Also delay navigation slightly so the
+    // floating bar can re-appear without visual jump.
+    if (redirectTo && redirectTo !== pathname) {
+      setTimeout(() => router.push(redirectTo), 60);
+    }
   };
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(true);
@@ -40,23 +47,43 @@ export default function NewRecordPanel({
     return (
       <MobileBottomSheet
         open={isSheetOpen}
-        onDismiss={() => setIsSheetOpen(false)}
+        onDismiss={() => {
+          // start close: hide local sheet and notify parent immediately
+          setIsSheetOpen(false);
+          onBeginClose?.();
+        }}
         onAfterDismiss={handleClose}
         title="Create New Record"
+        initialSnapPct={0.8}
       >
-        <RecordForm compact onCancel={() => setIsSheetOpen(false)} />
+        <RecordForm
+          compact
+          onCancel={() => {
+            setIsSheetOpen(false);
+            onBeginClose?.();
+          }}
+        />
       </MobileBottomSheet>
     );
   }
   return (
     <DesktopSlidePanel
       open={isDialogOpen}
-      onClose={() => setIsDialogOpen(false)}
+      onClose={() => {
+        setIsDialogOpen(false);
+        onBeginClose?.();
+      }}
       onAfterClose={handleClose}
       title="Create New Record"
       maxWidth={400}
     >
-      <RecordForm compact onCancel={() => setIsDialogOpen(false)} />
+      <RecordForm
+        compact
+        onCancel={() => {
+          setIsDialogOpen(false);
+          onBeginClose?.();
+        }}
+      />
     </DesktopSlidePanel>
   );
 }
