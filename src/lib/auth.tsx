@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: any }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await api.post('/api/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email, password });
 
       if (response.data) {
         const data = response.data;
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: any }) {
 
   const logout = async (redirectToLogin = true) => {
     try {
-      await api.post('/api/auth/logout');
+      await api.post('/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     }

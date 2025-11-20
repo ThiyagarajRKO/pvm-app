@@ -99,7 +99,7 @@ export default function RecordForm({
       }
 
       // Get presigned URL
-      const presignResponse = await api.post('/api/s3/presign', {
+      const presignResponse = await api.post('/s3/presign', {
         fileName: file.name,
         contentType: file.type,
         folder: 'pawn-records',
@@ -194,7 +194,7 @@ export default function RecordForm({
       try {
         const url = new URL(imageUrl);
         const key = url.pathname.substring(1); // Remove leading slash
-        await api.post('/api/s3/delete', { key });
+        await api.post('/s3/delete', { key });
       } catch (error) {
         console.error('Failed to delete image:', error);
       }
@@ -261,7 +261,7 @@ export default function RecordForm({
         itemImageUrl: itemImageUrl || undefined,
       };
 
-      const url = isEdit ? `/api/records/${recordId}` : '/api/records';
+      const url = isEdit ? `/records/${recordId}` : '/records';
       const method = isEdit ? 'PUT' : 'POST';
 
       const response =

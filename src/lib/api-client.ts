@@ -10,7 +10,7 @@ interface ApiResponse<T = any> {
 }
 
 class ApiClient {
-  private baseURL = '';
+  private baseURL = '/api';
 
   async request<T = any>(
     endpoint: string,

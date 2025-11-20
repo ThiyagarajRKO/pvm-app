@@ -129,7 +129,7 @@ export default function ArchivedRecordsPage() {
         if (streetFilter) params.append('street', streetFilter);
         if (placeFilter) params.append('place', placeFilter);
 
-        const response = await api.get(`/api/records?${params.toString()}`);
+        const response = await api.get(`/records?${params.toString()}`);
         if (response.error) throw new Error(response.error);
         const data = response.data;
         setRecords(data.data || []);
@@ -203,7 +203,7 @@ export default function ArchivedRecordsPage() {
     newCategory: 'active' | 'archived' | 'big'
   ) => {
     try {
-      const response = await api.put(`/api/records/${id}`, {
+      const response = await api.put(`/records/${id}`, {
         itemCategory: newCategory,
       });
       if (response.error) throw new Error(response.error);
@@ -221,7 +221,7 @@ export default function ArchivedRecordsPage() {
       return;
 
     try {
-      const response = await api.delete(`/api/records/${id}`);
+      const response = await api.delete(`/records/${id}`);
       if (response.error) throw new Error(response.error);
 
       setRecords(records.filter((record) => record.id !== id));

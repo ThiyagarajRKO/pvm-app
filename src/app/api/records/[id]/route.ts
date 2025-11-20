@@ -11,7 +11,7 @@ export const GET = withAuth(
       const id = Number(params.id);
       const record = await RecordModel.findByPk(id);
       if (!record)
-        return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Not found' }, { status: 400 });
       return NextResponse.json(record);
     } catch (err) {
       console.error(err);

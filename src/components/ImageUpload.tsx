@@ -71,7 +71,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       );
 
       // Get presigned URL
-      const presignResponse = await api.post('/api/s3/presign', {
+      const presignResponse = await api.post('/s3/presign', {
         fileName: fileData.file.name,
         contentType: fileData.file.type,
         folder: 'pawn-records',
@@ -209,7 +209,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       // Delete from server if it was uploaded
       try {
         const key = extractS3Key(imageUrl);
-        await api.post('/api/s3/delete', { key });
+        await api.post('/s3/delete', { key });
       } catch (error) {
         console.error('Failed to delete image:', error);
       }
@@ -222,7 +222,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     // Delete from server
     try {
       const key = extractS3Key(imageUrl);
-      await api.post('/api/s3/delete', { key });
+      await api.post('/s3/delete', { key });
     } catch (error) {
       console.error('Failed to delete image:', error);
     }
