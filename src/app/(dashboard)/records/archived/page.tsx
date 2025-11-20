@@ -318,20 +318,24 @@ export default function ArchivedRecordsPage() {
   return (
     <div className="space-y-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <Archive className="h-5 w-5 text-gray-600" />
-          <h1 className="text-base font-semibold sm:text-xl">
-            Archived Records
-          </h1>
+        <div className="flex items-center justify-between sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Archive className="h-5 w-5 text-gray-600" />
+            <h1 className="text-base font-semibold sm:text-xl">
+              Archived Records
+            </h1>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0 sm:hidden"
+            onClick={handleExport}
+          >
+            <Download className="h-4 w-4" />
+          </Button>
         </div>
         <div className="hidden flex-row gap-2 sm:flex">
           <Button variant="outline" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
-        </div>
-        <div className="flex items-center gap-2 sm:hidden">
-          <Button variant="outline" className="flex-1" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
