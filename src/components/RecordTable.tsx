@@ -40,6 +40,8 @@ import {
   ArrowRight,
   AlertTriangle,
   RotateCcw,
+  Phone,
+  Copy,
 } from 'lucide-react';
 
 interface Record {
@@ -84,6 +86,7 @@ export default function RecordTable({
 }: RecordTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState<Record | null>(null);
+  const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
 
   const handleDeleteClick = (record: Record) => {
     setRecordToDelete(record);
@@ -110,6 +113,16 @@ export default function RecordTable({
   };
 
   const moveOptions = getMoveOptions(variant);
+
+  const handleCopyMobile = async (mobile: string) => {
+    try {
+      await navigator.clipboard.writeText(mobile);
+      setCopiedNumber(mobile);
+      setTimeout(() => setCopiedNumber(null), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy mobile number:', err);
+    }
+  };
   return (
     <div className="rounded-md border">
       <Table>
@@ -171,7 +184,25 @@ export default function RecordTable({
                     {new Date(record.date).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="font-medium">{record.name}</TableCell>
-                  <TableCell>{record.mobile}</TableCell>
+                  <TableCell>
+                    <button
+                      onClick={() => handleCopyMobile(record.mobile)}
+                      className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                      title="Click to copy mobile number"
+                    >
+                      <Phone className="h-3 w-3" />
+                      <a
+                        href={`tel:${record.mobile}`}
+                        className="hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {record.mobile}
+                      </a>
+                      {copiedNumber === record.mobile && (
+                        <Copy className="h-3 w-3 text-green-600" />
+                      )}
+                    </button>
+                  </TableCell>
                   <TableCell>{record.place}</TableCell>
                   <TableCell>
                     <Badge
@@ -285,7 +316,25 @@ export default function RecordTable({
                   <span className="font-medium text-muted-foreground">
                     Mobile:
                   </span>
-                  <p className="font-medium">{recordToDelete.mobile}</p>
+                  <p className="font-medium">
+                    <button
+                      onClick={() => handleCopyMobile(recordToDelete.mobile)}
+                      className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                      title="Click to copy mobile number"
+                    >
+                      <Phone className="h-3 w-3" />
+                      <a
+                        href={`tel:${recordToDelete.mobile}`}
+                        className="hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {recordToDelete.mobile}
+                      </a>
+                      {copiedNumber === recordToDelete.mobile && (
+                        <Copy className="h-3 w-3 text-green-600" />
+                      )}
+                    </button>
+                  </p>
                 </div>
                 <div>
                   <span className="font-medium text-muted-foreground">
