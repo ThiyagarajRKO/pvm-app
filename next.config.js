@@ -2,10 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ['localhost', 'api.myrameswaramtrip.com'],
-  },
-  env: {
-    CUSTOM_KEY: 'custom_value',
+    domains: ['localhost'],
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
