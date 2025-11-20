@@ -40,32 +40,35 @@ export default function EditRecordPanel({
   onSuccess,
 }: EditRecordPanelProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isMobile, setIsMobile] = React.useState(false);
   const [isSheetOpen, setIsSheetOpen] = React.useState(true);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(true);
 
   React.useEffect(() => {
-    const query = '(max-width: 639px)';
-    const m = window.matchMedia(query);
-    const update = () => setIsMobile(m.matches);
-    update();
-    m.addEventListener('change', update);
-    return () => m.removeEventListener('change', update);
-  }, []);
+    // Set initial mobile state based on screen width
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
 
-  const pathname = usePathname();
+    // Set initial state immediately
+    checkMobile();
+
+    // Listen for window resize
+    const handleResize = () => checkMobile();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleClose = () => {
     // notify parent to close inline launcher
     onClose?.();
-    // when redirectTo provided, navigate back, but avoid navigating to the same path
-    // to prevent unnecessary refresh/scroll. Also delay navigation slightly so the
-    // floating bar can re-appear without visual jump.
-    if (redirectTo && redirectTo !== pathname) {
+    // Only navigate if onClose is not provided (i.e., we're in a separate page)
+    // and redirectTo is different from current path
+    if (!onClose && redirectTo && redirectTo !== pathname) {
       setTimeout(() => router.push(redirectTo), 60);
     }
   };
-
-  const [isDialogOpen, setIsDialogOpen] = React.useState(true);
 
   if (isMobile) {
     return (

@@ -1,27 +1,81 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  MoreHorizontal,
+  AlertTriangle,
+  RotateCcw,
+} from 'lucide-react';
+import EditRecordPanel from '@/components/EditRecordPanel';
 
 export default function RecordDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editPanelOpen, setEditPanelOpen] = useState(false);
+
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    // TODO: Implement delete functionality
+    console.log('Delete record:', params.id);
+    setDeleteDialogOpen(false);
+  };
+
+  const handleEditClick = () => {
+    setEditPanelOpen(true);
+  };
+
+  const handleReturnItemClick = () => {
+    console.log('Return item for record:', params.id);
+    // TODO: Implement return item functionality
+  };
+
   // Mock data - will be replaced with API call
   const record = {
-    id: params.id,
+    id: Number(params.id),
     date: '2024-01-15',
     name: 'John Doe',
     fatherName: 'Robert Doe',
     street: 'Main Street',
     place: 'Mumbai',
     weightGrams: 25.5,
-    itemType: 'Gold',
+    itemType: 'Gold' as const,
+    itemCategory: 'active' as const,
     amount: 150000,
     mobile: '9876543210',
     personImageUrl: '/placeholder-person.jpg',
@@ -32,7 +86,55 @@ export default function RecordDetailPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/* Mobile Header */}
+      <div className="block md:hidden">
+        <div className="flex items-center justify-between">
+          <Link href="/records">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <h1 className="text-lg font-semibold">Record #{record.id}</h1>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-48 p-1">
+              <div className="space-y-1">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={handleEditClick}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-green-600 hover:text-green-600"
+                  onClick={handleReturnItemClick}
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Return Item
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-destructive hover:text-destructive"
+                  onClick={handleDeleteClick}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden items-center justify-between md:flex">
         <div className="flex items-center gap-2">
           <Link href="/records">
             <Button variant="outline" size="sm">
@@ -42,18 +144,33 @@ export default function RecordDetailPage({
           </Link>
           <h1 className="text-xl font-semibold">Record #{record.id}</h1>
         </div>
-        <div className="flex gap-2">
-          <Link href={`/records/${record.id}/edit`}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="z-50">
+            <DropdownMenuItem onSelect={handleEditClick}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
-            </Button>
-          </Link>
-          <Button variant="destructive" size="sm">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </Button>
-        </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={handleReturnItemClick}
+              className="text-green-600 focus:text-green-600"
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Return Item
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={handleDeleteClick}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -180,6 +297,87 @@ export default function RecordDetailPage({
           </Card>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                <AlertDialogDescription className="mt-2">
+                  Are you sure you want to delete this record? This action
+                  cannot be undone.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          <div className="my-4 rounded-lg border bg-muted/50 p-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-muted-foreground">Name:</span>
+                <p className="font-medium">{record.name}</p>
+              </div>
+              <div>
+                <span className="font-medium text-muted-foreground">
+                  Mobile:
+                </span>
+                <p className="font-medium">{record.mobile}</p>
+              </div>
+              <div>
+                <span className="font-medium text-muted-foreground">
+                  Item Type:
+                </span>
+                <Badge
+                  variant={record.itemType === 'Gold' ? 'default' : 'secondary'}
+                  className="text-xs"
+                >
+                  {record.itemType}
+                </Badge>
+              </div>
+              <div>
+                <span className="font-medium text-muted-foreground">
+                  Amount:
+                </span>
+                <p className="font-medium">₹{record.amount.toLocaleString()}</p>
+              </div>
+              <div className="col-span-2">
+                <span className="font-medium text-muted-foreground">
+                  Place:
+                </span>
+                <p className="font-medium">{record.place}</p>
+              </div>
+            </div>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Record Panel */}
+      {editPanelOpen && (
+        <EditRecordPanel
+          record={record}
+          onClose={() => setEditPanelOpen(false)}
+          onSuccess={() => {
+            setEditPanelOpen(false);
+            // TODO: Refresh record data after successful edit
+          }}
+        />
+      )}
     </div>
   );
 }
