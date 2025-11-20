@@ -226,27 +226,32 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4 p-1">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">
             Records Dashboard
           </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
             Overview of your pawn records and management statistics.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchDashboardData}>
-            <RefreshCw className="mr-2 h-3 w-3" />
-            Refresh
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchDashboardData}
+            className="flex-1 sm:flex-none"
+          >
+            <RefreshCw className="mr-1 h-3 w-3 sm:mr-2" />
+            <span className="xs:inline hidden">Refresh</span>
           </Button>
-          <Button variant="outline" size="sm">
-            <BarChart3 className="mr-2 h-3 w-3" />
-            View Reports
+          <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+            <BarChart3 className="mr-1 h-3 w-3 sm:mr-2" />
+            <span className="xs:inline hidden">Reports</span>
           </Button>
-          <Button size="sm">
-            <Bell className="mr-2 h-3 w-3" />
-            Notifications
+          <Button size="sm" className="flex-1 sm:flex-none">
+            <Bell className="mr-1 h-3 w-3 sm:mr-2" />
+            <span className="xs:inline hidden">Alerts</span>
           </Button>
         </div>
       </div>
@@ -454,41 +459,58 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {recentRecords.map((record) => (
                 <div
                   key={record.id}
-                  className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50"
+                  className="relative flex flex-col gap-3 rounded-lg border p-3 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between sm:p-4"
                 >
-                  <div className="flex items-center gap-3">
+                  {/* Category Badge - Top Right on Mobile Only */}
+                  <div className="absolute right-2 top-2 sm:hidden">
+                    <Badge
+                      variant={
+                        record.itemCategory === 'active'
+                          ? 'default'
+                          : 'secondary'
+                      }
+                      className="text-xs"
+                    >
+                      {record.itemCategory}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center gap-3 pr-16 sm:pr-0">
                     <div
                       className={`rounded-lg p-2 ${record.itemType === 'Gold' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}
                     >
                       {record.itemType === 'Gold' ? (
-                        <Gem className="h-5 w-5" />
+                        <Gem className="h-4 w-4 sm:h-5 sm:w-5" />
                       ) : (
-                        <Scale className="h-5 w-5" />
+                        <Scale className="h-4 w-4 sm:h-5 sm:w-5" />
                       )}
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold">{record.name}</h3>
-                      <div className="flex items-center gap-3 text-xs text-gray-600">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate text-sm font-semibold">
+                        {record.name}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 sm:gap-3">
                         <span>{formatWeight(record.weightGrams)}</span>
                         <span>{formatCurrency(record.amount)}</span>
+                        {/* Category Badge - Inline on Desktop/Tablet */}
                         <Badge
                           variant={
                             record.itemCategory === 'active'
                               ? 'default'
                               : 'secondary'
                           }
-                          className="text-xs"
+                          className="hidden text-xs sm:inline-flex"
                         >
                           {record.itemCategory}
                         </Badge>
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
                     <div className="text-sm font-semibold">#{record.slNo}</div>
                     <div className="text-xs text-gray-500">
                       {new Date(record.createdAt).toLocaleDateString()}
