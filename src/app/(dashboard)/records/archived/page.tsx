@@ -27,6 +27,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import StreetSelect from '@/components/StreetSelect';
 import PlaceSelect from '@/components/PlaceSelect';
 import MobileBottomSheet from '@/components/MobileBottomSheet';
+import { api } from '@/lib/api-client';
 
 interface Record {
   id: number;
@@ -128,9 +129,9 @@ export default function ArchivedRecordsPage() {
         if (streetFilter) params.append('street', streetFilter);
         if (placeFilter) params.append('place', placeFilter);
 
-        const response = await fetch(`/api/records?${params.toString()}`);
-        if (!response.ok) throw new Error('Failed to fetch archived records');
-        const data = await response.json();
+        const response = await api.get(`/api/records?${params.toString()}`);
+        if (response.error) throw new Error(response.error);
+        const data = response.data;
         setRecords(data.data || []);
         setTotalPages(Math.ceil(data.total / pageSize));
         setTotalRecords(data.total);
@@ -202,14 +203,10 @@ export default function ArchivedRecordsPage() {
     newCategory: 'active' | 'archived' | 'big'
   ) => {
     try {
-      const response = await fetch(`/api/records/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ itemCategory: newCategory }),
+      const response = await api.put(`/api/records/${id}`, {
+        itemCategory: newCategory,
       });
-      if (!response.ok) throw new Error('Failed to move record');
+      if (response.error) throw new Error(response.error);
 
       // Remove from current list and refresh
       setRecords(records.filter((record) => record.id !== id));
@@ -224,10 +221,8 @@ export default function ArchivedRecordsPage() {
       return;
 
     try {
-      const response = await fetch(`/api/records/${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete record');
+      const response = await api.delete(`/api/records/${id}`);
+      if (response.error) throw new Error(response.error);
 
       setRecords(records.filter((record) => record.id !== id));
       toast.success('Archived record deleted successfully');

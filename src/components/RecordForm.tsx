@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { api } from '@/lib/api-client';
 import {
   Form,
   FormControl,
@@ -134,17 +135,11 @@ export default function RecordForm({
       const url = isEdit ? `/api/records/${recordId}` : '/api/records';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await api.request(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(recordData),
+        body: recordData,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to save record');
-      }
+      if (response.error) throw new Error(response.error);
       // close sheet if onCancel is provided (mobile) or navigate back on desktop
       if (onCancel) onCancel();
       else router.push('/records/active');

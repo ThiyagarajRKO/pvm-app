@@ -9,6 +9,7 @@ import {
   CheckCircle,
   Loader2,
 } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
 interface ImageFile {
   file: File;
@@ -70,25 +71,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       );
 
       // Get presigned URL
-      const presignResponse = await fetch('/api/s3/presign', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-file-size': fileData.file.size.toString(),
-        },
-        body: JSON.stringify({
-          fileName: fileData.file.name,
-          contentType: fileData.file.type,
-          folder: 'pawn-records',
-        }),
+      const presignResponse = await api.post('/api/s3/presign', {
+        fileName: fileData.file.name,
+        contentType: fileData.file.type,
+        folder: 'pawn-records',
       });
-
-      if (!presignResponse.ok) {
-        const error = await presignResponse.json();
-        throw new Error(error.error || 'Failed to get upload URL');
-      }
-
-      const { uploadUrl, publicUrl } = await presignResponse.json();
+      if (presignResponse.error) throw new Error(presignResponse.error);
+      const { uploadUrl, publicUrl } = presignResponse.data;
 
       // Upload to S3
       const uploadResponse = await fetch(uploadUrl, {
@@ -220,13 +209,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       // Delete from server if it was uploaded
       try {
         const key = extractS3Key(imageUrl);
-        await fetch('/api/s3/delete', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ key }),
-        });
+        await api.post('/api/s3/delete', { key });
       } catch (error) {
         console.error('Failed to delete image:', error);
       }
@@ -239,13 +222,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     // Delete from server
     try {
       const key = extractS3Key(imageUrl);
-      await fetch('/api/s3/delete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ key }),
-      });
+      await api.post('/api/s3/delete', { key });
     } catch (error) {
       console.error('Failed to delete image:', error);
     }
