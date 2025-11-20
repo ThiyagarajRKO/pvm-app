@@ -99,28 +99,24 @@ export default function RecordForm({
       fatherName: initialData?.fatherName || '',
       street: initialData?.street || '',
       place: initialData?.place || '',
-      weightGrams: initialData?.weightGrams || 0,
+      weightGrams: initialData?.weightGrams,
       itemType: initialData?.itemType || 'Gold',
-      amount: initialData?.amount || 0,
+      amount: initialData?.amount,
       mobile: initialData?.mobile || '',
-      personImageUrl: initialData?.personImageUrl || '',
-      itemImageUrl: initialData?.itemImageUrl || '',
+      personImageUrl: initialData?.personImageUrl,
+      itemImageUrl: initialData?.itemImageUrl,
     },
   });
 
   const onSubmit = async (data: RecordFormData) => {
     setIsSubmitting(true);
     try {
-      let personImageUrl = data.personImageUrl;
-      let itemImageUrl = data.itemImageUrl;
-
-      // Upload images if files are selected
-      if (personImageFile) {
-        personImageUrl = await uploadToS3(personImageFile, 'person');
-      }
-      if (itemImageFile) {
-        itemImageUrl = await uploadToS3(itemImageFile, 'item');
-      }
+      let personImageUrl = personImageFile
+        ? await uploadToS3(personImageFile, 'person')
+        : undefined;
+      let itemImageUrl = itemImageFile
+        ? await uploadToS3(itemImageFile, 'item')
+        : undefined;
 
       const recordData = {
         ...data,
@@ -170,13 +166,19 @@ export default function RecordForm({
                 <FormField
                   control={form.control}
                   name="name"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel className="text-foreground">Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter full name" {...field} />
+                        <Input
+                          placeholder="Enter full name"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
+                          {...field}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -184,13 +186,21 @@ export default function RecordForm({
                 <FormField
                   control={form.control}
                   name="fatherName"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Father Name</FormLabel>
+                      <FormLabel className="text-foreground">
+                        Father Name
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter father's name" {...field} />
+                        <Input
+                          placeholder="Enter father's name"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
+                          {...field}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -198,9 +208,9 @@ export default function RecordForm({
                 <FormField
                   control={form.control}
                   name="mobile"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Mobile</FormLabel>
+                      <FormLabel className="text-foreground">Mobile</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter 10-digit mobile number"
@@ -217,6 +227,9 @@ export default function RecordForm({
                           maxLength={10}
                           inputMode="numeric"
                           pattern="[0-9]*"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
                         />
                       </FormControl>
                       {/* Live inline hint/error while typing */}
@@ -225,7 +238,7 @@ export default function RecordForm({
                           Mobile must be 10 digits
                         </p>
                       )}
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -243,30 +256,39 @@ export default function RecordForm({
                 <FormField
                   control={form.control}
                   name="street"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Street</FormLabel>
+                      <FormLabel className="text-foreground">Street</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter street address" {...field} />
+                        <Input
+                          placeholder="Enter street address"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
+                          {...field}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
                   name="place"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Place</FormLabel>
+                      <FormLabel className="text-foreground">Place</FormLabel>
                       <FormControl>
                         <PlaceSelect
                           value={field.value}
                           onValueChange={field.onChange}
                           contentClassName="max-h-[300px]"
+                          triggerClassName={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -283,36 +305,47 @@ export default function RecordForm({
                 <FormField
                   control={form.control}
                   name="weightGrams"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Weight (grams)</FormLabel>
+                      <FormLabel className="text-foreground">
+                        Weight (grams)
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           step="0.01"
                           placeholder="0.00"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseFloat(e.target.value) || 0)
                           }
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
                   name="itemType"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Item Type</FormLabel>
+                      <FormLabel className="text-foreground">
+                        Item Type
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger
+                            className={
+                              fieldState.error ? 'border-destructive' : ''
+                            }
+                          >
                             <SelectValue placeholder="Select item type" />
                           </SelectTrigger>
                         </FormControl>
@@ -321,27 +354,30 @@ export default function RecordForm({
                           <SelectItem value="Silver">Silver</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
                   name="amount"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Amount</FormLabel>
+                      <FormLabel className="text-foreground">Amount</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="0"
+                          placeholder="1200"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseInt(e.target.value) || 0)
                           }
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />

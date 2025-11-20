@@ -9,6 +9,7 @@ const querySchema = z.object({
   limit: z.string().optional(),
   search: z.string().optional(),
   itemType: z.enum(['Gold', 'Silver']).optional(),
+  status: z.enum(['active', 'archived', 'big']).optional(),
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
   sortBy: z.enum(['createdAt', 'amount', 'weightGrams']).optional(),
@@ -34,6 +35,7 @@ export async function GET(req: Request) {
       ];
     }
     if (parsed.itemType) where.itemType = parsed.itemType;
+    if (parsed.status) where.itemCategory = parsed.status;
     if (parsed.dateFrom || parsed.dateTo) {
       where.date = {};
       if (parsed.dateFrom) where.date[Op.gte] = parsed.dateFrom;

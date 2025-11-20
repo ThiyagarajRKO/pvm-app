@@ -70,7 +70,7 @@ export default function BigRecordsPage() {
   const fetchRecords = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/records?type=big');
+      const response = await fetch('/api/records?status=big');
       if (!response.ok) throw new Error('Failed to fetch big records');
       const data = await response.json();
       setRecords(data.data || []);

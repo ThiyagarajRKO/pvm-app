@@ -16,6 +16,8 @@ interface PlaceSelectProps {
   placeholder?: string;
   // Optional className to apply to the dropdown content (e.g., max-h-* for height)
   contentClassName?: string;
+  // Optional className for the trigger
+  triggerClassName?: string;
 }
 
 const DEFAULT_PLACES = [
@@ -36,6 +38,7 @@ export default function PlaceSelect({
   onValueChange,
   placeholder = 'Select place',
   contentClassName = 'max-h-56',
+  triggerClassName = '',
 }: PlaceSelectProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
@@ -61,7 +64,7 @@ export default function PlaceSelect({
       open={open}
       onOpenChange={setOpen}
     >
-      <SelectTrigger className="text-left">
+      <SelectTrigger className={`text-left ${triggerClassName}`}>
         <div className="w-full text-left">
           <SelectValue placeholder={placeholder} />
         </div>
