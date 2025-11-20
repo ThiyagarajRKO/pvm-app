@@ -243,15 +243,15 @@ export default function DashboardPage() {
             className="flex-1 sm:flex-none"
           >
             <RefreshCw className="mr-1 h-3 w-3 sm:mr-2" />
-            <span className="xs:inline hidden">Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </Button>
           <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
             <BarChart3 className="mr-1 h-3 w-3 sm:mr-2" />
-            <span className="xs:inline hidden">Reports</span>
+            <span className="hidden sm:inline">Reports</span>
           </Button>
           <Button size="sm" className="flex-1 sm:flex-none">
             <Bell className="mr-1 h-3 w-3 sm:mr-2" />
-            <span className="xs:inline hidden">Alerts</span>
+            <span className="hidden sm:inline">Notifications</span>
           </Button>
         </div>
       </div>
