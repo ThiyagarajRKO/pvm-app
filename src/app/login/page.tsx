@@ -51,10 +51,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            MRT Admin Panel
+            PVM Admin Panel
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            MyRameswaramTrip Administration
+            Pawn Shop Management System
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e: any) => setEmail(e.target.value)}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="admin@myrameswaramtrip.com"
+                  placeholder="admin@gmail.com"
                   required
                   disabled={isLoading}
                 />
@@ -130,7 +130,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          © 2024 MyRameswaramTrip. All rights reserved.
+          © 2024 PVM Pawn Shop. All rights reserved.
         </div>
       </div>
     </div>
