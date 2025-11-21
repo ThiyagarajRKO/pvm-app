@@ -603,15 +603,34 @@ export default function RecordForm({
                       <FormItem>
                         <FormLabel className="text-foreground">Date</FormLabel>
                         <FormControl>
-                          <Input
-                            type="date"
-                            value={field.value || ''}
-                            placeholder="Select date"
-                            className={`${
-                              fieldState.error ? 'border-destructive' : ''
-                            } cursor-pointer`}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          />
+                          <div className="relative">
+                            <Input
+                              type="date"
+                              value={field.value || ''}
+                              placeholder="Select date"
+                              className={`${
+                                fieldState.error ? 'border-destructive' : ''
+                              } cursor-pointer pr-10 [&::-moz-focus-inner]:border-0 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              className="absolute right-2 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 touch-manipulation items-center justify-center rounded-md bg-transparent p-2 transition-colors hover:bg-muted active:bg-muted"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const input = e.currentTarget
+                                  .previousElementSibling as HTMLInputElement;
+                                if (input?.showPicker) {
+                                  input.showPicker();
+                                } else {
+                                  input?.focus();
+                                  input?.click();
+                                }
+                              }}
+                            >
+                              <Calendar className="h-4 w-4 text-muted-foreground" />
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage className="text-xs" />
                       </FormItem>
