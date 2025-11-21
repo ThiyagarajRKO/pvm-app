@@ -34,6 +34,13 @@ interface DashboardStats {
     averageWeight: number;
     averageAmount: number;
   };
+  returned: {
+    totalRecords: number;
+    totalGoldCount: number;
+    totalSilverCount: number;
+    totalAmount: number;
+    totalWeightGrams: number;
+  };
   categories: {
     active: number;
     archived: number;
@@ -211,24 +218,24 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Category Stats Skeleton */}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
+        {/* Record Status Breakdown Skeleton */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
             <Card key={i} className="transition-shadow hover:shadow-md">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <div className="mb-2 h-3 w-24 animate-pulse rounded bg-gray-200"></div>
+                    <div className="mb-2 h-3 w-16 animate-pulse rounded bg-gray-200"></div>
                     <div className="h-6 w-12 animate-pulse rounded bg-gray-200"></div>
                   </div>
-                  <div className="h-6 w-6 animate-pulse rounded bg-gray-200"></div>
+                  <div className="h-5 w-5 animate-pulse rounded bg-gray-200"></div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Monthly Stats Skeleton */}
+        {/* Current Month Performance Skeleton */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -237,7 +244,28 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="text-center">
+                  <div className="mx-auto mb-2 h-6 w-12 animate-pulse rounded bg-gray-200"></div>
+                  <div className="mx-auto mb-1 h-4 w-16 animate-pulse rounded bg-gray-200"></div>
+                  <div className="mx-auto h-3 w-20 animate-pulse rounded bg-gray-200"></div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Returned Records Summary Skeleton */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="h-5 w-5 animate-pulse rounded bg-gray-200"></div>
+              <div className="h-6 w-40 animate-pulse rounded bg-gray-200"></div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="text-center">
                   <div className="mx-auto mb-2 h-6 w-12 animate-pulse rounded bg-gray-200"></div>
@@ -465,20 +493,20 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Category Stats */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      {/* Record Status Breakdown */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Card className="transition-shadow hover:shadow-md">
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Active Records
+                  Active
                 </p>
                 <p className="text-xl font-bold text-green-600">
                   {stats.categories.active.toLocaleString()}
                 </p>
               </div>
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-5 w-5 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -488,13 +516,29 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Archived Records
+                  Returned
+                </p>
+                <p className="text-xl font-bold text-blue-600">
+                  {stats.returned.totalRecords.toLocaleString()}
+                </p>
+              </div>
+              <RotateCcw className="h-5 w-5 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Archived
                 </p>
                 <p className="text-xl font-bold text-orange-600">
                   {stats.categories.archived.toLocaleString()}
                 </p>
               </div>
-              <Archive className="h-6 w-6 text-orange-600" />
+              <Archive className="h-5 w-5 text-orange-600" />
             </div>
           </CardContent>
         </Card>
@@ -510,22 +554,22 @@ export default function DashboardPage() {
                   {stats.categories.big.toLocaleString()}
                 </p>
               </div>
-              <Star className="h-6 w-6 text-purple-600" />
+              <Star className="h-5 w-5 text-purple-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Monthly Stats */}
+      {/* Current Month Performance */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            This Month Overview
+            This Month Performance
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
               <p className="text-xl font-bold text-blue-600">
                 {stats.currentMonth.records}
@@ -563,6 +607,45 @@ export default function DashboardPage() {
               <p className="text-xl font-bold text-gray-600">
                 {stats.currentMonth.goldCount}G /{' '}
                 {stats.currentMonth.silverCount}S
+              </p>
+              <p className="text-sm text-gray-600">Gold/Silver</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Returned Records Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <RotateCcw className="h-5 w-5" />
+            Returned Records Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="text-center">
+              <p className="text-xl font-bold text-blue-600">
+                {stats.returned.totalRecords}
+              </p>
+              <p className="text-sm text-gray-600">Total Returned</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold text-green-600">
+                {formatCurrency(stats.returned.totalAmount)}
+              </p>
+              <p className="text-sm text-gray-600">Returned Value</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold text-yellow-600">
+                {formatWeight(stats.returned.totalWeightGrams)}
+              </p>
+              <p className="text-sm text-gray-600">Returned Weight</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold text-gray-600">
+                {stats.returned.totalGoldCount}G /{' '}
+                {stats.returned.totalSilverCount}S
               </p>
               <p className="text-sm text-gray-600">Gold/Silver</p>
             </div>

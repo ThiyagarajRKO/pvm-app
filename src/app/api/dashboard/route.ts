@@ -78,6 +78,44 @@ export const GET = withAuth(async (req: Request, user) => {
           'totalAmount',
         ],
 
+        // Returned items stats
+        [
+          fn('COUNT', literal('CASE WHEN "isReturned" = true THEN 1 END')),
+          'totalReturnedRecords',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal(
+              'CASE WHEN "itemType" = \'Gold\' AND "isReturned" = true THEN 1 END'
+            )
+          ),
+          'totalReturnedGoldCount',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal(
+              'CASE WHEN "itemType" = \'Silver\' AND "isReturned" = true THEN 1 END'
+            )
+          ),
+          'totalReturnedSilverCount',
+        ],
+        [
+          fn(
+            'SUM',
+            literal('CASE WHEN "isReturned" = true THEN "returnedAmount" END')
+          ),
+          'totalReturnedAmount',
+        ],
+        [
+          fn(
+            'SUM',
+            literal('CASE WHEN "isReturned" = true THEN "weightGrams" END')
+          ),
+          'totalReturnedWeightGrams',
+        ],
+
         // Category counts (excluding returned items)
         [
           fn(
@@ -268,6 +306,16 @@ export const GET = withAuth(async (req: Request, user) => {
       previousYearRecords: Number(statsResult.previousYearRecords || 0),
       previousYearWeight: Number(statsResult.previousYearWeight || 0),
       previousYearAmount: Number(statsResult.previousYearAmount || 0),
+      // Returned records stats
+      totalReturnedRecords: Number(statsResult.totalReturnedRecords || 0),
+      totalReturnedGoldCount: Number(statsResult.totalReturnedGoldCount || 0),
+      totalReturnedSilverCount: Number(
+        statsResult.totalReturnedSilverCount || 0
+      ),
+      totalReturnedAmount: Number(statsResult.totalReturnedAmount || 0),
+      totalReturnedWeightGrams: Number(
+        statsResult.totalReturnedWeightGrams || 0
+      ),
     };
 
     // Calculate trends (percentage changes)
@@ -341,6 +389,13 @@ export const GET = withAuth(async (req: Request, user) => {
           totalAmount: stats.totalAmount,
           averageWeight,
           averageAmount,
+        },
+        returned: {
+          totalRecords: stats.totalReturnedRecords,
+          totalGoldCount: stats.totalReturnedGoldCount,
+          totalSilverCount: stats.totalReturnedSilverCount,
+          totalAmount: stats.totalReturnedAmount,
+          totalWeightGrams: stats.totalReturnedWeightGrams,
         },
         categories: {
           active: stats.activeRecords,

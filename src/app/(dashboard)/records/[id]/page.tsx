@@ -487,7 +487,7 @@ export default function RecordDetailPage({
               <CardTitle>Personal Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2">
                 <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
                     SL No
@@ -622,28 +622,51 @@ export default function RecordDetailPage({
                 <CardTitle>Calculated Amount</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 md:grid-cols-2">
                   <div className="mb-4">
                     <Label className="text-sm font-medium text-muted-foreground">
-                      Interest Percentage
+                      Interest Rate & Months
                     </Label>
-                    <p className="text-sm font-medium">{record.interest}%</p>
+                    <p className="text-sm font-medium">
+                      {(() => {
+                        const months = Math.floor(record.daysOld / 30);
+                        const interestMonths = months <= 1 ? 1 : months - 1;
+                        return `${record.interest}% for ${interestMonths} month${interestMonths !== 1 ? 's' : ''}`;
+                      })()}
+                    </p>
                   </div>
                   <div className="mb-4">
                     <Label className="text-sm font-medium text-muted-foreground">
                       Record Age
                     </Label>
-                    <p className="text-sm">
+                    <p className="text-sm font-medium">
                       {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
-                      month
+                      months
+                    </p>
+                  </div>
+                  <div className="mb-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Interest Amount
+                    </Label>
+                    <p className="text-sm font-medium text-green-600">
+                      ₹
+                      {(() => {
+                        const months = Math.floor(record.daysOld / 30);
+                        const interestMonths = months <= 1 ? 1 : months - 1;
+                        const interestAmount =
+                          (record.interest / 100) *
+                          record.amount *
+                          interestMonths;
+                        return interestAmount.toLocaleString();
+                      })()}
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">
-                      Amount to be Paid
+                      Total Amount to Pay
                     </Label>
                     {record.amountToBePaid !== null ? (
-                      <p className="text-sm font-medium text-green-600">
+                      <p className="text-sm font-bold text-blue-600">
                         ₹{record.amountToBePaid.toLocaleString()}
                       </p>
                     ) : (
