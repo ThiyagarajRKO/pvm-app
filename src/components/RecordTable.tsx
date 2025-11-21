@@ -43,6 +43,7 @@ import {
   Copy,
   Loader2,
 } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface Record {
   id: number;
@@ -220,7 +221,7 @@ export default function RecordTable({
                       {record.slNo}
                     </TableCell>
                     <TableCell className="min-w-[80px]">
-                      {new Date(record.date).toLocaleDateString()}
+                      {format(new Date(record.date), 'dd-MMM-yyyy')}
                     </TableCell>
                     <TableCell className="min-w-[100px] font-medium">
                       {record.name}

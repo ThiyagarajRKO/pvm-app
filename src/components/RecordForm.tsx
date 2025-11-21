@@ -10,6 +10,7 @@ import {
   Search,
   Check,
   User,
+  Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -46,7 +47,8 @@ import {
   recordCreateSchema,
   recordUpdateSchema,
 } from '@/lib/validators/record';
-import { useDebouncedCallback } from '@/hooks/use-debounce';
+import { format } from 'date-fns';
+import { useDebouncedCallback } from '../hooks/use-debounce';
 
 type RecordFormData = z.infer<typeof recordCreateSchema>;
 
@@ -392,6 +394,7 @@ export default function RecordForm({
     resolver: zodResolver(schema),
     defaultValues: {
       slNo: initialData?.slNo || '',
+      date: initialData?.date || new Date().toISOString().split('T')[0], // Default to today for new records
       name: initialData?.name || '',
       fatherName: initialData?.fatherName || '',
       street: initialData?.street || '',
@@ -460,7 +463,7 @@ export default function RecordForm({
             </legend>
             <div className="rounded-lg border bg-card p-4">
               <div
-                className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-2'}`}
+                className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-3'}`}
               >
                 <FormField
                   control={form.control}
@@ -481,12 +484,13 @@ export default function RecordForm({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="mobile"
                   render={({ field, fieldState }) => (
-                    <FormItem className="relative">
+                    <FormItem
+                      className={`relative ${!compact ? 'md:col-span-2' : ''}`}
+                    >
                       <FormLabel className="text-foreground">Mobile</FormLabel>
                       <FormControl>
                         <div className="relative">
@@ -582,7 +586,74 @@ export default function RecordForm({
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field, fieldState }) => {
+                    const [showDatePicker, setShowDatePicker] =
+                      React.useState(false);
+                    const hiddenDateInputRef =
+                      React.useRef<HTMLInputElement>(null);
 
+                    const displayValue = field.value
+                      ? format(new Date(field.value), 'dd-MMM-yyyy')
+                      : '';
+
+                    const handleCalendarClick = () => {
+                      setShowDatePicker(true);
+                      // Small delay to ensure the input is rendered
+                      setTimeout(() => {
+                        hiddenDateInputRef.current?.showPicker?.() ||
+                          hiddenDateInputRef.current?.click();
+                      }, 10);
+                    };
+
+                    const handleDateChange = (
+                      e: React.ChangeEvent<HTMLInputElement>
+                    ) => {
+                      field.onChange(e.target.value);
+                      setShowDatePicker(false);
+                    };
+
+                    return (
+                      <FormItem>
+                        <FormLabel className="text-foreground">Date</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type="text"
+                              value={displayValue}
+                              placeholder="Select date"
+                              readOnly
+                              className={`${
+                                fieldState.error ? 'border-destructive' : ''
+                              } cursor-pointer`}
+                              onClick={handleCalendarClick}
+                            />
+                            <button
+                              type="button"
+                              onClick={handleCalendarClick}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded p-1 hover:bg-gray-100"
+                            >
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                            </button>
+                            {showDatePicker && (
+                              <input
+                                ref={hiddenDateInputRef}
+                                type="date"
+                                value={field.value || ''}
+                                onChange={handleDateChange}
+                                className="pointer-events-none absolute opacity-0"
+                                style={{ width: 0, height: 0 }}
+                              />
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    );
+                  }}
+                />{' '}
                 <FormField
                   control={form.control}
                   name="name"
@@ -602,7 +673,6 @@ export default function RecordForm({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="fatherName"
