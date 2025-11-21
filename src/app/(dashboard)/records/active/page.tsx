@@ -243,6 +243,7 @@ export default function ActiveRecordsPage() {
       await fetchRecords();
       toast.success('Item returned successfully');
     } catch (err) {
+      console.error('Return item error:', err);
       toast.error('Failed to return item');
     }
   };

@@ -188,11 +188,10 @@ export const PUT = withAuth(async (req: NextRequest, user) => {
     }
 
     // Update the record with return information
-    record.set({
-      isReturned: true,
-      returnedAmount: parseFloat(returnedAmount),
-      returnedDate: new Date(),
-    } as any);
+    record.isReturned = true;
+    record.returnedAmount = parseFloat(returnedAmount);
+    record.returnedDate = new Date();
+
     await record.save();
 
     return NextResponse.json({ success: true, record });

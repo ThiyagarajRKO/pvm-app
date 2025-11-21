@@ -20,6 +20,7 @@ interface RecordAttributes {
   interest: number;
   isReturned: boolean;
   returnedAmount: number;
+  returnedDate?: Date | null;
   mobile: string;
   personImageUrl?: string | null;
   itemImageUrl?: string | null;
@@ -37,6 +38,7 @@ type RecordCreationAttributes = Optional<
   | 'itemImageUrl'
   | 'itemReturnImageUrl'
   | 'itemCategory'
+  | 'returnedDate'
 >;
 
 export class Record
@@ -58,6 +60,7 @@ export class Record
   declare interest: number;
   declare isReturned: boolean;
   declare returnedAmount: number;
+  declare returnedDate?: Date | null;
   declare mobile: string;
   declare personImageUrl?: string | null;
   declare itemImageUrl?: string | null;
@@ -113,6 +116,10 @@ async function initializeModel() {
         },
         returnedAmount: {
           type: DataTypes.FLOAT,
+          allowNull: true,
+        },
+        returnedDate: {
+          type: DataTypes.DATE,
           allowNull: true,
         },
         mobile: { type: DataTypes.STRING, allowNull: false },
