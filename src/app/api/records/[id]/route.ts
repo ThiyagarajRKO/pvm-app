@@ -27,8 +27,8 @@ export const GET = withAuth(
       if (daysOld >= 30) {
         const fullMonths = Math.floor(daysOld / 30);
         const remainingDays = daysOld % 30;
-        // If remaining days > 5, consider it as an additional month
-        const months = remainingDays > 5 ? fullMonths + 1 : fullMonths;
+        // If remaining days >= 5, consider it as an additional month
+        const months = remainingDays >= 5 ? fullMonths + 1 : fullMonths;
         const interestMonths = months <= 1 ? 1 : months - 1;
         const calculatedInterestAmount =
           recordData.amount && recordData.interest
@@ -42,8 +42,8 @@ export const GET = withAuth(
       // Calculate return interest amounts using the formula
       const fullMonths = Math.floor(daysOld / 30);
       const remainingDays = daysOld % 30;
-      // If remaining days > 5, consider it as an additional month
-      const months = remainingDays > 5 ? fullMonths + 1 : fullMonths;
+      // If remaining days >= 5, consider it as an additional month
+      const months = remainingDays >= 5 ? fullMonths + 1 : fullMonths;
       const interestMonths = months <= 1 ? 1 : months - 1;
       const calculatedInterestAmount =
         recordData.amount && recordData.interest
