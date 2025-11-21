@@ -13,6 +13,7 @@ interface RecordAttributes {
   street: string;
   place: string;
   weightGrams: number;
+  item?: string | null;
   itemType: ItemType;
   itemCategory: ItemCategory;
   amount: number;
@@ -49,6 +50,7 @@ export class Record
   declare street: string;
   declare place: string;
   declare weightGrams: number;
+  declare item?: string | null;
   declare itemType: ItemType;
   declare itemCategory: ItemCategory;
   declare amount: number;
@@ -90,6 +92,7 @@ async function initializeModel() {
         street: { type: DataTypes.STRING, allowNull: false },
         place: { type: DataTypes.STRING, allowNull: false },
         weightGrams: { type: DataTypes.FLOAT, allowNull: false },
+        item: { type: DataTypes.STRING, allowNull: true },
         itemType: { type: DataTypes.ENUM('Gold', 'Silver'), allowNull: false },
         itemCategory: {
           type: DataTypes.STRING,

@@ -53,6 +53,7 @@ interface Record {
   fatherName: string;
   street: string;
   place: string;
+  item?: string | null;
   weightGrams: number;
   itemType: 'Gold' | 'Silver';
   itemCategory: 'active' | 'archived' | 'big';
@@ -384,17 +385,31 @@ export default function RecordTable({
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
+                      Item:
+                    </span>
+                    <p className="font-medium">{recordToDelete.item || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
                       Item Type:
                     </span>
-                    <span
-                      className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        recordToDelete.itemType === 'Gold'
-                          ? 'bg-yellow-500 text-white'
-                          : 'bg-gray-400 text-white'
-                      }`}
-                    >
-                      {recordToDelete.itemType}
+                    <div className="mt-1">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          recordToDelete.itemType === 'Gold'
+                            ? 'bg-yellow-500 text-white'
+                            : 'bg-gray-400 text-white'
+                        }`}
+                      >
+                        {recordToDelete.itemType}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Weight:
                     </span>
+                    <p className="font-medium">{recordToDelete.weightGrams}g</p>
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
@@ -403,12 +418,6 @@ export default function RecordTable({
                     <p className="font-medium">
                       ₹{recordToDelete.amount.toLocaleString()}
                     </p>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="font-medium text-muted-foreground">
-                      Place:
-                    </span>
-                    <p className="font-medium">{recordToDelete.place}</p>
                   </div>
                 </div>
               </div>

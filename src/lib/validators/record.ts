@@ -22,6 +22,10 @@ export const recordCreateSchema = z.object({
     .string()
     .optional()
     .transform((s) => s?.trim() || ''),
+  item: z
+    .string()
+    .optional()
+    .transform((s) => s?.trim() || ''),
   weightGrams: z.preprocess((v) => Number(v), z.number().positive()).optional(),
   itemType: z.enum(['Gold', 'Silver']).optional(),
   itemCategory: z.enum(['active', 'archived', 'big']).optional(),

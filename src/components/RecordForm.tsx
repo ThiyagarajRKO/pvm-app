@@ -22,7 +22,11 @@ import { Input } from '@/components/ui/input';
 import AutocompleteInput from '@/components/AutocompleteInput';
 import { Label } from '@/components/ui/label';
 import { api } from '@/lib/api-client';
-import { DEFAULT_STREETS, DEFAULT_PLACES } from '@/lib/constants';
+import {
+  DEFAULT_STREETS,
+  DEFAULT_PLACES,
+  DEFAULT_ITEMS,
+} from '@/lib/constants';
 import SimpleMobileConfirmation from './SimpleMobileConfirmation';
 import {
   Form,
@@ -403,6 +407,7 @@ export default function RecordForm({
       fatherName: initialData?.fatherName || '',
       street: initialData?.street || '',
       place: initialData?.place || '',
+      item: initialData?.item || '',
       weightGrams: initialData?.weightGrams,
       itemType: initialData?.itemType || 'Gold',
       amount: initialData?.amount,
@@ -756,6 +761,27 @@ export default function RecordForm({
               <div
                 className={`grid grid-cols-1 gap-4 ${compact ? '' : 'md:grid-cols-3'}`}
               >
+                <FormField
+                  control={form.control}
+                  name="item"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground">Item</FormLabel>
+                      <FormControl>
+                        <AutocompleteInput
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Enter item name (e.g., Ring, Necklace)"
+                          suggestions={DEFAULT_ITEMS}
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="weightGrams"

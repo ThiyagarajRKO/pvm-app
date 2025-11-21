@@ -36,3 +36,22 @@ export const DEFAULT_STREETS = [
   'Perumal kovil street',
   'Indra nagar',
 ];
+
+export const DEFAULT_ITEMS = [
+  'Ring',
+  'Necklace',
+  'Bracelet',
+  'Earrings',
+  'Chain',
+  'Bangle',
+  'Pendant',
+  'Anklet',
+  'Thali',
+  'Nose ring',
+  'Maang tikka',
+  'Brooch',
+  'Cufflinks',
+  'Watch',
+  'Gold coin',
+  'Silver coin',
+];
