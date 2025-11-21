@@ -74,7 +74,7 @@ export const GET = withAuth(async (req: NextRequest, user) => {
     // Calculate additional fields for each record
     const enhancedData = data.map((record) => {
       const recordData = record.toJSON();
-      const entryDate = new Date(recordData.date);
+      const entryDate = new Date(recordData.date || new Date());
       const today = new Date();
       const daysOld = Math.floor(
         (today.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -82,12 +82,18 @@ export const GET = withAuth(async (req: NextRequest, user) => {
       const monthsOld = Math.floor(daysOld / 30);
 
       // Calculate return interest amounts using the formula
-      const months = Math.floor(daysOld / 30);
+      const fullMonths = Math.floor(daysOld / 30);
+      const remainingDays = daysOld % 30;
+      // If remaining days > 5, consider it as an additional month
+      const months = remainingDays > 5 ? fullMonths + 1 : fullMonths;
       const interestMonths = months <= 1 ? 1 : months - 1;
       const calculatedInterestAmount =
-        ((recordData.amount * recordData.interest) / 100) * interestMonths;
-      const calculatedTotalAmount =
-        recordData.amount + calculatedInterestAmount;
+        recordData.amount && recordData.interest
+          ? ((recordData.amount * recordData.interest) / 100) * interestMonths
+          : 0;
+      const calculatedTotalAmount = recordData.amount
+        ? recordData.amount + calculatedInterestAmount
+        : calculatedInterestAmount;
 
       return {
         ...recordData,
