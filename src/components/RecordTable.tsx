@@ -68,6 +68,11 @@ interface Record {
   itemReturnImageUrl?: string;
   createdAt: string;
   updatedAt: string;
+  daysOld: number;
+  monthsOld?: number;
+  calculatedInterestAmount?: number;
+  calculatedTotalAmount?: number;
+  interestMonths?: number;
 }
 
 interface RecordTableProps {

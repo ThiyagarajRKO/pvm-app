@@ -15,6 +15,7 @@ export interface ApiResponse<T = any> {
 // PVM Record Types
 export interface Record {
   id: number;
+  slNo: string;
   date: string;
   name: string;
   fatherName: string;
@@ -22,13 +23,24 @@ export interface Record {
   place: string;
   weightGrams: number;
   itemType: 'Gold' | 'Silver';
+  itemCategory: 'active' | 'archived' | 'big';
   amount: number;
+  interest: number;
   mobile: string;
   personImageUrl?: string;
   itemImageUrl?: string;
   itemReturnImageUrl?: string;
+  isReturned?: boolean;
+  returnedAmount?: number;
+  returnedDate?: string;
   createdAt: string;
   updatedAt: string;
+  daysOld?: number;
+  monthsOld?: number;
+  amountToBePaid?: number | null;
+  calculatedInterestAmount?: number;
+  calculatedTotalAmount?: number;
+  interestMonths?: number;
 }
 
 // PVM Stats Types

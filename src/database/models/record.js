@@ -89,6 +89,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.FLOAT,
         allowNull: true,
       },
+      returnedDate: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: 'Date when the item was returned',
+      },
     },
     {
       sequelize,

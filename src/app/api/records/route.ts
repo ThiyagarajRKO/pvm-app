@@ -71,6 +71,34 @@ export const GET = withAuth(async (req: NextRequest, user) => {
       RecordModel.count({ where }),
     ]);
 
+    // Calculate additional fields for each record
+    const enhancedData = data.map((record) => {
+      const recordData = record.toJSON();
+      const entryDate = new Date(recordData.date);
+      const today = new Date();
+      const daysOld = Math.floor(
+        (today.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const monthsOld = Math.floor(daysOld / 30);
+
+      // Calculate return interest amounts using the formula
+      const months = Math.floor(daysOld / 30);
+      const interestMonths = months <= 1 ? 1 : months - 1;
+      const calculatedInterestAmount =
+        ((recordData.amount * recordData.interest) / 100) * interestMonths;
+      const calculatedTotalAmount =
+        recordData.amount + calculatedInterestAmount;
+
+      return {
+        ...recordData,
+        daysOld,
+        monthsOld,
+        calculatedInterestAmount,
+        calculatedTotalAmount,
+        interestMonths,
+      };
+    });
+
     // some stats for current filter
     const totalWeight = await RecordModel.sum('weightGrams', { where });
     const totalAmount = await RecordModel.sum('amount', { where });
@@ -82,7 +110,7 @@ export const GET = withAuth(async (req: NextRequest, user) => {
     });
 
     return NextResponse.json({
-      data,
+      data: enhancedData,
       total,
       page,
       limit,
@@ -160,10 +188,12 @@ export const PUT = withAuth(async (req: NextRequest, user) => {
     }
 
     // Update the record with return information
-    await record.update({
+    record.set({
       isReturned: true,
       returnedAmount: parseFloat(returnedAmount),
-    });
+      returnedDate: new Date(),
+    } as any);
+    await record.save();
 
     return NextResponse.json({ success: true, record });
   } catch (err: any) {

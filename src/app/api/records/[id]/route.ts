@@ -20,6 +20,7 @@ export const GET = withAuth(
       const daysOld = Math.floor(
         (today.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24)
       );
+      const monthsOld = Math.floor(daysOld / 30);
 
       // Calculate amount to be paid only if >= 30 days old
       let amountToBePaid = null;
@@ -27,10 +28,22 @@ export const GET = withAuth(
         amountToBePaid = recordData.amount * (recordData.interest / 100);
       }
 
+      // Calculate return interest amounts using the formula
+      const months = Math.floor(daysOld / 30);
+      const interestMonths = months <= 1 ? 1 : months - 1;
+      const calculatedInterestAmount =
+        ((recordData.amount * recordData.interest) / 100) * interestMonths;
+      const calculatedTotalAmount =
+        recordData.amount + calculatedInterestAmount;
+
       const response = {
         ...recordData,
         daysOld,
+        monthsOld,
         amountToBePaid,
+        calculatedInterestAmount,
+        calculatedTotalAmount,
+        interestMonths,
       };
 
       return NextResponse.json(response);

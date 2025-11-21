@@ -63,6 +63,8 @@ interface Record {
   daysOld: number;
   amountToBePaid: number | null;
   isReturned?: boolean;
+  returnedAmount?: number;
+  returnedDate?: string;
 }
 
 export default function RecordDetailPage({
@@ -309,44 +311,90 @@ export default function RecordDetailPage({
             </CardContent>
           </Card>
 
-          <Card className="mt-4">
-            <CardHeader>
-              <CardTitle>Calculated Amount</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="mb-4">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Interest Percentage
-                  </Label>
-                  <p className="text-sm font-medium">{record.interest}%</p>
-                </div>
-                <div className="mb-4">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Record Age
-                  </Label>
-                  <p className="text-sm">
-                    {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
-                    month
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Amount to be Paid
-                  </Label>
-                  {record.amountToBePaid !== null ? (
+          {record.isReturned ? (
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle>Returned Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="mb-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Interest Amount
+                    </Label>
+                    <p className="text-sm font-medium">
+                      ₹
+                      {(() => {
+                        const months = Math.floor(record.daysOld / 30);
+                        const interestMonths = months <= 1 ? 1 : months - 1;
+                        return (
+                          ((record.amount * record.interest) / 100) *
+                          interestMonths
+                        ).toLocaleString();
+                      })()}
+                    </p>
+                  </div>
+                  <div className="mb-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Returned Date
+                    </Label>
+                    <p className="text-sm">
+                      {record.returnedDate
+                        ? new Date(record.returnedDate).toLocaleDateString()
+                        : 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Returned Amount
+                    </Label>
                     <p className="text-sm font-medium text-green-600">
-                      ₹{record.amountToBePaid.toLocaleString()}
+                      ₹{record.returnedAmount?.toLocaleString() || 'N/A'}
                     </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Available after 30 days
-                    </p>
-                  )}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle>Calculated Amount</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="mb-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Interest Percentage
+                    </Label>
+                    <p className="text-sm font-medium">{record.interest}%</p>
+                  </div>
+                  <div className="mb-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Record Age
+                    </Label>
+                    <p className="text-sm">
+                      {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
+                      month
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Amount to be Paid
+                    </Label>
+                    {record.amountToBePaid !== null ? (
+                      <p className="text-sm font-medium text-green-600">
+                        ₹{record.amountToBePaid.toLocaleString()}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Available after 30 days
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div>

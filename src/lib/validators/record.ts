@@ -48,6 +48,7 @@ export const recordUpdateSchema = recordCreateSchema.partial().extend({
       z.number().nonnegative().nullable()
     )
     .optional(),
+  returnedDate: z.date().nullable().optional(),
 });
 
 export type RecordCreateInput = z.infer<typeof recordCreateSchema>;

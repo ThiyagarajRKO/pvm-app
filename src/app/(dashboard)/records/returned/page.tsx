@@ -219,6 +219,7 @@ export default function ReturnedRecordsPage() {
         itemCategory: newCategory,
         isReturned: false,
         returnedAmount: null, // Clear the returned amount when moving back
+        returnedDate: null, // Clear the returned date when moving back
       });
       if (response.error) throw new Error(response.error);
 

@@ -116,7 +116,7 @@ export default function MobileBottomSheet({
           </div>
         </div>
       }
-      footer={footer ? <div className="p-4">{footer}</div> : undefined}
+      footer={footer ? <div>{footer}</div> : undefined}
     >
       <div
         className="scrollbar-hide min-h-0 flex-1 overflow-y-auto p-4"
