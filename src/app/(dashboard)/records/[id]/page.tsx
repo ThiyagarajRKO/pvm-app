@@ -38,6 +38,7 @@ import {
   Package,
 } from 'lucide-react';
 import EditRecordPanel from '@/components/EditRecordPanel';
+import ReturnItemModal from '@/components/ReturnItemModal';
 import { api } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -75,6 +76,7 @@ export default function RecordDetailPage({
 }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editPanelOpen, setEditPanelOpen] = useState(false);
+  const [editReturnModalOpen, setEditReturnModalOpen] = useState(false);
   const [record, setRecord] = useState<Record | null>(null);
   const [personImageLoading, setPersonImageLoading] = useState(true);
   const [itemImageLoading, setItemImageLoading] = useState(true);
@@ -132,6 +134,40 @@ export default function RecordDetailPage({
     setEditPanelOpen(true);
   };
 
+  const handleEditReturnClick = () => {
+    setEditReturnModalOpen(true);
+  };
+
+  const handleEditReturnConfirm = async (returnedAmount: number) => {
+    try {
+      const response = await api.put('/records', {
+        id: record.id,
+        returnedAmount,
+      });
+      if (response.error) throw new Error(response.error);
+
+      // Refresh record data after successful update
+      const fetchRecord = async () => {
+        try {
+          const response = await api.get<Record>(`/records/${params.id}`);
+          if (response.error || !response.data) {
+            throw new Error(response.error || 'No data received');
+          }
+          setRecord(response.data);
+        } catch (error) {
+          console.error('Failed to refresh record:', error);
+        }
+      };
+      fetchRecord();
+
+      toast.success('Returned amount updated successfully');
+      setEditReturnModalOpen(false);
+    } catch (error) {
+      console.error('Failed to update returned amount:', error);
+      toast.error('Failed to update returned amount');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -173,6 +209,16 @@ export default function RecordDetailPage({
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </Button>
+                {record.isReturned && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={handleEditReturnClick}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Return
+                  </Button>
+                )}
                 {!record.isReturned && (
                   <Button
                     variant="ghost"
@@ -209,6 +255,12 @@ export default function RecordDetailPage({
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
+            {record.isReturned && (
+              <DropdownMenuItem onSelect={handleEditReturnClick}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Return
+              </DropdownMenuItem>
+            )}
             {!record.isReturned && (
               <DropdownMenuItem
                 onSelect={handleDeleteClick}
@@ -562,6 +614,17 @@ export default function RecordDetailPage({
             };
             fetchRecord();
           }}
+        />
+      )}
+
+      {/* Edit Return Modal */}
+      {editReturnModalOpen && (
+        <ReturnItemModal
+          isOpen={editReturnModalOpen}
+          onClose={() => setEditReturnModalOpen(false)}
+          onConfirm={handleEditReturnConfirm}
+          record={record}
+          mode="edit"
         />
       )}
     </div>

@@ -79,6 +79,7 @@ interface RecordTableProps {
   records: Record[];
   onDelete?: (id: number) => void;
   onEdit?: (record: Record) => void;
+  onEditRecord?: (record: Record) => void;
   onReturnItem?: (id: number, returnedAmount?: number) => void;
   onMove?: (id: number, newCategory: 'active' | 'archived' | 'big') => void;
   variant?: 'default' | 'active' | 'archived' | 'big';
@@ -89,6 +90,7 @@ export default function RecordTable({
   records,
   onDelete,
   onEdit,
+  onEditRecord,
   onReturnItem,
   onMove,
   variant = 'default',
@@ -306,10 +308,27 @@ export default function RecordTable({
                               View
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onEdit?.(record)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
+                          {record.isReturned ? (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => onEditRecord?.(record)}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Record
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => onEdit?.(record)}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Return
+                              </DropdownMenuItem>
+                            </>
+                          ) : (
+                            <DropdownMenuItem onClick={() => onEdit?.(record)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                          )}
                           {!record.isReturned && (
                             <DropdownMenuItem
                               onClick={() => handleDeleteClick(record)}

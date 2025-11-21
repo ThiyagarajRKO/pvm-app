@@ -25,6 +25,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import StreetSelect from '@/components/StreetSelect';
 import PlaceSelect from '@/components/PlaceSelect';
 import MobileBottomSheet from '@/components/MobileBottomSheet';
+import EditRecordPanel from '@/components/EditRecordPanel';
 import ReturnItemModal from '@/components/ReturnItemModal';
 import { api } from '@/lib/api-client';
 
@@ -104,6 +105,7 @@ export default function ReturnedRecordsPage() {
 
   // Edit state
   const [editRecord, setEditRecord] = useState<Record | null>(null);
+  const [editRecordPanel, setEditRecordPanel] = useState<Record | null>(null);
 
   // Mobile filter state
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -581,6 +583,7 @@ export default function ReturnedRecordsPage() {
           records={filteredRecords as any}
           onDelete={handleDelete}
           onEdit={setEditRecord}
+          onEditRecord={setEditRecordPanel}
           onMove={handleMove}
           variant="default"
           loading={filtering}
@@ -738,6 +741,18 @@ export default function ReturnedRecordsPage() {
           onConfirm={handleEditReturnedAmount}
           record={editRecord}
           mode="edit"
+        />
+      )}
+
+      {/* Edit Record Panel */}
+      {editRecordPanel && (
+        <EditRecordPanel
+          record={editRecordPanel}
+          onClose={() => setEditRecordPanel(null)}
+          onSuccess={() => {
+            setEditRecordPanel(null);
+            fetchRecords(false);
+          }}
         />
       )}
     </div>

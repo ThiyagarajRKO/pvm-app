@@ -140,6 +140,10 @@ export default function RecordForm({
   );
   const [personImagePrefilled, setPersonImagePrefilled] = useState(false);
 
+  // Image loading states
+  const [personImageLoading, setPersonImageLoading] = useState(false);
+  const [itemImageLoading, setItemImageLoading] = useState(false);
+
   // Toggle body class for dialog state (only for mobile)
   React.useEffect(() => {
     if (isMobile && deleteDialogOpen) {
@@ -319,6 +323,7 @@ export default function RecordForm({
       setPersonError(null);
       setPersonImagePrefilled(false); // Reset prefilled flag
       setPersonFailedFile(null); // Clear failed file
+      setPersonImageLoading(false); // Reset loading state
       // Reset file input
       const input = document.getElementById(
         'personImageInput'
@@ -329,6 +334,7 @@ export default function RecordForm({
       setItemPreview(null);
       setItemError(null);
       setItemFailedFile(null); // Clear failed file
+      setItemImageLoading(false); // Reset loading state
       // Reset file input
       const input = document.getElementById(
         'itemImageInput'
@@ -383,6 +389,7 @@ export default function RecordForm({
       setPersonImageUrl(record.personImageUrl);
       setPersonPreview(record.personImageUrl);
       setPersonImagePrefilled(true);
+      setPersonImageLoading(true); // Start loading when URL is set from suggestion
     }
 
     // Trigger validation for all updated fields
@@ -420,10 +427,12 @@ export default function RecordForm({
       setPersonImageUrl(initialData.personImageUrl);
       setPersonPreview(initialData.personImageUrl);
       setPersonImagePrefilled(true); // Mark as prefilled for edit mode
+      setPersonImageLoading(true); // Start loading when URL is set
     }
     if (initialData?.itemImageUrl) {
       setItemImageUrl(initialData.itemImageUrl);
       setItemPreview(initialData.itemImageUrl);
+      setItemImageLoading(true); // Start loading when URL is set
     }
   }, [initialData]);
 
@@ -921,10 +930,12 @@ export default function RecordForm({
                         src={personImageUrl || personPreview || undefined}
                         alt="Person"
                         className="max-h-32 max-w-full rounded-lg border object-contain"
+                        onLoad={() => setPersonImageLoading(false)}
+                        onError={() => setPersonImageLoading(false)}
                       />
 
                       {/* Loading overlay */}
-                      {personUploading && (
+                      {(personUploading || personImageLoading) && (
                         <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50">
                           <Loader2 className="h-6 w-6 animate-spin text-white" />
                         </div>
@@ -932,7 +943,8 @@ export default function RecordForm({
 
                       {/* Delete button */}
                       {(personImageUrl || personPreview) &&
-                        !personUploading && (
+                        !personUploading &&
+                        !personImageLoading && (
                           <button
                             type="button"
                             onClick={() => confirmDeleteImage('person')}
@@ -1010,25 +1022,29 @@ export default function RecordForm({
                         src={itemImageUrl || itemPreview || undefined}
                         alt="Item"
                         className="max-h-32 max-w-full rounded-lg border object-contain"
+                        onLoad={() => setItemImageLoading(false)}
+                        onError={() => setItemImageLoading(false)}
                       />
 
                       {/* Loading overlay */}
-                      {itemUploading && (
+                      {(itemUploading || itemImageLoading) && (
                         <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50">
                           <Loader2 className="h-6 w-6 animate-spin text-white" />
                         </div>
                       )}
 
                       {/* Delete button */}
-                      {(itemImageUrl || itemPreview) && !itemUploading && (
-                        <button
-                          type="button"
-                          onClick={() => confirmDeleteImage('item')}
-                          className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      )}
+                      {(itemImageUrl || itemPreview) &&
+                        !itemUploading &&
+                        !itemImageLoading && (
+                          <button
+                            type="button"
+                            onClick={() => confirmDeleteImage('item')}
+                            className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
                     </div>
                   )}
 
@@ -1073,11 +1089,21 @@ export default function RecordForm({
             <Button
               type="button"
               variant={isMobile ? 'link' : 'outline'}
-              disabled={personUploading || itemUploading}
+              disabled={
+                personUploading ||
+                itemUploading ||
+                personImageLoading ||
+                itemImageLoading
+              }
               onClick={() => {
-                if (personUploading || itemUploading) {
+                if (
+                  personUploading ||
+                  itemUploading ||
+                  personImageLoading ||
+                  itemImageLoading
+                ) {
                   toast.error(
-                    'Please wait for image upload to complete before canceling'
+                    'Please wait for image operations to complete before canceling'
                   );
                   return;
                 }
@@ -1088,13 +1114,26 @@ export default function RecordForm({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || personUploading || itemUploading}
+              disabled={
+                isSubmitting ||
+                personUploading ||
+                itemUploading ||
+                personImageLoading ||
+                itemImageLoading
+              }
             >
-              {(isSubmitting || personUploading || itemUploading) && (
+              {(isSubmitting ||
+                personUploading ||
+                itemUploading ||
+                personImageLoading ||
+                itemImageLoading) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {personUploading || itemUploading
-                ? 'Uploading...'
+              {personUploading ||
+              itemUploading ||
+              personImageLoading ||
+              itemImageLoading
+                ? 'Loading...'
                 : isSubmitting
                   ? 'Saving...'
                   : isEdit
