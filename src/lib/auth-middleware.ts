@@ -19,18 +19,10 @@ export async function authenticateRequest(request: NextRequest): Promise<{
   user: AuthUser | null;
   error: NextResponse | null;
 }> {
-  console.log('authenticateRequest called');
   // Get token from cookie or Authorization header
   const token =
     request.cookies.get('authToken')?.value ||
     request.headers.get('authorization')?.replace('Bearer ', '');
-
-  console.log('Token from request:', !!token);
-  if (token) {
-    console.log('Token value:', token.substring(0, 50) + '...');
-  }
-
-  console.log('token----------------', token);
 
   if (!token) {
     return {
@@ -43,10 +35,8 @@ export async function authenticateRequest(request: NextRequest): Promise<{
   }
 
   try {
-    console.log('Verifying token:', token);
     // Verify the token
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    console.log('Token decoded:', decoded);
     const userId = decoded.userId;
 
     if (!userId) {
@@ -57,7 +47,6 @@ export async function authenticateRequest(request: NextRequest): Promise<{
       };
     }
 
-    console.log('Querying database for userId:', userId);
     // Query database to get current user details
     const UserModel = await getUserModel();
     const RoleModel = await import('./models/role').then((m) =>
@@ -68,7 +57,6 @@ export async function authenticateRequest(request: NextRequest): Promise<{
       where: { id: userId, isActive: true },
     });
 
-    console.log('User found:', !!user);
     if (!user) {
       return {
         user: null,
@@ -81,13 +69,8 @@ export async function authenticateRequest(request: NextRequest): Promise<{
 
     // Get user role
     const userRole = await RoleModel.findByPk((user as any).roleId);
-    console.log('User role found:', !!userRole);
-    if (userRole) {
-      console.log('User role name:', userRole.name);
-    }
 
     if (!userRole || userRole.name !== 'admin') {
-      console.log('User role is not admin:', userRole?.name);
       return {
         user: null,
         error: NextResponse.json(
@@ -104,7 +87,6 @@ export async function authenticateRequest(request: NextRequest): Promise<{
       role: userRole.name,
     };
 
-    console.log('Authentication successful for user:', authUser.email);
     return { user: authUser, error: null };
   } catch (error) {
     console.log('Token verification error:', error);

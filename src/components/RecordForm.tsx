@@ -1,7 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Loader2, Upload, X, Eye, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Loader2,
+  Upload,
+  X,
+  Eye,
+  AlertCircle,
+  Search,
+  Check,
+  User,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -36,6 +45,7 @@ import {
   recordCreateSchema,
   recordUpdateSchema,
 } from '@/lib/validators/record';
+import { useDebouncedCallback } from '@/hooks/use-debounce';
 
 type RecordFormData = z.infer<typeof recordCreateSchema>;
 
@@ -48,6 +58,52 @@ interface RecordFormProps {
   onCancel?: () => void;
   onSuccess?: () => void;
   defaultCategory?: 'active' | 'archived' | 'big';
+}
+
+// Component for suggestion avatars with async loading
+function SuggestionAvatar({ src, alt }: { src?: string; alt: string }) {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(!!src);
+
+  React.useEffect(() => {
+    if (!src) {
+      setIsLoading(false);
+      setImageLoaded(false);
+      setImageError(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setImageError(false);
+
+    const img = new Image();
+    img.onload = () => {
+      setImageLoaded(true);
+      setIsLoading(false);
+    };
+    img.onerror = () => {
+      setImageError(true);
+      setIsLoading(false);
+    };
+    img.src = src;
+  }, [src]);
+
+  if (!src || imageError) {
+    return <User className="h-4 w-4 text-gray-400" />;
+  }
+
+  if (isLoading) {
+    return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />;
+  }
+
+  if (imageLoaded) {
+    return (
+      <img src={src} alt={alt} className="h-8 w-8 rounded-full object-cover" />
+    );
+  }
+
+  return <User className="h-4 w-4 text-gray-400" />;
 }
 
 export default function RecordForm({
@@ -75,6 +131,16 @@ export default function RecordForm({
   const [imageToDelete, setImageToDelete] = useState<'person' | 'item' | null>(
     null
   );
+  const [personImagePrefilled, setPersonImagePrefilled] = useState(false);
+
+  // Failed upload retry states
+  const [personFailedFile, setPersonFailedFile] = useState<File | null>(null);
+  const [itemFailedFile, setItemFailedFile] = useState<File | null>(null);
+
+  // Mobile search states
+  const [mobileSuggestions, setMobileSuggestions] = useState<any[]>([]);
+  const [showMobileSuggestions, setShowMobileSuggestions] = useState(false);
+  const [isSearchingMobile, setIsSearchingMobile] = useState(false);
 
   const router = useRouter();
 
@@ -131,9 +197,12 @@ export default function RecordForm({
       if (type === 'person') {
         setPersonImageUrl(publicUrl);
         setPersonUploading(false);
+        setPersonImagePrefilled(false); // Reset prefilled flag when new image is uploaded
+        setPersonFailedFile(null); // Clear failed file on success
       } else {
         setItemImageUrl(publicUrl);
         setItemUploading(false);
+        setItemFailedFile(null); // Clear failed file on success
       }
     } catch (error) {
       const errorMessage =
@@ -141,10 +210,19 @@ export default function RecordForm({
       if (type === 'person') {
         setPersonError(errorMessage);
         setPersonUploading(false);
+        setPersonFailedFile(file); // Store failed file for retry
       } else {
         setItemError(errorMessage);
         setItemUploading(false);
+        setItemFailedFile(file); // Store failed file for retry
       }
+    }
+  };
+
+  const retryUpload = (type: 'person' | 'item') => {
+    const failedFile = type === 'person' ? personFailedFile : itemFailedFile;
+    if (failedFile) {
+      uploadImage(failedFile, type);
     }
   };
 
@@ -171,9 +249,11 @@ export default function RecordForm({
     if (type === 'person') {
       setPersonPreview(previewUrl);
       setPersonError(null);
+      setPersonFailedFile(null); // Clear any previous failed file
     } else {
       setItemPreview(previewUrl);
       setItemError(null);
+      setItemFailedFile(null); // Clear any previous failed file
     }
 
     // Reset file input to allow re-selection of same file
@@ -201,8 +281,8 @@ export default function RecordForm({
       URL.revokeObjectURL(previewUrl);
     }
 
-    // Delete from server if uploaded
-    if (imageUrl) {
+    // Delete from server if uploaded (but not if prefilled from suggestion)
+    if (imageUrl && !(type === 'person' && personImagePrefilled)) {
       try {
         const url = new URL(imageUrl);
         const key = url.pathname.substring(1); // Remove leading slash
@@ -217,6 +297,8 @@ export default function RecordForm({
       setPersonImageUrl(null);
       setPersonPreview(null);
       setPersonError(null);
+      setPersonImagePrefilled(false); // Reset prefilled flag
+      setPersonFailedFile(null); // Clear failed file
       // Reset file input
       const input = document.getElementById(
         'personImageInput'
@@ -226,6 +308,7 @@ export default function RecordForm({
       setItemImageUrl(null);
       setItemPreview(null);
       setItemError(null);
+      setItemFailedFile(null); // Clear failed file
       // Reset file input
       const input = document.getElementById(
         'itemImageInput'
@@ -233,6 +316,63 @@ export default function RecordForm({
       if (input) input.value = '';
     }
   };
+
+  // Mobile search functionality
+  const searchMobileNumbers = useCallback(async (mobile: string) => {
+    if (mobile.length < 3) {
+      setMobileSuggestions([]);
+      setShowMobileSuggestions(false);
+      return;
+    }
+
+    try {
+      setIsSearchingMobile(true);
+      const response = await api.get(
+        `/records/mobile?mobile=${encodeURIComponent(mobile)}`
+      );
+
+      if (response.data && Array.isArray(response.data.data)) {
+        // The API returns an array of up to 10 matching records
+        setMobileSuggestions(response.data.data);
+        setShowMobileSuggestions(response.data.data.length > 0);
+      }
+    } catch (error) {
+      console.error('Error searching mobile numbers:', error);
+      setMobileSuggestions([]);
+      setShowMobileSuggestions(false);
+    } finally {
+      setIsSearchingMobile(false);
+    }
+  }, []);
+
+  const debouncedMobileSearch = useDebouncedCallback(searchMobileNumbers, 300);
+
+  const handleMobileSuggestionSelect = (record: any) => {
+    // Clean and format the mobile number (strip non-digits and limit to 10)
+    const cleanMobile = (record.mobile || '').replace(/\D/g, '').slice(0, 10);
+
+    // Fill in personal details from the selected record
+    form.setValue('name', record.name || '');
+    form.setValue('fatherName', record.fatherName || '');
+    form.setValue('street', record.street || '');
+    form.setValue('place', record.place || '');
+    form.setValue('mobile', cleanMobile);
+
+    // Set person image if available from the selected record
+    if (record.personImageUrl) {
+      setPersonImageUrl(record.personImageUrl);
+      setPersonPreview(record.personImageUrl);
+      setPersonImagePrefilled(true);
+    }
+
+    // Trigger validation for all updated fields
+    form.trigger(['mobile', 'name', 'fatherName', 'street', 'place']);
+
+    // Hide suggestions
+    setShowMobileSuggestions(false);
+    setMobileSuggestions([]);
+  };
+
   const schema = isEdit ? recordUpdateSchema : recordCreateSchema;
   const form = useForm<RecordFormData>({
     resolver: zodResolver(schema),
@@ -257,6 +397,7 @@ export default function RecordForm({
     if (initialData?.personImageUrl) {
       setPersonImageUrl(initialData.personImageUrl);
       setPersonPreview(initialData.personImageUrl);
+      setPersonImagePrefilled(true); // Mark as prefilled for edit mode
     }
     if (initialData?.itemImageUrl) {
       setItemImageUrl(initialData.itemImageUrl);
@@ -329,6 +470,107 @@ export default function RecordForm({
 
                 <FormField
                   control={form.control}
+                  name="mobile"
+                  render={({ field, fieldState }) => (
+                    <FormItem className="relative">
+                      <FormLabel className="text-foreground">Mobile</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Enter 10-digit mobile number"
+                            value={field.value}
+                            onChange={(e) => {
+                              // Strip non-digits and limit to 10 characters
+                              const digits = e.target.value
+                                .replace(/\D/g, '')
+                                .slice(0, 10);
+                              field.onChange(digits);
+                              // Trigger search for suggestions
+                              if (digits.length >= 3) {
+                                debouncedMobileSearch(digits);
+                              } else {
+                                setMobileSuggestions([]);
+                                setShowMobileSuggestions(false);
+                              }
+                              // Trigger validation for this field so FormMessage updates live
+                              form.trigger('mobile');
+                            }}
+                            onFocus={() => {
+                              if (mobileSuggestions.length > 0) {
+                                setShowMobileSuggestions(true);
+                              }
+                            }}
+                            onBlur={() => {
+                              // Delay hiding to allow click on suggestions
+                              setTimeout(
+                                () => setShowMobileSuggestions(false),
+                                200
+                              );
+                            }}
+                            maxLength={10}
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            className={
+                              fieldState.error ? 'border-destructive' : ''
+                            }
+                          />
+                          {isSearchingMobile && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                            </div>
+                          )}
+                          {/* Mobile Suggestions Dropdown */}
+                          {showMobileSuggestions &&
+                            mobileSuggestions.length > 0 && (
+                              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-md border bg-white shadow-lg">
+                                {mobileSuggestions.map((record) => (
+                                  <button
+                                    key={record.id}
+                                    type="button"
+                                    onClick={() =>
+                                      handleMobileSuggestionSelect(record)
+                                    }
+                                    className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
+                                  >
+                                    {/* Avatar */}
+                                    <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
+                                      <SuggestionAvatar
+                                        src={record.personImageUrl}
+                                        alt={record.name || 'Person'}
+                                      />
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="min-w-0 flex-1">
+                                      <div className="truncate text-sm font-medium text-gray-900">
+                                        {record.name}
+                                      </div>
+                                      <div className="truncate text-xs text-gray-500">
+                                        {record.mobile} • {record.place}
+                                      </div>
+                                    </div>
+
+                                    {/* Check icon */}
+                                    <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                        </div>
+                      </FormControl>
+                      {/* Live inline hint/error while typing */}
+                      {field.value && field.value.length !== 10 && (
+                        <p className="mt-1 text-xs text-destructive">
+                          Mobile must be 10 digits
+                        </p>
+                      )}
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="name"
                   render={({ field, fieldState }) => (
                     <FormItem>
@@ -364,44 +606,6 @@ export default function RecordForm({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-xs" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="mobile"
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">Mobile</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter 10-digit mobile number"
-                          value={field.value}
-                          onChange={(e) => {
-                            // Strip non-digits and limit to 10 characters
-                            const digits = e.target.value
-                              .replace(/\D/g, '')
-                              .slice(0, 10);
-                            field.onChange(digits);
-                            // Trigger validation for this field so FormMessage updates live
-                            form.trigger('mobile');
-                          }}
-                          maxLength={10}
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          className={
-                            fieldState.error ? 'border-destructive' : ''
-                          }
-                        />
-                      </FormControl>
-                      {/* Live inline hint/error while typing */}
-                      {field.value && field.value.length !== 10 && (
-                        <p className="mt-1 text-xs text-destructive">
-                          Mobile must be 10 digits
-                        </p>
-                      )}
                       <FormMessage className="text-xs" />
                     </FormItem>
                   )}
@@ -570,14 +774,20 @@ export default function RecordForm({
                 />
               </div>
 
-              {form.watch('amount') && form.watch('amount') > 0 && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Interest Rate:{' '}
-                  <span className="font-medium">
-                    {form.watch('amount') >= 10000 ? '2.5%' : '3%'}
-                  </span>
-                </p>
-              )}
+              {(() => {
+                const amount = form.watch('amount');
+                return (
+                  amount &&
+                  amount > 0 && (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Interest Rate:{' '}
+                      <span className="font-medium">
+                        {amount >= 10000 ? '2.5%' : '3%'}
+                      </span>
+                    </p>
+                  )
+                );
+              })()}
             </div>
           </fieldset>
 
@@ -646,9 +856,22 @@ export default function RecordForm({
 
                   {/* Error */}
                   {personError && (
-                    <div className="mt-2 flex items-center gap-2 text-red-600">
-                      <AlertCircle className="h-4 w-4" />
-                      <p className="text-xs">{personError}</p>
+                    <div className="mt-2 flex items-center justify-between gap-2 text-red-600">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4" />
+                        <p className="text-xs">{personError}</p>
+                      </div>
+                      {personFailedFile && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => retryUpload('person')}
+                          className="h-6 px-2 text-xs"
+                        >
+                          Retry
+                        </Button>
+                      )}
                     </div>
                   )}
 
@@ -721,9 +944,22 @@ export default function RecordForm({
 
                   {/* Error */}
                   {itemError && (
-                    <div className="mt-2 flex items-center gap-2 text-red-600">
-                      <AlertCircle className="h-4 w-4" />
-                      <p className="text-xs">{itemError}</p>
+                    <div className="mt-2 flex items-center justify-between gap-2 text-red-600">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4" />
+                        <p className="text-xs">{itemError}</p>
+                      </div>
+                      {itemFailedFile && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => retryUpload('item')}
+                          className="h-6 px-2 text-xs"
+                        >
+                          Retry
+                        </Button>
+                      )}
                     </div>
                   )}
 
@@ -747,19 +983,33 @@ export default function RecordForm({
             <Button
               type="button"
               variant={isMobile ? 'link' : 'outline'}
-              onClick={() => (onCancel ? onCancel() : router.back())}
+              disabled={personUploading || itemUploading}
+              onClick={() => {
+                if (personUploading || itemUploading) {
+                  toast.error(
+                    'Please wait for image upload to complete before canceling'
+                  );
+                  return;
+                }
+                onCancel ? onCancel() : router.back();
+              }}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
+            <Button
+              type="submit"
+              disabled={isSubmitting || personUploading || itemUploading}
+            >
+              {(isSubmitting || personUploading || itemUploading) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {isSubmitting
-                ? 'Saving...'
-                : isEdit
-                  ? 'Update Record'
-                  : 'Save Record'}
+              {personUploading || itemUploading
+                ? 'Uploading...'
+                : isSubmitting
+                  ? 'Saving...'
+                  : isEdit
+                    ? 'Update Record'
+                    : 'Save Record'}
             </Button>
           </div>
         </form>

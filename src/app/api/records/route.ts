@@ -110,8 +110,8 @@ export const POST = withAuth(async (req: NextRequest, user) => {
       );
     }
 
-    // Calculate interest based on amount
-    const interest = parsed.amount >= 10000 ? 2.5 : 3; // 2.5% or 3%
+    // Calculate interest based on amount (only if amount is provided)
+    const interest = parsed.amount && parsed.amount >= 10000 ? 2.5 : 3; // 2.5% or 3%
 
     const created = await RecordModel.create({
       date: parsed.date || new Date(),

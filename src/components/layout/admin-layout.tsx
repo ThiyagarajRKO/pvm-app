@@ -94,17 +94,17 @@ const navigationGroups: NavigationGroup[] = [
     icon: FileText,
     items: [
       {
-        name: 'Archived',
+        name: 'Archived (A)',
         href: '/records/archived',
         icon: Archive,
       },
       {
-        name: 'Active',
+        name: 'Active (L)',
         href: '/records/active',
         icon: CheckCircle,
       },
       {
-        name: 'Big',
+        name: 'Big (B)',
         href: '/records/big',
         icon: Star,
       },
