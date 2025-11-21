@@ -35,6 +35,7 @@ export const DEFAULT_STREETS = [
   'Aiyanar kovil street',
   'Perumal kovil street',
   'Indra nagar',
+  'Madha Kovil Street',
 ];
 
 export const DEFAULT_ITEMS = [
