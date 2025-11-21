@@ -33,7 +33,10 @@ interface ReturnItemModalProps {
     calculatedInterestAmount?: number;
     calculatedTotalAmount?: number;
     interestMonths?: number;
+    isReturned?: boolean;
+    returnedAmount?: number;
   } | null;
+  mode?: 'return' | 'edit';
 }
 
 export default function ReturnItemModal({
@@ -41,6 +44,7 @@ export default function ReturnItemModal({
   onClose,
   onConfirm,
   record,
+  mode = 'return',
 }: ReturnItemModalProps) {
   const [returnedAmount, setReturnedAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,12 +88,18 @@ export default function ReturnItemModal({
 
   const amounts = calculateAmounts();
 
-  // Pre-fill the returned amount with the calculated total amount
+  // Pre-fill the returned amount
   useEffect(() => {
-    if (record && amounts.totalAmount > 0) {
-      setReturnedAmount(amounts.totalAmount.toString());
+    if (record) {
+      if (mode === 'edit' && record.returnedAmount) {
+        // For editing, use existing returned amount
+        setReturnedAmount(record.returnedAmount.toString());
+      } else if (mode === 'return' && amounts.totalAmount > 0) {
+        // For returning, use calculated total amount
+        setReturnedAmount(amounts.totalAmount.toString());
+      }
     }
-  }, [record, amounts.totalAmount]);
+  }, [record, amounts.totalAmount, mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,11 +118,19 @@ export default function ReturnItemModal({
     setIsSubmitting(true);
     try {
       await onConfirm(amount);
-      toast.success('Item returned successfully');
+      toast.success(
+        mode === 'edit'
+          ? 'Returned amount updated successfully'
+          : 'Item returned successfully'
+      );
       onClose();
       setReturnedAmount('');
     } catch (error) {
-      toast.error('Failed to return item. Please try again.');
+      toast.error(
+        mode === 'edit'
+          ? 'Failed to update returned amount'
+          : 'Failed to return item. Please try again.'
+      );
       console.error('Return item error:', error);
     } finally {
       setIsSubmitting(false);
@@ -130,48 +148,67 @@ export default function ReturnItemModal({
     <>
       {record && (
         <div className="space-y-4">
-          {/* Calculated Amounts */}
-          <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-900/10">
-            <h4 className="mb-3 text-sm font-medium text-blue-800 dark:text-blue-200">
-              Calculated Return Amount
-            </h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-muted-foreground">
-                  Interest Rate & Months:
-                </span>
-                <p className="font-medium">
-                  {record.interest}% for {amounts.interestMonths} month
-                  {amounts.interestMonths !== 1 ? 's' : ''}
-                </p>
+          {mode === 'return' && (
+            /* Calculated Amounts - only show for return mode */
+            <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-900/10">
+              <h4 className="mb-3 text-sm font-medium text-blue-800 dark:text-blue-200">
+                Calculated Return Amount
+              </h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Interest Rate & Months:
+                  </span>
+                  <p className="font-medium">
+                    {record.interest}% for {amounts.interestMonths} month
+                    {amounts.interestMonths !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Record Age:
+                  </span>
+                  <p className="font-medium">
+                    {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
+                    months
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Interest Amount:
+                  </span>
+                  <p className="font-medium text-green-600">
+                    ₹{amounts.interestAmount.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Total Amount to Pay:
+                  </span>
+                  <p className="font-bold text-blue-600">
+                    ₹{amounts.totalAmount.toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <div>
+            </div>
+          )}
+
+          {mode === 'edit' && record.returnedAmount && (
+            /* Current Returned Amount - only show for edit mode */
+            <div className="rounded-lg border bg-green-50 p-4 dark:bg-green-900/10">
+              <h4 className="mb-3 text-sm font-medium text-green-800 dark:text-green-200">
+                Current Returned Amount
+              </h4>
+              <div className="text-sm">
                 <span className="font-medium text-muted-foreground">
-                  Record Age:
+                  Previously Returned:
                 </span>
-                <p className="font-medium">
-                  {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
-                  months
-                </p>
-              </div>
-              <div>
-                <span className="font-medium text-muted-foreground">
-                  Interest Amount:
-                </span>
-                <p className="font-medium text-green-600">
-                  ₹{amounts.interestAmount.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <span className="font-medium text-muted-foreground">
-                  Total Amount to Pay:
-                </span>
-                <p className="font-bold text-blue-600">
-                  ₹{amounts.totalAmount.toLocaleString()}
+                <p className="font-bold text-green-600">
+                  ₹{record.returnedAmount.toLocaleString()}
                 </p>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Record Info */}
           <div className="rounded-lg border bg-muted/50 p-4">
@@ -248,12 +285,12 @@ export default function ReturnItemModal({
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Returning...
+                {mode === 'edit' ? 'Updating...' : 'Returning...'}
               </>
             ) : (
               <>
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Return Item
+                {mode === 'edit' ? 'Update Amount' : 'Return Item'}
               </>
             )}
           </Button>
@@ -267,8 +304,12 @@ export default function ReturnItemModal({
       <MobileBottomSheet
         open={isOpen}
         onDismiss={handleClose}
-        title="Return Item"
-        description="Enter the amount returned for this item."
+        title={mode === 'edit' ? 'Edit Returned Amount' : 'Return Item'}
+        description={
+          mode === 'edit'
+            ? 'Update the returned amount for this item.'
+            : 'Enter the amount returned for this item.'
+        }
         descriptionIcon={
           <RotateCcw className="h-5 w-5 text-green-600 dark:text-green-400" />
         }
@@ -288,16 +329,20 @@ export default function ReturnItemModal({
               <RotateCcw className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <DialogTitle>Return Item</DialogTitle>
+              <DialogTitle>
+                {mode === 'edit' ? 'Edit Returned Amount' : 'Return Item'}
+              </DialogTitle>
               <DialogDescription>
-                Enter the amount returned for this item.
+                {mode === 'edit'
+                  ? 'Update the returned amount for this item.'
+                  : 'Enter the amount returned for this item.'}
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         {record && (
-          <div className="my-4 flex-1 space-y-4 overflow-y-auto pr-1">
+          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
             {/* Calculated Amounts */}
             <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-900/10">
               <h4 className="mb-3 text-sm font-medium text-blue-800 dark:text-blue-200">
@@ -393,7 +438,7 @@ export default function ReturnItemModal({
         )}
 
         <form onSubmit={handleSubmit} className="flex-shrink-0">
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4 pt-1">
             <div className="grid gap-2">
               <Label htmlFor="returnedAmount">Returned Amount (₹)</Label>
               <Input

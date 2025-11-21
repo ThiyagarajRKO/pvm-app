@@ -25,6 +25,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import StreetSelect from '@/components/StreetSelect';
 import PlaceSelect from '@/components/PlaceSelect';
 import MobileBottomSheet from '@/components/MobileBottomSheet';
+import ReturnItemModal from '@/components/ReturnItemModal';
 import { api } from '@/lib/api-client';
 
 interface Record {
@@ -39,6 +40,7 @@ interface Record {
   itemType: 'Gold' | 'Silver';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
+  interest: number;
   isReturned: boolean;
   returnedAmount?: number;
   mobile: string;
@@ -47,6 +49,11 @@ interface Record {
   itemReturnImageUrl?: string;
   createdAt: string;
   updatedAt: string;
+  daysOld: number;
+  monthsOld?: number;
+  calculatedInterestAmount?: number;
+  calculatedTotalAmount?: number;
+  interestMonths?: number;
 }
 
 interface Stats {
@@ -231,6 +238,25 @@ export default function ReturnedRecordsPage() {
       fetchRecords(false);
     } catch (err) {
       toast.error('Failed to move record');
+    }
+  };
+
+  const handleEditReturnedAmount = async (returnedAmount: number) => {
+    if (!editRecord) return;
+
+    try {
+      const response = await api.put('/records', {
+        id: editRecord.id,
+        returnedAmount,
+      });
+      if (response.error) throw new Error(response.error);
+
+      // Refresh the records and stats after successful update
+      await fetchRecords();
+      toast.success('Returned amount updated successfully');
+    } catch (err) {
+      console.error('Edit returned amount error:', err);
+      toast.error('Failed to update returned amount');
     }
   };
 
@@ -703,6 +729,17 @@ export default function ReturnedRecordsPage() {
           </div>
         </div>
       </MobileBottomSheet>
+
+      {/* Edit Returned Amount Modal */}
+      {editRecord && (
+        <ReturnItemModal
+          isOpen={!!editRecord}
+          onClose={() => setEditRecord(null)}
+          onConfirm={handleEditReturnedAmount}
+          record={editRecord}
+          mode="edit"
+        />
+      )}
     </div>
   );
 }
