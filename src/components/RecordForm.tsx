@@ -158,6 +158,10 @@ export default function RecordForm({
   const [showMobileSuggestions, setShowMobileSuggestions] = useState(false);
   const [isSearchingMobile, setIsSearchingMobile] = useState(false);
 
+  // Date picker states
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const hiddenDateInputRef = React.useRef<HTMLInputElement>(null);
+
   const router = useRouter();
 
   // Image upload functions
@@ -590,11 +594,6 @@ export default function RecordForm({
                   control={form.control}
                   name="date"
                   render={({ field, fieldState }) => {
-                    const [showDatePicker, setShowDatePicker] =
-                      React.useState(false);
-                    const hiddenDateInputRef =
-                      React.useRef<HTMLInputElement>(null);
-
                     const displayValue = field.value
                       ? format(new Date(field.value), 'dd-MMM-yyyy')
                       : '';
