@@ -36,6 +36,7 @@ export const GET = withAuth(async (req: NextRequest, user) => {
         { fatherName: { [Op.iLike]: `%${parsed.search}%` } },
         { place: { [Op.iLike]: `%${parsed.search}%` } },
         { mobile: { [Op.iLike]: `%${parsed.search}%` } },
+        { slNo: { [Op.iLike]: `%${parsed.search}%` } },
       ];
     }
     if (parsed.itemType) where.itemType = parsed.itemType;
