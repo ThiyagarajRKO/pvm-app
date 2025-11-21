@@ -62,7 +62,7 @@ export default function ReturnItemModal({
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-  // Calculate the return amounts based on the formula
+  // Use the calculated amounts from the backend API
   const calculateAmounts = () => {
     if (!record)
       return {
@@ -72,17 +72,11 @@ export default function ReturnItemModal({
         totalAmount: 0,
       };
 
-    const months = Math.floor(record.daysOld / 30);
-    const interestMonths = months <= 1 ? 1 : months - 1;
-    const interestAmount =
-      (record.interest / 100) * record.amount * interestMonths;
-    const totalAmount = record.amount + interestAmount;
-
     return {
-      months,
-      interestMonths,
-      interestAmount,
-      totalAmount,
+      months: Math.floor(record.daysOld / 30),
+      interestMonths: record.interestMonths || 0,
+      interestAmount: record.calculatedInterestAmount || 0,
+      totalAmount: record.calculatedTotalAmount || 0,
     };
   };
 

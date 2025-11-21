@@ -70,6 +70,9 @@ interface Record {
   isReturned?: boolean;
   returnedAmount?: number;
   returnedDate?: string;
+  calculatedInterestAmount?: number;
+  calculatedTotalAmount?: number;
+  interestMonths?: number;
 }
 
 export default function RecordDetailPage({
@@ -585,14 +588,7 @@ export default function RecordDetailPage({
                     </Label>
                     <p className="text-sm font-medium">
                       ₹
-                      {(() => {
-                        const months = Math.floor(record.daysOld / 30);
-                        const interestMonths = months <= 1 ? 1 : months - 1;
-                        return (
-                          ((record.amount * record.interest) / 100) *
-                          interestMonths
-                        ).toLocaleString();
-                      })()}
+                      {record.calculatedInterestAmount?.toLocaleString() || '0'}
                     </p>
                   </div>
                   <div className="mb-4">
@@ -628,11 +624,8 @@ export default function RecordDetailPage({
                       Interest Rate & Months
                     </Label>
                     <p className="text-sm font-medium">
-                      {(() => {
-                        const months = Math.floor(record.daysOld / 30);
-                        const interestMonths = months <= 1 ? 1 : months - 1;
-                        return `${record.interest}% for ${interestMonths} month${interestMonths !== 1 ? 's' : ''}`;
-                      })()}
+                      {record.interest}% for {record.interestMonths || 0} month
+                      {(record.interestMonths || 0) !== 1 ? 's' : ''}
                     </p>
                   </div>
                   <div className="mb-4">
@@ -650,15 +643,7 @@ export default function RecordDetailPage({
                     </Label>
                     <p className="text-sm font-medium text-green-600">
                       ₹
-                      {(() => {
-                        const months = Math.floor(record.daysOld / 30);
-                        const interestMonths = months <= 1 ? 1 : months - 1;
-                        const interestAmount =
-                          (record.interest / 100) *
-                          record.amount *
-                          interestMonths;
-                        return interestAmount.toLocaleString();
-                      })()}
+                      {record.calculatedInterestAmount?.toLocaleString() || '0'}
                     </p>
                   </div>
                   <div>
