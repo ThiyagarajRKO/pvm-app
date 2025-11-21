@@ -737,7 +737,9 @@ export default function RecordForm({
                             } ${fieldState.error ? 'border-red-300' : ''}`}
                           >
                             <span className="text-lg">{icon}</span>
-                            <span className="text-sm font-medium">{type}</span>
+                            <span className="text-sm font-medium text-black">
+                              {type}
+                            </span>
                           </button>
                         ))}
                       </div>
