@@ -22,6 +22,7 @@ import AutocompleteInput from '@/components/AutocompleteInput';
 import { Label } from '@/components/ui/label';
 import { api } from '@/lib/api-client';
 import { DEFAULT_STREETS, DEFAULT_PLACES } from '@/lib/constants';
+import SimpleMobileConfirmation from './SimpleMobileConfirmation';
 import {
   Form,
   FormControl,
@@ -132,6 +133,19 @@ export default function RecordForm({
     null
   );
   const [personImagePrefilled, setPersonImagePrefilled] = useState(false);
+
+  // Toggle body class for dialog state (only for mobile)
+  React.useEffect(() => {
+    if (isMobile && deleteDialogOpen) {
+      document.body.classList.add('alert-dialog-open');
+    } else {
+      document.body.classList.remove('alert-dialog-open');
+    }
+
+    return () => {
+      document.body.classList.remove('alert-dialog-open');
+    };
+  }, [deleteDialogOpen, isMobile]);
 
   // Failed upload retry states
   const [personFailedFile, setPersonFailedFile] = useState<File | null>(null);
@@ -1017,43 +1031,60 @@ export default function RecordForm({
         </form>
       </Form>
 
-      {/* Delete Image Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
-                <X className="h-5 w-5 text-destructive" />
+      {/* Delete Image Confirmation */}
+      {isMobile ? (
+        <SimpleMobileConfirmation
+          isOpen={deleteDialogOpen}
+          title="Delete Image"
+          message={`Are you sure you want to delete this ${imageToDelete === 'person' ? 'person' : 'item'} image? This action cannot be undone.`}
+          onConfirm={() => {
+            if (imageToDelete) {
+              removeImage(imageToDelete);
+              setDeleteDialogOpen(false);
+              setImageToDelete(null);
+            }
+          }}
+          onCancel={() => setDeleteDialogOpen(false)}
+          confirmText="Delete"
+        />
+      ) : (
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                  <X className="h-5 w-5 text-destructive" />
+                </div>
+                <div>
+                  <AlertDialogTitle>Delete Image</AlertDialogTitle>
+                  <AlertDialogDescription className="mt-2">
+                    Are you sure you want to delete this{' '}
+                    {imageToDelete === 'person' ? 'person' : 'item'} image? This
+                    action cannot be undone.
+                  </AlertDialogDescription>
+                </div>
               </div>
-              <div>
-                <AlertDialogTitle>Delete Image</AlertDialogTitle>
-                <AlertDialogDescription className="mt-2">
-                  Are you sure you want to delete this{' '}
-                  {imageToDelete === 'person' ? 'person' : 'item'} image? This
-                  action cannot be undone.
-                </AlertDialogDescription>
-              </div>
-            </div>
-          </AlertDialogHeader>
+            </AlertDialogHeader>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (imageToDelete) {
-                  removeImage(imageToDelete);
-                  setDeleteDialogOpen(false);
-                  setImageToDelete(null);
-                }
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Delete Image
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (imageToDelete) {
+                    removeImage(imageToDelete);
+                    setDeleteDialogOpen(false);
+                    setImageToDelete(null);
+                  }
+                }}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Delete Image
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
