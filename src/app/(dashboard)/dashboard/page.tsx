@@ -174,6 +174,7 @@ export default function DashboardPage() {
   };
 
   const formatWeight = (weight: number) => {
+    if (weight == null) return '0.0g';
     return `${weight.toFixed(1)}g`;
   };
 
