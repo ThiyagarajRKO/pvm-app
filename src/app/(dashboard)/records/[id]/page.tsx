@@ -323,9 +323,12 @@ export default function RecordDetailPage({
                 </div>
                 <div className="mb-4">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    No of Days Old
+                    Record Age
                   </Label>
-                  <p className="text-sm">{record.daysOld} days</p>
+                  <p className="text-sm">
+                    {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
+                    month
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">
