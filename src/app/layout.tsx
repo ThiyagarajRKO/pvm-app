@@ -36,7 +36,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#262083',
+  themeColor: '#ffffff',
 };
 
 export default function RootLayout({
@@ -54,9 +54,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="PVM" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#262083" />
+        <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
-        <meta name="theme-color" content="#262083" />
+        <meta name="theme-color" content="#ffffff" />
       </head>
       <body className={`${inter.className} h-full overflow-hidden`}>
         <ClientProviders>{children}</ClientProviders>
