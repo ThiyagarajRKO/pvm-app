@@ -40,6 +40,7 @@ import {
 import EditRecordPanel from '@/components/EditRecordPanel';
 import { api } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 
 interface Record {
   id: number;
@@ -270,7 +271,7 @@ export default function RecordDetailPage({
                     Date
                   </Label>
                   <p className="text-sm">
-                    {new Date(record.date).toLocaleDateString()}
+                    {format(new Date(record.date), 'dd-MMM-yyyy')}
                   </p>
                 </div>
               </div>
@@ -342,7 +343,7 @@ export default function RecordDetailPage({
                     </Label>
                     <p className="text-sm">
                       {record.returnedDate
-                        ? new Date(record.returnedDate).toLocaleDateString()
+                        ? format(new Date(record.returnedDate), 'dd-MMM-yyyy')
                         : 'N/A'}
                     </p>
                   </div>
