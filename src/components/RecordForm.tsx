@@ -162,10 +162,6 @@ export default function RecordForm({
   const [showMobileSuggestions, setShowMobileSuggestions] = useState(false);
   const [isSearchingMobile, setIsSearchingMobile] = useState(false);
 
-  // Date picker states
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const hiddenDateInputRef = React.useRef<HTMLInputElement>(null);
-
   const router = useRouter();
 
   // Image upload functions
@@ -603,55 +599,19 @@ export default function RecordForm({
                       ? format(new Date(field.value), 'dd-MMM-yyyy')
                       : '';
 
-                    const handleCalendarClick = () => {
-                      setShowDatePicker(true);
-                      // Small delay to ensure the input is rendered
-                      setTimeout(() => {
-                        hiddenDateInputRef.current?.showPicker?.() ||
-                          hiddenDateInputRef.current?.click();
-                      }, 10);
-                    };
-
-                    const handleDateChange = (
-                      e: React.ChangeEvent<HTMLInputElement>
-                    ) => {
-                      field.onChange(e.target.value);
-                      setShowDatePicker(false);
-                    };
-
                     return (
                       <FormItem>
                         <FormLabel className="text-foreground">Date</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <Input
-                              type="text"
-                              value={displayValue}
-                              placeholder="Select date"
-                              readOnly
-                              className={`${
-                                fieldState.error ? 'border-destructive' : ''
-                              } cursor-pointer`}
-                              onClick={handleCalendarClick}
-                            />
-                            <button
-                              type="button"
-                              onClick={handleCalendarClick}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded p-1 hover:bg-gray-100"
-                            >
-                              <Calendar className="h-4 w-4 text-gray-400" />
-                            </button>
-                            {showDatePicker && (
-                              <input
-                                ref={hiddenDateInputRef}
-                                type="date"
-                                value={field.value || ''}
-                                onChange={handleDateChange}
-                                className="pointer-events-none absolute opacity-0"
-                                style={{ width: 0, height: 0 }}
-                              />
-                            )}
-                          </div>
+                          <Input
+                            type="date"
+                            value={field.value || ''}
+                            placeholder="Select date"
+                            className={`${
+                              fieldState.error ? 'border-destructive' : ''
+                            } cursor-pointer`}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
                         </FormControl>
                         <FormMessage className="text-xs" />
                       </FormItem>
