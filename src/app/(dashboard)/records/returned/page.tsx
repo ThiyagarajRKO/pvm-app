@@ -44,6 +44,7 @@ interface Record {
   interest: number;
   isReturned: boolean;
   returnedAmount?: number;
+  returnedDate?: string;
   mobile: string;
   personImageUrl?: string;
   itemImageUrl?: string;
@@ -227,7 +228,7 @@ export default function ReturnedRecordsPage() {
       const response = await api.put(`/records/${id}`, {
         itemCategory: newCategory,
         isReturned: false,
-        returnedAmount: null, // Clear the returned amount when moving back
+        returnedAmount: 0, // Clear the returned amount when moving back
         returnedDate: null, // Clear the returned date when moving back
       });
       if (response.error) throw new Error(response.error);
@@ -259,6 +260,26 @@ export default function ReturnedRecordsPage() {
     } catch (err) {
       console.error('Edit returned amount error:', err);
       toast.error('Failed to update returned amount');
+    }
+  };
+
+  const handleRevert = async (id: number) => {
+    try {
+      const response = await api.put(`/records/${id}`, {
+        isReturned: false,
+        returnedAmount: 0,
+        returnedDate: null,
+      });
+      if (response.error) throw new Error(response.error);
+
+      // Remove the record from the current list and refresh
+      setRecords(records.filter((record) => record.id !== id));
+      toast.success('Record reverted successfully');
+
+      // Refresh the data to get updated stats
+      fetchRecords(false);
+    } catch (err) {
+      toast.error('Failed to revert record');
     }
   };
 
@@ -585,6 +606,7 @@ export default function ReturnedRecordsPage() {
           onEdit={setEditRecord}
           onEditRecord={setEditRecordPanel}
           onMove={handleMove}
+          onRevert={handleRevert}
           variant="default"
           loading={filtering}
         />

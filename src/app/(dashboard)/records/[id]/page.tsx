@@ -36,6 +36,9 @@ import {
   Loader2,
   User,
   Package,
+  RotateCcw,
+  ArrowRight,
+  Undo2,
 } from 'lucide-react';
 import EditRecordPanel from '@/components/EditRecordPanel';
 import ReturnItemModal from '@/components/ReturnItemModal';
@@ -77,6 +80,13 @@ export default function RecordDetailPage({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editPanelOpen, setEditPanelOpen] = useState(false);
   const [editReturnModalOpen, setEditReturnModalOpen] = useState(false);
+  const [returnItemModalOpen, setReturnItemModalOpen] = useState(false);
+  const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+  const [moveTargetCategory, setMoveTargetCategory] = useState<
+    'active' | 'archived' | 'big' | null
+  >(null);
+  const [moveLoading, setMoveLoading] = useState(false);
+  const [revertDialogOpen, setRevertDialogOpen] = useState(false);
   const [record, setRecord] = useState<Record | null>(null);
   const [personImageLoading, setPersonImageLoading] = useState(true);
   const [itemImageLoading, setItemImageLoading] = useState(true);
@@ -139,6 +149,8 @@ export default function RecordDetailPage({
   };
 
   const handleEditReturnConfirm = async (returnedAmount: number) => {
+    if (!record) return;
+
     try {
       const response = await api.put('/records', {
         id: record.id,
@@ -165,6 +177,134 @@ export default function RecordDetailPage({
     } catch (error) {
       console.error('Failed to update returned amount:', error);
       toast.error('Failed to update returned amount');
+    }
+  };
+
+  const handleReturnItemClick = () => {
+    setReturnItemModalOpen(true);
+  };
+
+  const handleReturnItemConfirm = async (returnedAmount: number) => {
+    if (!record) return;
+
+    try {
+      const response = await api.put('/records', {
+        id: record.id,
+        isReturned: true,
+        returnedAmount,
+      });
+      if (response.error) throw new Error(response.error);
+
+      // Refresh record data after successful return
+      const fetchRecord = async () => {
+        try {
+          const response = await api.get<Record>(`/records/${params.id}`);
+          if (response.error || !response.data) {
+            throw new Error(response.error || 'No data received');
+          }
+          setRecord(response.data);
+        } catch (error) {
+          console.error('Failed to refresh record:', error);
+        }
+      };
+      fetchRecord();
+
+      toast.success('Item returned successfully');
+      setReturnItemModalOpen(false);
+    } catch (error) {
+      console.error('Failed to return item:', error);
+      toast.error('Failed to return item');
+    }
+  };
+
+  const getMoveOptions = (currentCategory: string) => {
+    const options = [];
+    if (currentCategory !== 'active')
+      options.push({ label: 'Move to Active', value: 'active' as const });
+    if (currentCategory !== 'archived')
+      options.push({ label: 'Move to Archived', value: 'archived' as const });
+    if (currentCategory !== 'big')
+      options.push({ label: 'Move to Big', value: 'big' as const });
+    return options;
+  };
+
+  const handleMoveClick = (targetCategory: 'active' | 'archived' | 'big') => {
+    setMoveTargetCategory(targetCategory);
+    setMoveDialogOpen(true);
+  };
+
+  const handleMoveConfirm = async () => {
+    if (!moveTargetCategory || !record) return;
+
+    setMoveLoading(true);
+    try {
+      const response = await api.put(`/records/${record.id}`, {
+        itemCategory: moveTargetCategory,
+        isReturned: false,
+        returnedAmount: 0, // Clear the returned amount when moving back
+        returnedDate: null, // Clear the returned date when moving back
+      });
+      if (response.error) throw new Error(response.error);
+
+      // Refresh record data after successful move
+      const fetchRecord = async () => {
+        try {
+          const response = await api.get<Record>(`/records/${params.id}`);
+          if (response.error || !response.data) {
+            throw new Error(response.error || 'No data received');
+          }
+          setRecord(response.data);
+        } catch (error) {
+          console.error('Failed to refresh record:', error);
+        }
+      };
+      fetchRecord();
+
+      toast.success(`Record moved to ${moveTargetCategory} successfully`);
+      setMoveDialogOpen(false);
+      setMoveTargetCategory(null);
+    } catch (error) {
+      console.error('Failed to move record:', error);
+      toast.error('Failed to move record');
+    } finally {
+      setMoveLoading(false);
+    }
+  };
+
+  const handleRevertClick = () => {
+    setRevertDialogOpen(true);
+  };
+
+  const handleRevertConfirm = async () => {
+    if (!record) return;
+
+    try {
+      const response = await api.put(`/records/${record.id}`, {
+        isReturned: false,
+        returnedAmount: 0,
+        returnedDate: null,
+      });
+      if (response.error) throw new Error(response.error);
+
+      // Refresh record data after successful revert
+      const fetchRecord = async () => {
+        try {
+          const response = await api.get<Record>(`/records/${params.id}`);
+          if (response.error || !response.data) {
+            throw new Error(response.error || 'No data received');
+          }
+          setRecord(response.data);
+        } catch (error) {
+          console.error('Failed to refresh record:', error);
+        }
+      };
+      fetchRecord();
+
+      toast.success('Record reverted successfully');
+      setRevertDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to revert record:', error);
+      toast.error('Failed to revert record');
     }
   };
 
@@ -207,7 +347,7 @@ export default function RecordDetailPage({
                   onClick={handleEditClick}
                 >
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit
+                  {record.isReturned ? 'Edit Record' : 'Edit'}
                 </Button>
                 {record.isReturned && (
                   <Button
@@ -219,6 +359,16 @@ export default function RecordDetailPage({
                     Edit Return
                   </Button>
                 )}
+                {record.isReturned && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-orange-600 hover:text-orange-600"
+                    onClick={handleRevertClick}
+                  >
+                    <Undo2 className="mr-2 h-4 w-4" />
+                    Revert
+                  </Button>
+                )}
                 {!record.isReturned && (
                   <Button
                     variant="ghost"
@@ -228,6 +378,31 @@ export default function RecordDetailPage({
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </Button>
+                )}
+                {!record.isReturned && (
+                  <>
+                    <div className="my-1 h-px bg-border" />
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-green-600 hover:text-green-600"
+                      onClick={handleReturnItemClick}
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Return Item
+                    </Button>
+                    <div className="my-1 h-px bg-border" />
+                    {getMoveOptions(record.itemCategory).map((option) => (
+                      <Button
+                        key={option.value}
+                        variant="ghost"
+                        className="w-full justify-start"
+                        onClick={() => handleMoveClick(option.value)}
+                      >
+                        <ArrowRight className="mr-2 h-4 w-4" />
+                        {option.label}
+                      </Button>
+                    ))}
+                  </>
                 )}
               </div>
             </PopoverContent>
@@ -253,12 +428,21 @@ export default function RecordDetailPage({
           <DropdownMenuContent align="end" className="z-50">
             <DropdownMenuItem onSelect={handleEditClick}>
               <Edit className="mr-2 h-4 w-4" />
-              Edit
+              {record.isReturned ? 'Edit Record' : 'Edit'}
             </DropdownMenuItem>
             {record.isReturned && (
               <DropdownMenuItem onSelect={handleEditReturnClick}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Return
+              </DropdownMenuItem>
+            )}
+            {record.isReturned && (
+              <DropdownMenuItem
+                onSelect={handleRevertClick}
+                className="text-orange-600 focus:text-orange-600"
+              >
+                <Undo2 className="mr-2 h-4 w-4" />
+                Revert
               </DropdownMenuItem>
             )}
             {!record.isReturned && (
@@ -269,6 +453,28 @@ export default function RecordDetailPage({
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>
+            )}
+            {!record.isReturned && (
+              <>
+                <div className="my-1 h-px bg-border" />
+                <DropdownMenuItem
+                  onSelect={handleReturnItemClick}
+                  className="text-green-600 focus:text-green-600"
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Return Item
+                </DropdownMenuItem>
+                <div className="my-1 h-px bg-border" />
+                {getMoveOptions(record.itemCategory).map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onSelect={() => handleMoveClick(option.value)}
+                  >
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -555,15 +761,17 @@ export default function RecordDetailPage({
                 <span className="font-medium text-muted-foreground">
                   Item Type:
                 </span>
-                <div
-                  className={`flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    record.itemType === 'Gold'
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-gray-400 text-white'
-                  }`}
-                >
-                  {record.itemType}
-                </div>
+                <p>
+                  <div
+                    className={`flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      record.itemType === 'Gold'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-gray-400 text-white'
+                    }`}
+                  >
+                    {record.itemType}
+                  </div>
+                </p>
               </div>
               <div>
                 <span className="font-medium text-muted-foreground">
@@ -627,6 +835,217 @@ export default function RecordDetailPage({
           mode="edit"
         />
       )}
+
+      {/* Return Item Modal */}
+      {returnItemModalOpen && (
+        <ReturnItemModal
+          isOpen={returnItemModalOpen}
+          onClose={() => setReturnItemModalOpen(false)}
+          onConfirm={handleReturnItemConfirm}
+          record={record}
+        />
+      )}
+
+      {/* Move Confirmation Dialog */}
+      <AlertDialog open={moveDialogOpen} onOpenChange={setMoveDialogOpen}>
+        <AlertDialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20 sm:h-10 sm:w-10">
+                <ArrowRight className="h-4 w-4 text-blue-600 dark:text-blue-400 sm:h-5 sm:w-5" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-base sm:text-lg">
+                  Move Record
+                </AlertDialogTitle>
+                <AlertDialogDescription className="mt-1 text-sm sm:mt-2">
+                  Are you sure you want to move this record to{' '}
+                  <span className="font-semibold capitalize">
+                    {moveTargetCategory}
+                  </span>
+                  ?
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          {record && (
+            <div className="my-2 rounded-lg border bg-muted/50 p-3 sm:my-4 sm:p-4">
+              <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2 sm:gap-4">
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Name:
+                  </span>
+                  <p className="font-medium">{record.name}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Mobile:
+                  </span>
+                  <p className="font-medium">{record.mobile}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Item Type:
+                  </span>
+                  <p>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        record.itemType === 'Gold'
+                          ? 'bg-yellow-500 text-white'
+                          : 'bg-gray-400 text-white'
+                      }`}
+                    >
+                      {record.itemType}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Amount:
+                  </span>
+                  <p className="font-medium">
+                    ₹{record.amount.toLocaleString()}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="font-medium text-muted-foreground">
+                    Current Category:
+                  </span>
+                  <span className="ml-2 font-medium capitalize text-blue-600">
+                    {record.itemCategory}
+                  </span>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="font-medium text-muted-foreground">
+                    Moving to:
+                  </span>
+                  <span className="ml-2 font-medium capitalize text-green-600">
+                    {moveTargetCategory}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
+            <AlertDialogCancel
+              disabled={moveLoading}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleMoveConfirm}
+              disabled={moveLoading}
+              className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
+            >
+              {moveLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRight className="mr-2 h-4 w-4" />
+              )}
+              {moveLoading ? 'Moving...' : 'Move Record'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Revert Confirmation Dialog */}
+      <AlertDialog open={revertDialogOpen} onOpenChange={setRevertDialogOpen}>
+        <AlertDialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20 sm:h-10 sm:w-10">
+                <Undo2 className="h-4 w-4 text-orange-600 dark:text-orange-400 sm:h-5 sm:w-5" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-base sm:text-lg">
+                  Revert Record
+                </AlertDialogTitle>
+                <AlertDialogDescription className="mt-1 text-sm sm:mt-2">
+                  Are you sure you want to revert this record? This will remove
+                  the return status and allow the record to be returned again.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          {record && (
+            <div className="my-2 rounded-lg border bg-muted/50 p-3 sm:my-4 sm:p-4">
+              <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2 sm:gap-4">
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Name:
+                  </span>
+                  <p className="font-medium">{record.name}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Mobile:
+                  </span>
+                  <p className="font-medium">{record.mobile}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Item Type:
+                  </span>
+                  <p>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        record.itemType === 'Gold'
+                          ? 'bg-yellow-500 text-white'
+                          : 'bg-gray-400 text-white'
+                      }`}
+                    >
+                      {record.itemType}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">
+                    Amount:
+                  </span>
+                  <p className="font-medium">
+                    ₹{record.amount.toLocaleString()}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="font-medium text-muted-foreground">
+                    Returned Amount:
+                  </span>
+                  <p className="font-medium text-green-600">
+                    ₹{record.returnedAmount?.toLocaleString() || 'N/A'}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="font-medium text-muted-foreground">
+                    Returned Date:
+                  </span>
+                  <p className="font-medium">
+                    {record.returnedDate
+                      ? format(new Date(record.returnedDate), 'dd-MMM-yyyy')
+                      : 'N/A'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
+            <AlertDialogCancel className="w-full sm:w-auto">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRevertConfirm}
+              className="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto"
+            >
+              <Undo2 className="mr-2 h-4 w-4" />
+              Revert Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -62,6 +62,7 @@ interface Record {
   interest: number;
   isReturned: boolean;
   returnedAmount?: number;
+  returnedDate?: string;
   mobile: string;
   personImageUrl?: string;
   itemImageUrl?: string;
@@ -82,6 +83,7 @@ interface RecordTableProps {
   onEditRecord?: (record: Record) => void;
   onReturnItem?: (id: number, returnedAmount?: number) => void;
   onMove?: (id: number, newCategory: 'active' | 'archived' | 'big') => void;
+  onRevert?: (id: number) => void;
   variant?: 'default' | 'active' | 'archived' | 'big';
   loading?: boolean;
 }
@@ -93,6 +95,7 @@ export default function RecordTable({
   onEditRecord,
   onReturnItem,
   onMove,
+  onRevert,
   variant = 'default',
   loading = false,
 }: RecordTableProps) {
@@ -107,6 +110,8 @@ export default function RecordTable({
   const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [recordToReturn, setRecordToReturn] = useState<Record | null>(null);
+  const [revertDialogOpen, setRevertDialogOpen] = useState(false);
+  const [recordToRevert, setRecordToRevert] = useState<Record | null>(null);
 
   const handleDeleteClick = (record: Record) => {
     setRecordToDelete(record);
@@ -180,6 +185,19 @@ export default function RecordTable({
       await onReturnItem?.(recordToReturn.id, returnedAmount);
       setReturnModalOpen(false);
       setRecordToReturn(null);
+    }
+  };
+
+  const handleRevertClick = (record: Record) => {
+    setRecordToRevert(record);
+    setRevertDialogOpen(true);
+  };
+
+  const handleRevertConfirm = () => {
+    if (recordToRevert) {
+      onRevert?.(recordToRevert.id);
+      setRevertDialogOpen(false);
+      setRecordToRevert(null);
     }
   };
   return (
@@ -321,6 +339,13 @@ export default function RecordTable({
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit Return
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleRevertClick(record)}
+                                className="text-orange-600 focus:text-orange-600"
+                              >
+                                <RotateCcw className="mr-2 h-4 w-4" />
+                                Revert
                               </DropdownMenuItem>
                             </>
                           ) : (
@@ -610,6 +635,125 @@ export default function RecordTable({
           onConfirm={handleReturnConfirm}
           record={recordToReturn}
         />
+
+        {/* Revert Confirmation Dialog */}
+        <AlertDialog open={revertDialogOpen} onOpenChange={setRevertDialogOpen}>
+          <AlertDialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-md">
+            <AlertDialogHeader>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20 sm:h-10 sm:w-10">
+                  <RotateCcw className="h-4 w-4 text-orange-600 dark:text-orange-400 sm:h-5 sm:w-5" />
+                </div>
+                <div>
+                  <AlertDialogTitle className="text-base sm:text-lg">
+                    Revert Record
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="mt-1 text-sm sm:mt-2">
+                    Are you sure you want to revert this record? This will
+                    remove the return status and allow the record to be returned
+                    again.
+                  </AlertDialogDescription>
+                </div>
+              </div>
+            </AlertDialogHeader>
+
+            {recordToRevert && (
+              <div className="my-2 rounded-lg border bg-muted/50 p-3 sm:my-4 sm:p-4">
+                <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2 sm:gap-4">
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Name:
+                    </span>
+                    <p className="font-medium">{recordToRevert.name}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Mobile:
+                    </span>
+                    <p className="font-medium">
+                      <button
+                        onClick={() => handleCopyMobile(recordToRevert.mobile)}
+                        className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                        title="Click to copy mobile number"
+                      >
+                        <Phone className="h-3 w-3" />
+                        <a
+                          href={`tel:${recordToRevert.mobile}`}
+                          className="hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {recordToRevert.mobile}
+                        </a>
+                        {copiedNumber === recordToRevert.mobile && (
+                          <Copy className="h-3 w-3 text-green-600" />
+                        )}
+                      </button>
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Item Type:
+                    </span>
+                    <p>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          recordToRevert.itemType === 'Gold'
+                            ? 'bg-yellow-500 text-white'
+                            : 'bg-gray-400 text-white'
+                        }`}
+                      >
+                        {recordToRevert.itemType}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Amount:
+                    </span>
+                    <p className="font-medium">
+                      ₹{recordToRevert.amount.toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Returned Amount:
+                    </span>
+                    <p className="font-medium text-green-600">
+                      ₹
+                      {recordToRevert.returnedAmount?.toLocaleString() || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Returned Date:
+                    </span>
+                    <p className="font-medium">
+                      {recordToRevert.returnedDate
+                        ? format(
+                            new Date(recordToRevert.returnedDate),
+                            'dd-MMM-yyyy'
+                          )
+                        : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
+              <AlertDialogCancel className="w-full sm:w-auto">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRevertConfirm}
+                className="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Revert Record
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
