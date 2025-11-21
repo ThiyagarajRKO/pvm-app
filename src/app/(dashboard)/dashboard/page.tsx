@@ -415,7 +415,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Total Records
                 </p>
-                <p className="text-xl font-semibold text-blue-600">
+                <p className="text-base font-semibold text-blue-600">
                   {stats.overview.totalRecords.toLocaleString()}
                 </p>
               </div>
@@ -438,7 +438,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Total Value
                 </p>
-                <p className="text-xl font-semibold text-green-600">
+                <p className="text-base font-semibold text-green-600">
                   {formatCurrency(stats.overview.totalAmount)}
                 </p>
               </div>
@@ -461,7 +461,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Total Weight
                 </p>
-                <p className="text-xl font-semibold text-yellow-600">
+                <p className="text-base font-semibold text-yellow-600">
                   {formatWeight(stats.overview.totalWeightGrams)}
                 </p>
               </div>
@@ -484,7 +484,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Average Value
                 </p>
-                <p className="text-xl font-semibold text-purple-600">
+                <p className="text-base font-semibold text-purple-600">
                   {formatCurrency(stats.overview.averageAmount)}
                 </p>
               </div>
@@ -503,7 +503,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Active
                 </p>
-                <p className="text-xl font-semibold text-green-600">
+                <p className="text-base font-semibold text-green-600">
                   {stats.categories.active.toLocaleString()}
                 </p>
               </div>
@@ -519,7 +519,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Returned
                 </p>
-                <p className="text-xl font-semibold text-blue-600">
+                <p className="text-base font-semibold text-blue-600">
                   {stats.returned.totalRecords.toLocaleString()}
                 </p>
               </div>
@@ -535,7 +535,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Archived
                 </p>
-                <p className="text-xl font-semibold text-orange-600">
+                <p className="text-base font-semibold text-orange-600">
                   {stats.categories.archived.toLocaleString()}
                 </p>
               </div>
@@ -551,7 +551,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Big Records
                 </p>
-                <p className="text-xl font-semibold text-purple-600">
+                <p className="text-base font-semibold text-purple-600">
                   {stats.categories.big.toLocaleString()}
                 </p>
               </div>
@@ -572,7 +572,7 @@ export default function DashboardPage() {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
-              <p className="text-xl font-semibold text-blue-600">
+              <p className="text-base font-semibold text-blue-600">
                 {stats.currentMonth.records}
               </p>
               <p className="text-sm text-gray-600">Records</p>
@@ -583,7 +583,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-semibold text-green-600">
+              <p className="text-base font-semibold text-green-600">
                 {formatCurrency(stats.currentMonth.amount)}
               </p>
               <p className="text-sm text-gray-600">Total Value</p>
@@ -594,7 +594,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-semibold text-yellow-600">
+              <p className="text-base font-semibold text-yellow-600">
                 {formatWeight(stats.currentMonth.weight)}
               </p>
               <p className="text-sm text-gray-600">Total Weight</p>
@@ -605,7 +605,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-semibold text-gray-600">
+              <p className="text-base font-semibold text-gray-600">
                 {stats.currentMonth.goldCount}G /{' '}
                 {stats.currentMonth.silverCount}S
               </p>
@@ -626,25 +626,25 @@ export default function DashboardPage() {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
-              <p className="text-xl font-semibold text-blue-600">
+              <p className="text-base font-semibold text-blue-600">
                 {stats.returned.totalRecords}
               </p>
               <p className="text-sm text-gray-600">Total Returned</p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-semibold text-green-600">
+              <p className="text-base font-semibold text-green-600">
                 {formatCurrency(stats.returned.totalAmount)}
               </p>
               <p className="text-sm text-gray-600">Returned Value</p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-semibold text-yellow-600">
+              <p className="text-base font-semibold text-yellow-600">
                 {formatWeight(stats.returned.totalWeightGrams)}
               </p>
               <p className="text-sm text-gray-600">Returned Weight</p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-semibold text-gray-600">
+              <p className="text-base font-semibold text-gray-600">
                 {stats.returned.totalGoldCount}G /{' '}
                 {stats.returned.totalSilverCount}S
               </p>
