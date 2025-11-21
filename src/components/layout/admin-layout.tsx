@@ -25,7 +25,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import {
   LayoutDashboard,
   Users,
@@ -828,9 +827,6 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
           <div className="min-h-full p-4 lg:p-6">{children}</div>
         </main>
       </div>
-
-      {/* PWA Install Prompt */}
-      <PWAInstallPrompt />
 
       {/* Logout Confirmation Dialog */}
       <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>

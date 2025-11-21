@@ -1,7 +1,6 @@
 'use client';
 
 import { AuthProvider } from '@/lib/auth';
-import { PWAProvider } from '@/components/PWAProvider';
 import { Toaster } from 'sonner';
 
 interface ClientProvidersProps {
@@ -11,20 +10,18 @@ interface ClientProvidersProps {
 export function ClientProviders({ children }: ClientProvidersProps) {
   return (
     <AuthProvider>
-      <PWAProvider>
-        {children}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: 'hsl(var(--background))',
-              color: 'hsl(var(--foreground))',
-              border: '1px solid hsl(var(--border))',
-            },
-          }}
-        />
-      </PWAProvider>
+      {children}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
+            border: '1px solid hsl(var(--border))',
+          },
+        }}
+      />
     </AuthProvider>
   );
 }
