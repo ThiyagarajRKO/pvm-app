@@ -75,6 +75,8 @@ export default function RecordDetailPage({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editPanelOpen, setEditPanelOpen] = useState(false);
   const [record, setRecord] = useState<Record | null>(null);
+  const [personImageLoading, setPersonImageLoading] = useState(true);
+  const [itemImageLoading, setItemImageLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -404,11 +406,20 @@ export default function RecordDetailPage({
             </CardHeader>
             <CardContent>
               {record.personImageUrl ? (
-                <img
-                  src={record.personImageUrl}
-                  alt="Person"
-                  className="h-48 w-full rounded-md object-cover"
-                />
+                <div className="relative">
+                  {personImageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-md bg-muted">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  )}
+                  <img
+                    src={record.personImageUrl}
+                    alt="Person"
+                    className="h-48 w-full rounded-md object-cover"
+                    onLoad={() => setPersonImageLoading(false)}
+                    onError={() => setPersonImageLoading(false)}
+                  />
+                </div>
               ) : (
                 <div className="flex h-48 w-full items-center justify-center rounded-md bg-muted">
                   <div className="text-center">
@@ -428,11 +439,20 @@ export default function RecordDetailPage({
             </CardHeader>
             <CardContent>
               {record.itemImageUrl ? (
-                <img
-                  src={record.itemImageUrl}
-                  alt="Item"
-                  className="h-48 w-full rounded-md object-cover"
-                />
+                <div className="relative">
+                  {itemImageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-md bg-muted">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  )}
+                  <img
+                    src={record.itemImageUrl}
+                    alt="Item"
+                    className="h-48 w-full rounded-md object-cover"
+                    onLoad={() => setItemImageLoading(false)}
+                    onError={() => setItemImageLoading(false)}
+                  />
+                </div>
               ) : (
                 <div className="flex h-48 w-full items-center justify-center rounded-md bg-muted">
                   <div className="text-center">
