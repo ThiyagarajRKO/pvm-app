@@ -65,6 +65,7 @@ import {
   Database,
   Mail,
   Archive,
+  RotateCcw,
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -106,6 +107,11 @@ const navigationGroups: NavigationGroup[] = [
         name: 'Big (B)',
         href: '/records/big',
         icon: Star,
+      },
+      {
+        name: 'Returned (R)',
+        href: '/records/returned',
+        icon: RotateCcw,
       },
     ],
   },
@@ -671,6 +677,7 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
                     <div className="animate-fade-in ml-4 space-y-1">
                       {group.items.map((item) => {
                         const isActive = isItemActive(item.href);
+                        const isReturnedItem = item.name === 'Returned (R)';
                         return (
                           <Link
                             key={item.name}
@@ -678,8 +685,12 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
                             className={cn(
                               'nav-item group flex min-w-0 items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
                               isActive
-                                ? 'bg-primary text-primary-foreground'
-                                : 'text-foreground hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-gray-700 dark:hover:text-blue-300'
+                                ? isReturnedItem
+                                  ? 'bg-green-600 text-white'
+                                  : 'bg-primary text-primary-foreground'
+                                : isReturnedItem
+                                  ? 'text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-900/20 dark:hover:text-green-400'
+                                  : 'text-foreground hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-gray-700 dark:hover:text-blue-300'
                             )}
                             onClick={() => setSidebarOpen(false)}
                           >

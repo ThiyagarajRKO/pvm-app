@@ -305,22 +305,26 @@ export default function RecordTable({
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteClick(record)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleReturnItemClick(record)}
-                            className="text-green-600 focus:text-green-600"
-                          >
-                            <RotateCcw className="mr-2 h-4 w-4" />
-                            Return Item
-                          </DropdownMenuItem>
-                          {moveOptions.length > 0 && (
+                          {!record.isReturned && (
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClick(record)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          )}
+                          {!record.isReturned && <DropdownMenuSeparator />}
+                          {!record.isReturned && (
+                            <DropdownMenuItem
+                              onClick={() => handleReturnItemClick(record)}
+                              className="text-green-600 focus:text-green-600"
+                            >
+                              <RotateCcw className="mr-2 h-4 w-4" />
+                              Return Item
+                            </DropdownMenuItem>
+                          )}
+                          {!record.isReturned && moveOptions.length > 0 && (
                             <>
                               <DropdownMenuSeparator />
                               {moveOptions.map((option) => (

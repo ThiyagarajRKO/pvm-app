@@ -62,6 +62,7 @@ interface Record {
   updatedAt: string;
   daysOld: number;
   amountToBePaid: number | null;
+  isReturned?: boolean;
 }
 
 export default function RecordDetailPage({
@@ -167,14 +168,16 @@ export default function RecordDetailPage({
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-destructive hover:text-destructive"
-                  onClick={handleDeleteClick}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </Button>
+                {!record.isReturned && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:text-destructive"
+                    onClick={handleDeleteClick}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                )}
               </div>
             </PopoverContent>
           </Popover>
@@ -201,13 +204,15 @@ export default function RecordDetailPage({
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={handleDeleteClick}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
+            {!record.isReturned && (
+              <DropdownMenuItem
+                onSelect={handleDeleteClick}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -81,6 +81,12 @@ export default function ReturnedRecordsPage() {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const debouncedSearchTerm = useDebounce(localSearchTerm, 300);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
   useEffect(() => {
     setSearchTerm(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
@@ -89,11 +95,8 @@ export default function ReturnedRecordsPage() {
     setLocalSearchTerm(searchTerm);
   }, [searchTerm]);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  // Edit state
+  const [editRecord, setEditRecord] = useState<Record | null>(null);
 
   // Mobile filter state
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -195,6 +198,41 @@ export default function ReturnedRecordsPage() {
     toast.info('CSV export coming soon');
   };
 
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await api.delete(`/records/${id}`);
+      if (response.error) throw new Error(response.error);
+
+      setRecords(records.filter((record) => record.id !== id));
+      toast.success('Returned record deleted successfully');
+    } catch (err) {
+      toast.error('Failed to delete returned record');
+    }
+  };
+
+  const handleMove = async (
+    id: number,
+    newCategory: 'active' | 'archived' | 'big'
+  ) => {
+    try {
+      const response = await api.put(`/records/${id}`, {
+        itemCategory: newCategory,
+        isReturned: false,
+        returnedAmount: null, // Clear the returned amount when moving back
+      });
+      if (response.error) throw new Error(response.error);
+
+      // Remove the record from the current list and refresh
+      setRecords(records.filter((record) => record.id !== id));
+      toast.success(`Record moved to ${newCategory} successfully`);
+
+      // Refresh the data to get updated stats
+      fetchRecords(false);
+    } catch (err) {
+      toast.error('Failed to move record');
+    }
+  };
+
   // Filter and sort records - now handled server-side
   const filteredRecords = records;
 
@@ -292,101 +330,14 @@ export default function ReturnedRecordsPage() {
       </div>
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                Total Records
-              </p>
-              <p className="text-lg font-bold text-blue-600">
-                {stats.totalRecords.toLocaleString()}
-              </p>
-            </div>
-            <RotateCcw className="h-5 w-5 text-blue-600" />
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                Total Weight
-              </p>
-              <p className="text-lg font-bold text-yellow-600">
-                {stats.totalWeight.toFixed(1)}g
-              </p>
-            </div>
-            <div className="h-5 w-5 rounded bg-yellow-100 p-1">
-              <div className="h-full w-full rounded bg-yellow-600"></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                Original Amount
-              </p>
-              <p className="text-lg font-bold text-green-600">
-                ₹{stats.totalAmount.toLocaleString()}
-              </p>
-            </div>
-            <div className="h-5 w-5 rounded bg-green-100 p-1">
-              <div className="h-full w-full rounded bg-green-600"></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                Returned Amount
-              </p>
-              <p className="text-lg font-bold text-red-600">
-                ₹{stats.totalReturnedAmount.toLocaleString()}
-              </p>
-            </div>
-            <div className="h-5 w-5 rounded bg-red-100 p-1">
-              <div className="h-full w-full rounded bg-red-600"></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                Gold Items
-              </p>
-              <p className="text-lg font-bold text-yellow-600">
-                {stats.goldCount}
-              </p>
-            </div>
-            <div className="h-5 w-5 rounded bg-yellow-100 p-1">
-              <div className="h-full w-full rounded bg-yellow-600"></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                Silver Items
-              </p>
-              <p className="text-lg font-bold text-gray-600">
-                {stats.silverCount}
-              </p>
-            </div>
-            <div className="h-5 w-5 rounded bg-gray-100 p-1">
-              <div className="h-full w-full rounded bg-gray-600"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <RecordStats
+        {...stats}
+        activeRecords={0}
+        archivedRecords={0}
+        bigRecords={0}
+        exclude={['activeRecords', 'archivedRecords', 'bigRecords']}
+        loading={filtering}
+      />
 
       {/* Table */}
       <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] mt-8 sm:mb-0">
@@ -599,133 +550,14 @@ export default function ReturnedRecordsPage() {
             )}
           </div>
         </div>
-
-        {/* Custom Table for Returned Records */}
-        <div className="w-full overflow-x-auto">
-          <div className="rounded-md border sm:mx-0">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    SL No
-                  </th>
-                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Date
-                  </th>
-                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Name
-                  </th>
-                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Mobile
-                  </th>
-                  <th className="hidden h-12 px-4 text-left align-middle font-medium text-muted-foreground sm:table-cell">
-                    Place
-                  </th>
-                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Type
-                  </th>
-                  <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-                    Weight
-                  </th>
-                  <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-                    Original Amount
-                  </th>
-                  <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-                    Returned Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtering
-                  ? // Loading skeleton
-                    Array.from({ length: 5 }).map((_, index) => (
-                      <tr key={`loading-${index}`}>
-                        <td className="p-4">
-                          <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="p-4">
-                          <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="p-4">
-                          <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="p-4">
-                          <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="hidden p-4 sm:table-cell">
-                          <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="p-4">
-                          <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="p-4 text-right">
-                          <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="p-4 text-right">
-                          <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
-                        </td>
-                        <td className="p-4 text-right">
-                          <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
-                        </td>
-                      </tr>
-                    ))
-                  : filteredRecords.map((record) => (
-                      <tr key={record.id} className="border-b">
-                        <td className="p-4 font-medium">{record.slNo}</td>
-                        <td className="p-4">
-                          {new Date(record.date).toLocaleDateString('en-IN', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </td>
-                        <td className="p-4 font-medium">{record.name}</td>
-                        <td className="p-4">
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(record.mobile);
-                              toast.success('Mobile number copied');
-                            }}
-                            className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                          >
-                            📞 {record.mobile}
-                          </button>
-                        </td>
-                        <td className="hidden p-4 sm:table-cell">
-                          {record.place}
-                        </td>
-                        <td className="p-4">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              record.itemType === 'Gold'
-                                ? 'bg-yellow-500 text-white'
-                                : 'bg-gray-400 text-white'
-                            }`}
-                          >
-                            {record.itemType}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right">
-                          {record.weightGrams}g
-                        </td>
-                        <td className="p-4 text-right">
-                          ₹{record.amount.toLocaleString()}
-                        </td>
-                        <td className="p-4 text-right font-semibold text-green-600">
-                          ₹{(record.returnedAmount || 0).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-              </tbody>
-            </table>
-
-            {filteredRecords.length === 0 && !filtering && (
-              <div className="py-8 text-center text-muted-foreground">
-                No returned records found.
-              </div>
-            )}
-          </div>
-        </div>
+        <RecordTable
+          records={filteredRecords as any}
+          onDelete={handleDelete}
+          onEdit={setEditRecord}
+          onMove={handleMove}
+          variant="default"
+          loading={filtering}
+        />
 
         {/* Pagination Info */}
         <div className="mt-4 flex items-center justify-between">

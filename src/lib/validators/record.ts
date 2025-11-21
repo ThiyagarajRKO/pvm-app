@@ -40,7 +40,15 @@ export const recordCreateSchema = z.object({
   itemReturnImageUrl: z.string().url().optional().nullable(),
 });
 
-export const recordUpdateSchema = recordCreateSchema.partial();
+export const recordUpdateSchema = recordCreateSchema.partial().extend({
+  isReturned: z.boolean().optional(),
+  returnedAmount: z
+    .preprocess(
+      (v) => (v === null ? null : Number(v)),
+      z.number().nonnegative().nullable()
+    )
+    .optional(),
+});
 
 export type RecordCreateInput = z.infer<typeof recordCreateSchema>;
 export type RecordUpdateInput = z.infer<typeof recordUpdateSchema>;
