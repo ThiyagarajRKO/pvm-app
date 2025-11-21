@@ -19,16 +19,14 @@ import Link from 'next/link';
 import RecordTable from '@/components/RecordTable';
 import RecordStats from '@/components/RecordStats';
 import { TableShimmerLoader } from '@/components/ShimmerLoader';
-import { Plus, Download, CheckCircle, Search, Filter, X } from 'lucide-react';
+import { RotateCcw, Download, Search, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
-import FloatingNewRecord from '@/components/FloatingNewRecord';
-import NewRecordLauncher from '@/components/NewRecordLauncher';
-import EditRecordPanel from '@/components/EditRecordPanel';
 import { useDebounce } from '@/hooks/use-debounce';
 import StreetSelect from '@/components/StreetSelect';
 import PlaceSelect from '@/components/PlaceSelect';
 import MobileBottomSheet from '@/components/MobileBottomSheet';
 import { api } from '@/lib/api-client';
+
 interface Record {
   id: number;
   slNo: string;
@@ -41,6 +39,8 @@ interface Record {
   itemType: 'Gold' | 'Silver';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
+  isReturned: boolean;
+  returnedAmount?: number;
   mobile: string;
   personImageUrl?: string;
   itemImageUrl?: string;
@@ -51,24 +51,20 @@ interface Record {
 
 interface Stats {
   totalRecords: number;
-  activeRecords: number;
-  archivedRecords: number;
-  bigRecords: number;
   totalWeight: number;
   totalAmount: number;
+  totalReturnedAmount: number;
   goldCount: number;
   silverCount: number;
 }
 
-export default function ActiveRecordsPage() {
+export default function ReturnedRecordsPage() {
   const [records, setRecords] = useState<Record[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalRecords: 0,
-    activeRecords: 0,
-    archivedRecords: 0,
-    bigRecords: 0,
     totalWeight: 0,
     totalAmount: 0,
+    totalReturnedAmount: 0,
     goldCount: 0,
     silverCount: 0,
   });
@@ -99,9 +95,6 @@ export default function ActiveRecordsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Edit state
-  const [editRecord, setEditRecord] = useState<Record | null>(null);
-
   // Mobile filter state
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
@@ -119,7 +112,7 @@ export default function ActiveRecordsPage() {
       try {
         if (!isInitialLoad) setFiltering(true);
         const params = new URLSearchParams({
-          status: 'active',
+          status: 'returned',
           page: currentPage.toString(),
           limit: pageSize.toString(),
         });
@@ -136,32 +129,33 @@ export default function ActiveRecordsPage() {
         setTotalPages(Math.ceil(data.total / pageSize));
         setTotalRecords(data.total);
 
-        // Calculate stats for active records
-        const activeRecords = data.data || [];
+        // Calculate stats for returned records
+        const returnedRecords = data.data || [];
         const totalRecords = data.total;
-        const bigRecords = activeRecords.filter(
-          (r: Record) => r.amount > 100000
-        ).length;
         const totalWeight = data.stats.totalWeight;
         const totalAmount = data.stats.totalAmount;
+        const totalReturnedAmount = returnedRecords.reduce(
+          (sum: number, record: Record) => sum + (record.returnedAmount || 0),
+          0
+        );
         const goldCount = data.stats.goldCount;
         const silverCount = data.stats.silverCount;
 
         setStats({
           totalRecords,
-          activeRecords: totalRecords,
-          archivedRecords: 0,
-          bigRecords,
           totalWeight,
           totalAmount,
+          totalReturnedAmount,
           goldCount,
           silverCount,
         });
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : 'Failed to fetch active records'
+          err instanceof Error
+            ? err.message
+            : 'Failed to fetch returned records'
         );
-        toast.error('Failed to load active records');
+        toast.error('Failed to load returned records');
       } finally {
         setLoading(false);
         setFiltering(false);
@@ -196,56 +190,6 @@ export default function ActiveRecordsPage() {
     setCurrentPage(1);
   }, [searchTerm, itemTypeFilter, streetFilter, placeFilter, pageSize]);
 
-  const handleMove = async (
-    id: number,
-    newCategory: 'active' | 'archived' | 'big'
-  ) => {
-    try {
-      const response = await api.put(`/records/${id}`, {
-        itemCategory: newCategory,
-      });
-      if (response.error) throw new Error(response.error);
-
-      // Remove from current list and refresh
-      setRecords(records.filter((record) => record.id !== id));
-      toast.success(`Record moved to ${newCategory}`);
-    } catch (err) {
-      toast.error('Failed to move record');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      const response = await api.delete(`/records/${id}`);
-      if (response.error) throw new Error(response.error);
-
-      setRecords(records.filter((record) => record.id !== id));
-      toast.success('Active record deleted successfully');
-    } catch (err) {
-      toast.error('Failed to delete active record');
-    }
-  };
-
-  const handleReturnItem = async (id: number, returnedAmount?: number) => {
-    if (!returnedAmount) {
-      toast.error('Returned amount is required');
-      return;
-    }
-
-    try {
-      const response = await api.put('/records', {
-        id,
-        returnedAmount,
-      });
-      if (response.error) throw new Error(response.error);
-
-      setRecords(records.filter((record) => record.id !== id));
-      toast.success('Item returned successfully');
-    } catch (err) {
-      toast.error('Failed to return item');
-    }
-  };
-
   const handleExport = () => {
     // TODO: Implement CSV export
     toast.info('CSV export coming soon');
@@ -259,8 +203,8 @@ export default function ActiveRecordsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <h1 className="text-xl font-semibold">Active Records</h1>
+            <RotateCcw className="h-5 w-5 text-green-600" />
+            <h1 className="text-xl font-semibold">Returned Records</h1>
           </div>
         </div>
         <TableShimmerLoader
@@ -284,8 +228,8 @@ export default function ActiveRecordsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <h1 className="text-xl font-semibold">Active Records</h1>
+            <RotateCcw className="h-5 w-5 text-green-600" />
+            <h1 className="text-xl font-semibold">Returned Records</h1>
           </div>
         </div>
         <div className="rounded-lg border bg-card p-6">
@@ -319,14 +263,15 @@ export default function ActiveRecordsPage() {
       </div>
     );
   }
+
   return (
     <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
+            <RotateCcw className="h-5 w-5 text-green-600" />
             <h1 className="text-base font-semibold sm:text-xl">
-              Active Records
+              Returned Records
             </h1>
           </div>
           <Button
@@ -347,13 +292,101 @@ export default function ActiveRecordsPage() {
       </div>
 
       {/* Stats */}
-      <RecordStats
-        {...stats}
-        exclude={['activeRecords', 'archivedRecords', 'bigRecords']}
-        loading={filtering}
-      />
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Total Records
+              </p>
+              <p className="text-lg font-bold text-blue-600">
+                {stats.totalRecords.toLocaleString()}
+              </p>
+            </div>
+            <RotateCcw className="h-5 w-5 text-blue-600" />
+          </div>
+        </div>
 
-      <FloatingNewRecord />
+        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Total Weight
+              </p>
+              <p className="text-lg font-bold text-yellow-600">
+                {stats.totalWeight.toFixed(1)}g
+              </p>
+            </div>
+            <div className="h-5 w-5 rounded bg-yellow-100 p-1">
+              <div className="h-full w-full rounded bg-yellow-600"></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Original Amount
+              </p>
+              <p className="text-lg font-bold text-green-600">
+                ₹{stats.totalAmount.toLocaleString()}
+              </p>
+            </div>
+            <div className="h-5 w-5 rounded bg-green-100 p-1">
+              <div className="h-full w-full rounded bg-green-600"></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Returned Amount
+              </p>
+              <p className="text-lg font-bold text-red-600">
+                ₹{stats.totalReturnedAmount.toLocaleString()}
+              </p>
+            </div>
+            <div className="h-5 w-5 rounded bg-red-100 p-1">
+              <div className="h-full w-full rounded bg-red-600"></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Gold Items
+              </p>
+              <p className="text-lg font-bold text-yellow-600">
+                {stats.goldCount}
+              </p>
+            </div>
+            <div className="h-5 w-5 rounded bg-yellow-100 p-1">
+              <div className="h-full w-full rounded bg-yellow-600"></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Silver Items
+              </p>
+              <p className="text-lg font-bold text-gray-600">
+                {stats.silverCount}
+              </p>
+            </div>
+            <div className="h-5 w-5 rounded bg-gray-100 p-1">
+              <div className="h-full w-full rounded bg-gray-600"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Table */}
       <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] mt-8 sm:mb-0">
@@ -540,12 +573,6 @@ export default function ActiveRecordsPage() {
                   </Button>
                 )}
               </div>
-              <div className="hidden sm:block">
-                <NewRecordLauncher
-                  onSuccess={fetchRecords}
-                  defaultCategory="active"
-                />
-              </div>
             </div>
           </div>
           <div className="relative flex-1 sm:hidden">
@@ -572,15 +599,133 @@ export default function ActiveRecordsPage() {
             )}
           </div>
         </div>
-        <RecordTable
-          records={filteredRecords as any}
-          onDelete={handleDelete}
-          onEdit={setEditRecord}
-          onReturnItem={handleReturnItem}
-          onMove={handleMove}
-          variant="active"
-          loading={filtering}
-        />
+
+        {/* Custom Table for Returned Records */}
+        <div className="w-full overflow-x-auto">
+          <div className="rounded-md border sm:mx-0">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    SL No
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Date
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Name
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Mobile
+                  </th>
+                  <th className="hidden h-12 px-4 text-left align-middle font-medium text-muted-foreground sm:table-cell">
+                    Place
+                  </th>
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Type
+                  </th>
+                  <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    Weight
+                  </th>
+                  <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    Original Amount
+                  </th>
+                  <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    Returned Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtering
+                  ? // Loading skeleton
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <tr key={`loading-${index}`}>
+                        <td className="p-4">
+                          <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="p-4">
+                          <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="p-4">
+                          <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="p-4">
+                          <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="hidden p-4 sm:table-cell">
+                          <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="p-4">
+                          <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
+                        </td>
+                      </tr>
+                    ))
+                  : filteredRecords.map((record) => (
+                      <tr key={record.id} className="border-b">
+                        <td className="p-4 font-medium">{record.slNo}</td>
+                        <td className="p-4">
+                          {new Date(record.date).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </td>
+                        <td className="p-4 font-medium">{record.name}</td>
+                        <td className="p-4">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(record.mobile);
+                              toast.success('Mobile number copied');
+                            }}
+                            className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                          >
+                            📞 {record.mobile}
+                          </button>
+                        </td>
+                        <td className="hidden p-4 sm:table-cell">
+                          {record.place}
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              record.itemType === 'Gold'
+                                ? 'bg-yellow-500 text-white'
+                                : 'bg-gray-400 text-white'
+                            }`}
+                          >
+                            {record.itemType}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right">
+                          {record.weightGrams}g
+                        </td>
+                        <td className="p-4 text-right">
+                          ₹{record.amount.toLocaleString()}
+                        </td>
+                        <td className="p-4 text-right font-semibold text-green-600">
+                          ₹{(record.returnedAmount || 0).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+
+            {filteredRecords.length === 0 && !filtering && (
+              <div className="py-8 text-center text-muted-foreground">
+                No returned records found.
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Pagination Info */}
         <div className="mt-4 flex items-center justify-between">
@@ -617,17 +762,6 @@ export default function ActiveRecordsPage() {
           )}
         </div>
       </div>
-      {editRecord && (
-        <EditRecordPanel
-          record={editRecord}
-          onClose={() => setEditRecord(null)}
-          onBeginClose={() => setEditRecord(null)}
-          onSuccess={() => {
-            setEditRecord(null);
-            fetchRecords();
-          }}
-        />
-      )}
 
       {/* Mobile Filter Bottom Sheet */}
       <MobileBottomSheet
@@ -635,7 +769,7 @@ export default function ActiveRecordsPage() {
         onDismiss={() => setIsMobileFilterOpen(false)}
         onAfterDismiss={() => setIsMobileFilterOpen(false)}
         title="Filters"
-        description="Filter active records"
+        description="Filter returned records"
         descriptionIcon={<Filter className="h-5 w-5" />}
         initialSnapPct={0.65}
       >

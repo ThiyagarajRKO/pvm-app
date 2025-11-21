@@ -44,6 +44,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import ReturnItemModal from './ReturnItemModal';
 
 interface Record {
   id: number;
@@ -59,6 +60,8 @@ interface Record {
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
   interest: number;
+  isReturned: boolean;
+  returnedAmount?: number;
   mobile: string;
   personImageUrl?: string;
   itemImageUrl?: string;
@@ -71,7 +74,7 @@ interface RecordTableProps {
   records: Record[];
   onDelete?: (id: number) => void;
   onEdit?: (record: Record) => void;
-  onReturnItem?: (id: number) => void;
+  onReturnItem?: (id: number, returnedAmount?: number) => void;
   onMove?: (id: number, newCategory: 'active' | 'archived' | 'big') => void;
   variant?: 'default' | 'active' | 'archived' | 'big';
   loading?: boolean;
@@ -95,6 +98,8 @@ export default function RecordTable({
   >(null);
   const [moveLoading, setMoveLoading] = useState(false);
   const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [recordToReturn, setRecordToReturn] = useState<Record | null>(null);
 
   const handleDeleteClick = (record: Record) => {
     setRecordToDelete(record);
@@ -155,6 +160,19 @@ export default function RecordTable({
       setTimeout(() => setCopiedNumber(null), 2000); // Reset after 2 seconds
     } catch (err) {
       console.error('Failed to copy mobile number:', err);
+    }
+  };
+
+  const handleReturnItemClick = (record: Record) => {
+    setRecordToReturn(record);
+    setReturnModalOpen(true);
+  };
+
+  const handleReturnConfirm = async (returnedAmount: number) => {
+    if (recordToReturn) {
+      await onReturnItem?.(recordToReturn.id, returnedAmount);
+      setReturnModalOpen(false);
+      setRecordToReturn(null);
     }
   };
   return (
@@ -296,7 +314,7 @@ export default function RecordTable({
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => onReturnItem?.(record.id)}
+                            onClick={() => handleReturnItemClick(record)}
                             className="text-green-600 focus:text-green-600"
                           >
                             <RotateCcw className="mr-2 h-4 w-4" />
@@ -556,6 +574,14 @@ export default function RecordTable({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Return Item Modal */}
+        <ReturnItemModal
+          isOpen={returnModalOpen}
+          onClose={() => setReturnModalOpen(false)}
+          onConfirm={handleReturnConfirm}
+          record={recordToReturn}
+        />
       </div>
     </div>
   );

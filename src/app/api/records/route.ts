@@ -10,7 +10,7 @@ const querySchema = z.object({
   limit: z.string().optional(),
   search: z.string().optional(),
   itemType: z.enum(['Gold', 'Silver']).optional(),
-  status: z.enum(['active', 'archived', 'big']).optional(),
+  status: z.enum(['active', 'archived', 'big', 'returned']).optional(),
   street: z.string().optional(),
   place: z.string().optional(),
   dateFrom: z.string().optional(),
@@ -39,7 +39,17 @@ export const GET = withAuth(async (req: NextRequest, user) => {
       ];
     }
     if (parsed.itemType) where.itemType = parsed.itemType;
-    if (parsed.status) where.itemCategory = parsed.status;
+    if (parsed.status) {
+      if (parsed.status === 'returned') {
+        where.isReturned = true;
+      } else {
+        where.itemCategory = parsed.status;
+        // Exclude returned items from active, archived, and big categories
+        if (['active', 'archived', 'big'].includes(parsed.status)) {
+          where.isReturned = false;
+        }
+      }
+    }
     if (parsed.street && parsed.street.trim() !== '')
       where.street = { [Op.iLike]: parsed.street };
     if (parsed.place && parsed.place.trim() !== '')
@@ -127,6 +137,37 @@ export const POST = withAuth(async (req: NextRequest, user) => {
         { error: 'validation', issues: err.issues },
         { status: 400 }
       );
+    return NextResponse.json({ error: 'server error' }, { status: 500 });
+  }
+});
+
+export const PUT = withAuth(async (req: NextRequest, user) => {
+  try {
+    const RecordModel = await getRecordModel();
+    const body = await req.json();
+    const { id, returnedAmount } = body;
+
+    if (!id || returnedAmount === undefined) {
+      return NextResponse.json(
+        { error: 'Missing required fields: id and returnedAmount' },
+        { status: 400 }
+      );
+    }
+
+    const record = await RecordModel.findByPk(id);
+    if (!record) {
+      return NextResponse.json({ error: 'Record not found' }, { status: 404 });
+    }
+
+    // Update the record with return information
+    await record.update({
+      isReturned: true,
+      returnedAmount: parseFloat(returnedAmount),
+    });
+
+    return NextResponse.json({ success: true, record });
+  } catch (err: any) {
+    console.error('Return item error', err);
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
 });

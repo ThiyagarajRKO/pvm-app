@@ -53,23 +53,32 @@ export const GET = withAuth(async (req: Request, user) => {
         [fn('SUM', col('weightGrams')), 'totalWeightGrams'],
         [fn('SUM', col('amount')), 'totalAmount'],
 
-        // Category counts
+        // Category counts (excluding returned items)
         [
           fn(
             'COUNT',
-            literal('CASE WHEN "itemCategory" = \'active\' THEN 1 END')
+            literal(
+              'CASE WHEN "itemCategory" = \'active\' AND "isReturned" = false THEN 1 END'
+            )
           ),
           'activeRecords',
         ],
         [
           fn(
             'COUNT',
-            literal('CASE WHEN "itemCategory" = \'archived\' THEN 1 END')
+            literal(
+              'CASE WHEN "itemCategory" = \'archived\' AND "isReturned" = false THEN 1 END'
+            )
           ),
           'archivedRecords',
         ],
         [
-          fn('COUNT', literal('CASE WHEN "itemCategory" = \'big\' THEN 1 END')),
+          fn(
+            'COUNT',
+            literal(
+              'CASE WHEN "itemCategory" = \'big\' AND "isReturned" = false THEN 1 END'
+            )
+          ),
           'bigRecords',
         ],
 

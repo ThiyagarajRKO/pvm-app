@@ -226,10 +226,24 @@ export default function BigRecordsPage() {
     }
   };
 
-  const handleReturnItem = async (id: number) => {
-    // TODO: Implement return item functionality
-    console.log('Return item for record:', id);
-    toast.info('Return item functionality coming soon');
+  const handleReturnItem = async (id: number, returnedAmount?: number) => {
+    if (!returnedAmount) {
+      toast.error('Returned amount is required');
+      return;
+    }
+
+    try {
+      const response = await api.put('/records', {
+        id,
+        returnedAmount,
+      });
+      if (response.error) throw new Error(response.error);
+
+      setRecords(records.filter((record) => record.id !== id));
+      toast.success('Item returned successfully');
+    } catch (err) {
+      toast.error('Failed to return item');
+    }
   };
 
   const handleExport = () => {
