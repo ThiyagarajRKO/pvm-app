@@ -164,7 +164,7 @@ export default function ReturnItemModal({
                   </span>
                   <p className="font-medium">
                     {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
-                    months
+                    months ({record.daysOld % 30} days remaining)
                   </p>
                 </div>
                 <div>
@@ -358,7 +358,7 @@ export default function ReturnItemModal({
                   </span>
                   <p className="font-medium">
                     {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
-                    months
+                    months ({record.daysOld % 30} days remaining)
                   </p>
                 </div>
                 <div>

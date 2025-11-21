@@ -634,7 +634,7 @@ export default function RecordDetailPage({
                     </Label>
                     <p className="text-sm font-medium">
                       {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
-                      months
+                      months ({record.daysOld % 30} days remaining)
                     </p>
                   </div>
                   <div className="mb-4">
