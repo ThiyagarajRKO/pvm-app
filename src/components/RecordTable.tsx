@@ -157,7 +157,7 @@ export default function RecordTable({
   };
   return (
     <div className="w-full overflow-x-auto">
-      <div className="mx-4 rounded-md border sm:mx-0">
+      <div className="rounded-md border sm:mx-0">
         <Table className="min-w-full">
           <TableHeader>
             <TableRow>
