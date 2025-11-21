@@ -239,7 +239,8 @@ export default function BigRecordsPage() {
       });
       if (response.error) throw new Error(response.error);
 
-      setRecords(records.filter((record) => record.id !== id));
+      // Refresh the records and stats after successful return
+      await fetchRecords();
       toast.success('Item returned successfully');
     } catch (err) {
       toast.error('Failed to return item');

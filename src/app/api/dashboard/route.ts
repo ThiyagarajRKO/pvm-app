@@ -40,18 +40,43 @@ export const GET = withAuth(async (req: Request, user) => {
     // Single comprehensive aggregation query
     const [statsResult] = (await RecordModel.findAll({
       attributes: [
-        // Overall counts
-        [fn('COUNT', col('id')), 'totalRecords'],
+        // Overall counts (excluding returned items)
         [
-          fn('COUNT', literal('CASE WHEN "itemType" = \'Gold\' THEN 1 END')),
+          fn('COUNT', literal('CASE WHEN "isReturned" = false THEN 1 END')),
+          'totalRecords',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal(
+              'CASE WHEN "itemType" = \'Gold\' AND "isReturned" = false THEN 1 END'
+            )
+          ),
           'totalGoldCount',
         ],
         [
-          fn('COUNT', literal('CASE WHEN "itemType" = \'Silver\' THEN 1 END')),
+          fn(
+            'COUNT',
+            literal(
+              'CASE WHEN "itemType" = \'Silver\' AND "isReturned" = false THEN 1 END'
+            )
+          ),
           'totalSilverCount',
         ],
-        [fn('SUM', col('weightGrams')), 'totalWeightGrams'],
-        [fn('SUM', col('amount')), 'totalAmount'],
+        [
+          fn(
+            'SUM',
+            literal('CASE WHEN "isReturned" = false THEN "weightGrams" END')
+          ),
+          'totalWeightGrams',
+        ],
+        [
+          fn(
+            'SUM',
+            literal('CASE WHEN "isReturned" = false THEN "amount" END')
+          ),
+          'totalAmount',
+        ],
 
         // Category counts (excluding returned items)
         [
@@ -82,12 +107,12 @@ export const GET = withAuth(async (req: Request, user) => {
           'bigRecords',
         ],
 
-        // Current month stats
+        // Current month stats (excluding returned items)
         [
           fn(
             'COUNT',
             literal(
-              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' THEN 1 END`
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "isReturned" = false THEN 1 END`
             )
           ),
           'currentMonthRecords',
@@ -96,7 +121,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
             )
           ),
           'currentMonthWeight',
@@ -105,7 +130,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' THEN "amount" END`
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "isReturned" = false THEN "amount" END`
             )
           ),
           'currentMonthAmount',
@@ -114,7 +139,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'COUNT',
             literal(
-              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "itemType" = 'Gold' THEN 1 END`
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "itemType" = 'Gold' AND "isReturned" = false THEN 1 END`
             )
           ),
           'currentMonthGold',
@@ -123,18 +148,18 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'COUNT',
             literal(
-              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "itemType" = 'Silver' THEN 1 END`
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "itemType" = 'Silver' AND "isReturned" = false THEN 1 END`
             )
           ),
           'currentMonthSilver',
         ],
 
-        // Previous month stats
+        // Previous month stats (excluding returned items)
         [
           fn(
             'COUNT',
             literal(
-              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' THEN 1 END`
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' AND "isReturned" = false THEN 1 END`
             )
           ),
           'previousMonthRecords',
@@ -143,7 +168,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
             )
           ),
           'previousMonthWeight',
@@ -152,18 +177,18 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' THEN "amount" END`
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' AND "isReturned" = false THEN "amount" END`
             )
           ),
           'previousMonthAmount',
         ],
 
-        // Current year stats
+        // Current year stats (excluding returned items)
         [
           fn(
             'COUNT',
             literal(
-              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' THEN 1 END`
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' AND "isReturned" = false THEN 1 END`
             )
           ),
           'currentYearRecords',
@@ -172,7 +197,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
             )
           ),
           'currentYearWeight',
@@ -181,18 +206,18 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' THEN "amount" END`
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' AND "isReturned" = false THEN "amount" END`
             )
           ),
           'currentYearAmount',
         ],
 
-        // Previous year stats
+        // Previous year stats (excluding returned items)
         [
           fn(
             'COUNT',
             literal(
-              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' THEN 1 END`
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' AND "isReturned" = false THEN 1 END`
             )
           ),
           'previousYearRecords',
@@ -201,7 +226,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
             )
           ),
           'previousYearWeight',
@@ -210,7 +235,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' THEN "amount" END`
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' AND "isReturned" = false THEN "amount" END`
             )
           ),
           'previousYearAmount',
@@ -275,8 +300,9 @@ export const GET = withAuth(async (req: Request, user) => {
       amount: calculateTrend(stats.currentYearAmount, stats.previousYearAmount),
     };
 
-    // Get 3 most recent records
+    // Get 3 most recent records (excluding returned items)
     const recentRecords = await RecordModel.findAll({
+      where: { isReturned: false },
       limit: 3,
       order: [['createdAt', 'DESC']],
       attributes: [
