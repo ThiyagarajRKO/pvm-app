@@ -61,7 +61,7 @@ export default function StreetSelect({
         </div>
       </SelectTrigger>
       <SelectContent
-        className={contentClassName}
+        className={`${contentClassName} z-[10000]`}
         showScrollUp={false}
         showScrollDown={true}
       >

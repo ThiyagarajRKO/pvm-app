@@ -674,7 +674,7 @@ export default function ArchivedRecordsPage() {
                 <SelectTrigger className="mt-1 w-full">
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[10000]">
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="Gold">Gold</SelectItem>
                   <SelectItem value="Silver">Silver</SelectItem>

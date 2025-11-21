@@ -74,6 +74,7 @@ export default function MobileBottomSheet({
       onSpringEnd={internalOnSpringEnd}
       open={localOpen}
       onDismiss={handleDismiss}
+      blocking={false}
       snapPoints={({ maxHeight }) => [
         maxHeight * 1.0, // Full screen
         maxHeight * initialSnapPct,
