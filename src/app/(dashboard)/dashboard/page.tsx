@@ -345,7 +345,7 @@ export default function DashboardPage() {
   const { stats, recentRecords } = dashboardData;
 
   return (
-    <div className="space-y-4 p-1">
+    <div className="space-y-4 p-1 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>

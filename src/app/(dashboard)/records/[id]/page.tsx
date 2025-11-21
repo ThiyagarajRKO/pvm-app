@@ -149,7 +149,7 @@ export default function RecordDetailPage({
   }
 
   return (
-    <div>
+    <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
       {/* Mobile Header */}
       <div className="mb-4 block md:hidden">
         <div className="flex items-center justify-between">
