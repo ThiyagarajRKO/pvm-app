@@ -19,30 +19,35 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      slNo: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
       date: {
         type: DataTypes.DATEONLY,
-        allowNull: false,
+        allowNull: true,
         defaultValue: DataTypes.NOW,
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       fatherName: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       street: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       place: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       weightGrams: {
         type: DataTypes.FLOAT,
-        allowNull: false,
+        allowNull: true,
       },
       item: {
         type: DataTypes.STRING,
@@ -50,11 +55,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       itemType: {
         type: DataTypes.ENUM('Gold', 'Silver'),
-        allowNull: false,
+        allowNull: true,
       },
       itemCategory: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 'active',
         validate: {
           isIn: [['archived', 'active', 'big']],
@@ -62,11 +67,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       amount: {
         type: DataTypes.FLOAT,
-        allowNull: false,
+        allowNull: true,
       },
       mobile: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       personImageUrl: {
         type: DataTypes.STRING,
@@ -93,6 +98,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
         comment: 'Date when the item was returned',
+      },
+      interest: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
       },
     },
     {

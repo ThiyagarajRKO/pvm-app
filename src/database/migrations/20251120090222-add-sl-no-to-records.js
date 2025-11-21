@@ -9,7 +9,7 @@ module.exports = {
       'slNo',
       {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
         unique: true,
       },
       { schema: 'public' }

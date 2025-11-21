@@ -14,36 +14,36 @@ module.exports = {
         },
         date: {
           type: Sequelize.DATEONLY,
-          allowNull: false,
+          allowNull: true,
           defaultValue: Sequelize.NOW,
         },
         name: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         fatherName: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         street: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         place: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         weightGrams: {
           type: Sequelize.FLOAT,
-          allowNull: false,
+          allowNull: true,
         },
         itemType: {
           type: Sequelize.ENUM('Gold', 'Silver'),
-          allowNull: false,
+          allowNull: true,
         },
         itemCategory: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
           defaultValue: 'active',
           validate: {
             isIn: [['archived', 'active', 'big']],
@@ -51,11 +51,11 @@ module.exports = {
         },
         amount: {
           type: Sequelize.FLOAT,
-          allowNull: false,
+          allowNull: true,
         },
         mobile: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         personImageUrl: {
           type: Sequelize.STRING,

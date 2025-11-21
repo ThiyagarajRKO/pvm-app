@@ -43,6 +43,7 @@ import {
   Copy,
   Loader2,
   MessageCircle,
+  FileText,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import ReturnItemModal from './ReturnItemModal';
@@ -176,14 +177,22 @@ export default function RecordTable({
     }
   };
 
-  const handleWhatsAppClick = (mobile: string) => {
+  const handleWhatsAppClick = (mobile: string, record?: Record) => {
     // Remove any non-numeric characters and ensure it starts with country code
     const cleanNumber = mobile.replace(/\D/g, '');
     // If number doesn't start with country code, assume India (+91)
     const whatsappNumber = cleanNumber.startsWith('91')
       ? cleanNumber
       : `91${cleanNumber}`;
-    const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+
+    // Pre-formatted message in Tamil with serial number
+    const message = record
+      ? `வணக்கம்\n\nநீங்கள் அடகு வைத்த நகைக்கு (${record.slNo} - ${record.itemType}) கெடு முடிந்தது விட்டது மீட்டு கொள்ளவும் அல்லது வட்டி செலுத்தி கணக்கை புதுப்பித்து கொள்ளவும் ஒரு வாரத்துக்குள் வர தவறினால் ஏலம் விடப்படும் உடனே நேரில் வரவும்.\n\nPVM நகை கடை,\nஅன்னை மெடிக்கல்,\nஎறையூர் - 607201.`
+      : `வணக்கம்\n\nநீங்கள் அடகு வைத்த நகைக்கு கெடு முடிந்தது விட்டது மீட்டு கொள்ளவும் அல்லது வட்டி செலுத்தி கணக்கை புதுப்பித்து கொள்ளவும் ஒரு வாரத்துக்குள் வர தவறினால் ஏலம் விடப்படும் உடனே நேரில் வரவும்.\n\nPVM நகை கடை,\nஅன்னை மெடிக்கல்,\nஎறையூர் - 607201.`;
+
+    // Encode the message for URL
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
   };
 
@@ -274,64 +283,78 @@ export default function RecordTable({
               : records.map((record) => (
                   <TableRow key={record.id}>
                     <TableCell className="min-w-[60px] font-medium">
-                      {record.slNo}
+                      {record.slNo || '-'}
                     </TableCell>
                     <TableCell className="min-w-[80px]">
-                      {format(new Date(record.date), 'dd-MMM-yyyy')}
+                      {record.date
+                        ? format(new Date(record.date), 'dd-MMM-yyyy')
+                        : '-'}
                     </TableCell>
                     <TableCell className="min-w-[100px] font-medium">
-                      {record.name}
+                      {record.name || '-'}
                     </TableCell>
                     <TableCell className="min-w-[100px]">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleCopyMobile(record.mobile)}
-                          className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                          title="Click to copy mobile number"
-                        >
-                          <Phone className="h-3 w-3" />
-                          <a
-                            href={`tel:${record.mobile}`}
-                            className="hover:underline"
-                            onClick={(e) => e.stopPropagation()}
+                      {record.mobile ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleCopyMobile(record.mobile)}
+                            className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                            title="Click to copy mobile number"
                           >
-                            {record.mobile}
-                          </a>
-                          {copiedNumber === record.mobile && (
-                            <Copy className="h-3 w-3 text-green-600" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleWhatsAppClick(record.mobile)}
-                          className="text-green-600 transition-colors hover:text-green-800"
-                          title="Send WhatsApp message"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                        </button>
-                      </div>
+                            <Phone className="h-3 w-3" />
+                            <a
+                              href={`tel:${record.mobile}`}
+                              className="hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {record.mobile}
+                            </a>
+                            {copiedNumber === record.mobile && (
+                              <Copy className="h-3 w-3 text-green-600" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleWhatsAppClick(record.mobile, record)
+                            }
+                            className="text-green-600 transition-colors hover:text-green-800"
+                            title="Send WhatsApp message"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell className="hidden min-w-[80px] sm:table-cell">
-                      {record.place}
+                      {record.place || '-'}
                     </TableCell>
                     <TableCell className="min-w-[60px]">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          record.itemType === 'Gold'
-                            ? 'bg-yellow-500 text-white'
-                            : 'bg-gray-400 text-white'
-                        }`}
-                      >
-                        {record.itemType}
-                      </span>
+                      {record.itemType ? (
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            record.itemType === 'Gold'
+                              ? 'bg-yellow-500 text-white'
+                              : 'bg-gray-400 text-white'
+                          }`}
+                        >
+                          {record.itemType}
+                        </span>
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell className="min-w-[70px] text-right">
-                      {record.weightGrams}g
+                      {record.weightGrams ? `${record.weightGrams}g` : '-'}
                     </TableCell>
                     <TableCell className="min-w-[90px] text-right">
-                      ₹{record.amount.toLocaleString()}
+                      {record.amount
+                        ? `₹${record.amount.toLocaleString()}`
+                        : '-'}
                     </TableCell>
                     <TableCell className="hidden min-w-[60px] text-right md:table-cell">
-                      {record.interest}%
+                      {record.interest ? `${record.interest}%` : '-'}
                     </TableCell>
                     <TableCell className="min-w-[80px] text-right">
                       <DropdownMenu>
@@ -419,8 +442,20 @@ export default function RecordTable({
         </Table>
 
         {records.length === 0 && !loading && (
-          <div className="py-8 text-center text-muted-foreground">
-            No records found.
+          <div className="py-12 text-center">
+            <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
+            <h3 className="mt-4 text-lg font-medium text-muted-foreground">
+              No records found
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground/70">
+              {variant === 'active'
+                ? 'No active records available.'
+                : variant === 'archived'
+                  ? 'No archived records found.'
+                  : variant === 'big'
+                    ? 'No big records available.'
+                    : 'No records match your current filters.'}
+            </p>
           </div>
         )}
 
@@ -449,40 +484,49 @@ export default function RecordTable({
                     <span className="font-medium text-muted-foreground">
                       Name:
                     </span>
-                    <p className="font-medium">{recordToDelete.name}</p>
+                    <p className="font-medium">{recordToDelete.name || '-'}</p>
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
                       Mobile:
                     </span>
-                    <div className="mt-1 flex items-center gap-2">
-                      <button
-                        onClick={() => handleCopyMobile(recordToDelete.mobile)}
-                        className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                        title="Click to copy mobile number"
-                      >
-                        <Phone className="h-3 w-3" />
-                        <a
-                          href={`tel:${recordToDelete.mobile}`}
-                          className="hover:underline"
-                          onClick={(e) => e.stopPropagation()}
+                    {recordToDelete.mobile ? (
+                      <div className="mt-1 flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            handleCopyMobile(recordToDelete.mobile)
+                          }
+                          className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                          title="Click to copy mobile number"
                         >
-                          {recordToDelete.mobile}
-                        </a>
-                        {copiedNumber === recordToDelete.mobile && (
-                          <Copy className="h-3 w-3 text-green-600" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleWhatsAppClick(recordToDelete.mobile)
-                        }
-                        className="text-green-600 transition-colors hover:text-green-800"
-                        title="Send WhatsApp message"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </button>
-                    </div>
+                          <Phone className="h-3 w-3" />
+                          <a
+                            href={`tel:${recordToDelete.mobile}`}
+                            className="hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {recordToDelete.mobile}
+                          </a>
+                          {copiedNumber === recordToDelete.mobile && (
+                            <Copy className="h-3 w-3 text-green-600" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleWhatsAppClick(
+                              recordToDelete.mobile,
+                              recordToDelete
+                            )
+                          }
+                          className="text-green-600 transition-colors hover:text-green-800"
+                          title="Send WhatsApp message"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="mt-1 font-medium">-</p>
+                    )}
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
@@ -510,14 +554,20 @@ export default function RecordTable({
                     <span className="font-medium text-muted-foreground">
                       Weight:
                     </span>
-                    <p className="font-medium">{recordToDelete.weightGrams}g</p>
+                    <p className="font-medium">
+                      {recordToDelete.weightGrams
+                        ? `${recordToDelete.weightGrams}g`
+                        : '-'}
+                    </p>
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
                       Amount:
                     </span>
                     <p className="font-medium">
-                      ₹{recordToDelete.amount.toLocaleString()}
+                      {recordToDelete.amount
+                        ? `₹${recordToDelete.amount.toLocaleString()}`
+                        : '-'}
                     </p>
                   </div>
                 </div>
@@ -567,38 +617,47 @@ export default function RecordTable({
                     <span className="font-medium text-muted-foreground">
                       Name:
                     </span>
-                    <p className="font-medium">{recordToMove.name}</p>
+                    <p className="font-medium">{recordToMove.name || '-'}</p>
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
                       Mobile:
                     </span>
-                    <div className="mt-1 flex items-center gap-2">
-                      <button
-                        onClick={() => handleCopyMobile(recordToMove.mobile)}
-                        className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                        title="Click to copy mobile number"
-                      >
-                        <Phone className="h-3 w-3" />
-                        <a
-                          href={`tel:${recordToMove.mobile}`}
-                          className="hover:underline"
-                          onClick={(e) => e.stopPropagation()}
+                    {recordToMove.mobile ? (
+                      <div className="mt-1 flex items-center gap-2">
+                        <button
+                          onClick={() => handleCopyMobile(recordToMove.mobile)}
+                          className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                          title="Click to copy mobile number"
                         >
-                          {recordToMove.mobile}
-                        </a>
-                        {copiedNumber === recordToMove.mobile && (
-                          <Copy className="h-3 w-3 text-green-600" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleWhatsAppClick(recordToMove.mobile)}
-                        className="text-green-600 transition-colors hover:text-green-800"
-                        title="Send WhatsApp message"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </button>
-                    </div>
+                          <Phone className="h-3 w-3" />
+                          <a
+                            href={`tel:${recordToMove.mobile}`}
+                            className="hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {recordToMove.mobile}
+                          </a>
+                          {copiedNumber === recordToMove.mobile && (
+                            <Copy className="h-3 w-3 text-green-600" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleWhatsAppClick(
+                              recordToMove.mobile,
+                              recordToMove
+                            )
+                          }
+                          className="text-green-600 transition-colors hover:text-green-800"
+                          title="Send WhatsApp message"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="mt-1 font-medium">-</p>
+                    )}
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
@@ -619,7 +678,9 @@ export default function RecordTable({
                       Amount:
                     </span>
                     <p className="font-medium">
-                      ₹{recordToMove.amount.toLocaleString()}
+                      {recordToMove.amount
+                        ? `₹${recordToMove.amount.toLocaleString()}`
+                        : '-'}
                     </p>
                   </div>
                   <div className="sm:col-span-2">
@@ -701,40 +762,49 @@ export default function RecordTable({
                     <span className="font-medium text-muted-foreground">
                       Name:
                     </span>
-                    <p className="font-medium">{recordToRevert.name}</p>
+                    <p className="font-medium">{recordToRevert.name || '-'}</p>
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
                       Mobile:
                     </span>
-                    <div className="mt-1 flex items-center gap-2">
-                      <button
-                        onClick={() => handleCopyMobile(recordToRevert.mobile)}
-                        className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
-                        title="Click to copy mobile number"
-                      >
-                        <Phone className="h-3 w-3" />
-                        <a
-                          href={`tel:${recordToRevert.mobile}`}
-                          className="hover:underline"
-                          onClick={(e) => e.stopPropagation()}
+                    {recordToRevert.mobile ? (
+                      <div className="mt-1 flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            handleCopyMobile(recordToRevert.mobile)
+                          }
+                          className="flex items-center gap-1 text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+                          title="Click to copy mobile number"
                         >
-                          {recordToRevert.mobile}
-                        </a>
-                        {copiedNumber === recordToRevert.mobile && (
-                          <Copy className="h-3 w-3 text-green-600" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleWhatsAppClick(recordToRevert.mobile)
-                        }
-                        className="text-green-600 transition-colors hover:text-green-800"
-                        title="Send WhatsApp message"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </button>
-                    </div>
+                          <Phone className="h-3 w-3" />
+                          <a
+                            href={`tel:${recordToRevert.mobile}`}
+                            className="hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {recordToRevert.mobile}
+                          </a>
+                          {copiedNumber === recordToRevert.mobile && (
+                            <Copy className="h-3 w-3 text-green-600" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleWhatsAppClick(
+                              recordToRevert.mobile,
+                              recordToRevert
+                            )
+                          }
+                          className="text-green-600 transition-colors hover:text-green-800"
+                          title="Send WhatsApp message"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="mt-1 font-medium">-</p>
+                    )}
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
@@ -757,7 +827,9 @@ export default function RecordTable({
                       Amount:
                     </span>
                     <p className="font-medium">
-                      ₹{recordToRevert.amount.toLocaleString()}
+                      {recordToRevert.amount
+                        ? `₹${recordToRevert.amount.toLocaleString()}`
+                        : '-'}
                     </p>
                   </div>
                   <div>
@@ -765,8 +837,7 @@ export default function RecordTable({
                       Returned Amount:
                     </span>
                     <p className="font-medium text-green-600">
-                      ₹
-                      {recordToRevert.returnedAmount?.toLocaleString() || 'N/A'}
+                      ₹{recordToRevert.returnedAmount?.toLocaleString() || '-'}
                     </p>
                   </div>
                   <div>
@@ -779,7 +850,7 @@ export default function RecordTable({
                             new Date(recordToRevert.returnedDate),
                             'dd-MMM-yyyy'
                           )
-                        : 'N/A'}
+                        : '-'}
                     </p>
                   </div>
                 </div>

@@ -7,21 +7,21 @@ export type ItemCategory = 'archived' | 'active' | 'big';
 interface RecordAttributes {
   id: number;
   slNo: string;
-  date: Date;
-  name: string;
-  fatherName: string;
-  street: string;
-  place: string;
-  weightGrams: number;
+  date?: Date;
+  name?: string;
+  fatherName?: string;
+  street?: string;
+  place?: string;
+  weightGrams?: number;
   item?: string | null;
-  itemType: ItemType;
-  itemCategory: ItemCategory;
-  amount: number;
-  interest: number;
+  itemType?: ItemType;
+  itemCategory?: ItemCategory;
+  amount?: number;
+  interest?: number;
   isReturned: boolean;
-  returnedAmount: number;
+  returnedAmount?: number;
   returnedDate?: Date | null;
-  mobile: string;
+  mobile?: string;
   personImageUrl?: string | null;
   itemImageUrl?: string | null;
   itemReturnImageUrl?: string | null;
@@ -34,6 +34,16 @@ type RecordCreationAttributes = Optional<
   RecordAttributes,
   | 'id'
   | 'date'
+  | 'name'
+  | 'fatherName'
+  | 'street'
+  | 'place'
+  | 'weightGrams'
+  | 'itemType'
+  | 'amount'
+  | 'interest'
+  | 'returnedAmount'
+  | 'mobile'
   | 'personImageUrl'
   | 'itemImageUrl'
   | 'itemReturnImageUrl'
@@ -47,21 +57,21 @@ export class Record
 {
   declare id: number;
   declare slNo: string;
-  declare date: Date;
-  declare name: string;
-  declare fatherName: string;
-  declare street: string;
-  declare place: string;
-  declare weightGrams: number;
+  declare date?: Date;
+  declare name?: string;
+  declare fatherName?: string;
+  declare street?: string;
+  declare place?: string;
+  declare weightGrams?: number;
   declare item?: string | null;
-  declare itemType: ItemType;
-  declare itemCategory: ItemCategory;
-  declare amount: number;
-  declare interest: number;
+  declare itemType?: ItemType;
+  declare itemCategory?: ItemCategory;
+  declare amount?: number;
+  declare interest?: number;
   declare isReturned: boolean;
-  declare returnedAmount: number;
+  declare returnedAmount?: number;
   declare returnedDate?: Date | null;
-  declare mobile: string;
+  declare mobile?: string;
   declare personImageUrl?: string | null;
   declare itemImageUrl?: string | null;
   declare itemReturnImageUrl?: string | null;
@@ -89,25 +99,25 @@ async function initializeModel() {
         },
         date: {
           type: DataTypes.DATEONLY,
-          allowNull: false,
+          allowNull: true,
           defaultValue: DataTypes.NOW,
         },
-        name: { type: DataTypes.STRING, allowNull: false },
-        fatherName: { type: DataTypes.STRING, allowNull: false },
-        street: { type: DataTypes.STRING, allowNull: false },
-        place: { type: DataTypes.STRING, allowNull: false },
-        weightGrams: { type: DataTypes.FLOAT, allowNull: false },
+        name: { type: DataTypes.STRING, allowNull: true },
+        fatherName: { type: DataTypes.STRING, allowNull: true },
+        street: { type: DataTypes.STRING, allowNull: true },
+        place: { type: DataTypes.STRING, allowNull: true },
+        weightGrams: { type: DataTypes.FLOAT, allowNull: true },
         item: { type: DataTypes.STRING, allowNull: true },
-        itemType: { type: DataTypes.ENUM('Gold', 'Silver'), allowNull: false },
+        itemType: { type: DataTypes.ENUM('Gold', 'Silver'), allowNull: true },
         itemCategory: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
           defaultValue: 'active',
           validate: {
             isIn: [['archived', 'active', 'big']],
           },
         },
-        amount: { type: DataTypes.FLOAT, allowNull: false },
+        amount: { type: DataTypes.FLOAT, allowNull: true },
         interest: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
         isReturned: {
           type: DataTypes.BOOLEAN,
@@ -122,7 +132,7 @@ async function initializeModel() {
           type: DataTypes.DATE,
           allowNull: true,
         },
-        mobile: { type: DataTypes.STRING, allowNull: false },
+        mobile: { type: DataTypes.STRING, allowNull: true },
         personImageUrl: { type: DataTypes.STRING, allowNull: true },
         itemImageUrl: { type: DataTypes.STRING, allowNull: true },
         itemReturnImageUrl: { type: DataTypes.STRING, allowNull: true },
