@@ -116,10 +116,10 @@ export default function RecordStats({
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground sm:text-sm">
+                    <p className="text-xs font-medium text-muted-foreground">
                       {stat.title}
                     </p>
-                    <p className={`text-xl font-semibold ${stat.color}`}>
+                    <p className={`text-base font-semibold ${stat.color}`}>
                       {loading ? (
                         <Loader2 className="inline h-5 w-5 animate-spin" />
                       ) : (
