@@ -6,7 +6,43 @@ import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
-const AlertDialog = AlertDialogPrimitive.Root;
+// Wrap the Radix Root to toggle a body class when open
+const AlertDialog = ({
+  open,
+  onOpenChange,
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root>) => {
+  const [internalOpen, setInternalOpen] = React.useState(!!open);
+
+  React.useEffect(() => {
+    setInternalOpen(!!open);
+  }, [open]);
+
+  const handleOpenChange = React.useCallback(
+    (value: boolean) => {
+      setInternalOpen(value);
+      onOpenChange?.(value);
+    },
+    [onOpenChange]
+  );
+
+  React.useEffect(() => {
+    document.body.classList.toggle('alert-dialog-open', internalOpen);
+    return () => document.body.classList.remove('alert-dialog-open');
+  }, [internalOpen]);
+
+  const isControlled = typeof open === 'boolean';
+  return (
+    <AlertDialogPrimitive.Root
+      {...(isControlled ? { open } : {})}
+      onOpenChange={handleOpenChange}
+      {...props}
+    >
+      {children}
+    </AlertDialogPrimitive.Root>
+  );
+};
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
@@ -15,18 +51,20 @@ const AlertDialogPortal = AlertDialogPrimitive.Portal;
 const AlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <AlertDialogPrimitive.Overlay
-    className={cn(
-      // Visual backdrop: do not capture pointer events so clicks reach the dialog
-      'pointer-events-none fixed inset-0 z-[1000000] bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className
-    )}
-    {...props}
-    ref={ref}
-  />
-));
-AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
+>(function AlertDialogOverlay({ className, ...props }, ref) {
+  return (
+    <AlertDialogPrimitive.Overlay
+      className={cn(
+        // Visual backdrop: do not capture pointer events so clicks reach the dialog
+        'pointer-events-none fixed inset-0 z-[1000000] bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        className
+      )}
+      {...props}
+      ref={ref}
+    />
+  );
+});
+AlertDialogOverlay.displayName = 'AlertDialogOverlay';
 
 const AlertDialogHeader = ({
   className,
@@ -61,7 +99,7 @@ AlertDialogFooter.displayName = 'AlertDialogFooter';
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, children, ...props }, ref) => {
+>(function AlertDialogContent({ className, children, ...props }, ref) {
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
@@ -108,6 +146,8 @@ const AlertDialogContent = React.forwardRef<
   );
 });
 
+AlertDialogContent.displayName = 'AlertDialogContent';
+
 const AlertDialogTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
@@ -136,7 +176,7 @@ AlertDialogDescription.displayName =
 const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
->(({ className, ...props }, ref) => {
+>(function AlertDialogAction({ className, ...props }, ref) {
   const [isMobile, setIsMobile] = React.useState(false);
   React.useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -186,12 +226,12 @@ const AlertDialogAction = React.forwardRef<
     />
   );
 });
-AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
+AlertDialogAction.displayName = 'AlertDialogAction';
 
 const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
->(({ className, ...props }, ref) => {
+>(function AlertDialogCancel({ className, ...props }, ref) {
   const [isMobile, setIsMobile] = React.useState(false);
   React.useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -215,7 +255,7 @@ const AlertDialogCancel = React.forwardRef<
     />
   );
 });
-AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
+AlertDialogCancel.displayName = 'AlertDialogCancel';
 
 export {
   AlertDialog,
