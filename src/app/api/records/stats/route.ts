@@ -21,6 +21,7 @@ export const GET = withAuth(async (req: Request, user) => {
     const totalSilverWeightGrams = Number(
       (await RecordModel.sum('silverWeightGrams')) || 0
     );
+    const totalWeightGrams = totalGoldWeightGrams + totalSilverWeightGrams;
     const totalAmount = Number((await RecordModel.sum('amount')) || 0);
 
     return NextResponse.json({
@@ -30,6 +31,7 @@ export const GET = withAuth(async (req: Request, user) => {
       totalBothCount,
       totalGoldWeightGrams,
       totalSilverWeightGrams,
+      totalWeightGrams,
       totalAmount,
     });
   } catch (err) {

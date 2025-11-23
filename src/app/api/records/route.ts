@@ -121,9 +121,8 @@ export const GET = withAuth(async (req: NextRequest, user) => {
     ] = await Promise.all([
       // Total weight is sum of all gold and silver weights from new columns
       Promise.resolve(
-        (await RecordModel.sum('goldWeightGrams', { where })) ||
-          0 + (await RecordModel.sum('silverWeightGrams', { where })) ||
-          0
+        ((await RecordModel.sum('goldWeightGrams', { where })) || 0) +
+          ((await RecordModel.sum('silverWeightGrams', { where })) || 0)
       ),
       RecordModel.sum('amount', { where }),
       // Gold weight is sum of all goldWeightGrams (includes Gold and Both items)
