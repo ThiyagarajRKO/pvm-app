@@ -470,8 +470,14 @@ export default function DashboardPage() {
               <Scale className="h-6 w-6 text-orange-600" />
             </div>
             <div className="mt-2">
-              <span className="text-xs text-gray-600">
-                Combined gold & silver
+              <span
+                className={`text-xs ${stats.trends.yearly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {refreshing ? (
+                  <RefreshCw className="inline h-3 w-3 animate-spin" />
+                ) : (
+                  `${formatPercentage(stats.trends.yearly.weight)} from last year`
+                )}
               </span>
             </div>
           </CardContent>
