@@ -4,12 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { ChevronDown, X } from 'lucide-react';
+import { useDebouncedCallback, useDebounce } from '@/hooks/use-debounce';
 
 interface AutocompleteInputProps {
   value?: string;
   onValueChange?: (value: string) => void;
   placeholder?: string;
-  suggestions: string[];
+  fetchSuggestions?: (query: string) => Promise<string[]>;
+  suggestions?: string[];
   className?: string;
   disabled?: boolean;
 }
@@ -18,25 +20,48 @@ export default function AutocompleteInput({
   value = '',
   onValueChange,
   placeholder = 'Type or select...',
-  suggestions,
+  fetchSuggestions,
+  suggestions: staticSuggestions = [],
   className = '',
   disabled = false,
 }: AutocompleteInputProps) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Update input value when prop value changes
   useEffect(() => {
     setInputValue(value);
   }, [value]);
 
-  const filteredSuggestions = suggestions.filter((suggestion) =>
-    suggestion.toLowerCase().includes(inputValue.toLowerCase())
-  );
+  // Debounce the input value
+  const debouncedInput = useDebounce(inputValue, 300);
+
+  // Fetch suggestions when debounced input changes or when opened
+  useEffect(() => {
+    if (open) {
+      const query = debouncedInput.trim();
+      if (fetchSuggestions) {
+        fetchSuggestions(query)
+          .then((fetched) => {
+            setSuggestions(fetched);
+          })
+          .catch((error) => {
+            console.error('Failed to fetch suggestions:', error);
+            setSuggestions([]);
+          });
+      } else {
+        // Use static suggestions, filter by query
+        const filtered = staticSuggestions.filter((suggestion) =>
+          suggestion.toLowerCase().includes(query.toLowerCase())
+        );
+        setSuggestions(filtered);
+      }
+    }
+  }, [debouncedInput, open, fetchSuggestions, staticSuggestions]);
 
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue);
-    onValueChange?.(newValue);
     if (!open) setOpen(true);
   };
 
@@ -57,6 +82,8 @@ export default function AutocompleteInput({
   };
 
   const handleBlur = () => {
+    // Reset to prop value if not selected
+    setInputValue(value);
     // Delay closing to allow for suggestion clicks
     setTimeout(() => setOpen(false), 150);
   };
@@ -98,13 +125,13 @@ export default function AutocompleteInput({
       {open && (
         <div className="absolute top-full z-50 mt-1 w-full rounded-md border bg-popover p-0 shadow-md">
           <div className="max-h-48 overflow-y-auto">
-            {filteredSuggestions.length === 0 ? (
+            {suggestions.length === 0 ? (
               <div className="p-2 text-sm text-muted-foreground">
                 No suggestions found.
               </div>
             ) : (
               <div className="p-1">
-                {filteredSuggestions.map((suggestion) => (
+                {suggestions.map((suggestion) => (
                   <button
                     key={suggestion}
                     type="button"

@@ -25,10 +25,9 @@ import FloatingNewRecord from '@/components/FloatingNewRecord';
 import NewRecordLauncher from '@/components/NewRecordLauncher';
 import EditRecordPanel from '@/components/EditRecordPanel';
 import { useDebounce } from '@/hooks/use-debounce';
-import StreetSelect from '@/components/StreetSelect';
-import PlaceSelect from '@/components/PlaceSelect';
-import MobileBottomSheet from '@/components/MobileBottomSheet';
 import { api } from '@/lib/api-client';
+import AutocompleteInput from '@/components/AutocompleteInput';
+import MobileBottomSheet from '@/components/MobileBottomSheet';
 interface Record {
   id: number;
   slNo: string;
@@ -211,6 +210,31 @@ export default function ActiveRecordsPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, itemTypeFilter, streetFilter, placeFilter, pageSize]);
+
+  // Fetch suggestions for filters
+  const fetchStreets = useCallback(async (query: string) => {
+    try {
+      const response = await api.get<string[]>(
+        `/records/unique-streets?q=${encodeURIComponent(query)}`
+      );
+      return response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch streets:', error);
+      return [];
+    }
+  }, []);
+
+  const fetchPlaces = useCallback(async (query: string) => {
+    try {
+      const response = await api.get<string[]>(
+        `/records/unique-places?q=${encodeURIComponent(query)}`
+      );
+      return response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch places:', error);
+      return [];
+    }
+  }, []);
 
   const handleMove = async (
     id: number,
@@ -497,12 +521,12 @@ export default function ActiveRecordsPage() {
                               </Button>
                             )}
                           </div>
-                          <StreetSelect
+                          <AutocompleteInput
                             value={streetFilter}
                             onValueChange={setStreetFilter}
                             placeholder="Filter by street"
-                            showClearButton={false}
-                            triggerClassName="mt-1"
+                            fetchSuggestions={fetchStreets}
+                            className="mt-1"
                           />
                         </div>
                         <div>
@@ -522,12 +546,12 @@ export default function ActiveRecordsPage() {
                               </Button>
                             )}
                           </div>
-                          <PlaceSelect
+                          <AutocompleteInput
                             value={placeFilter}
                             onValueChange={setPlaceFilter}
                             placeholder="Filter by place"
-                            showClearButton={false}
-                            triggerClassName="mt-1"
+                            fetchSuggestions={fetchPlaces}
+                            className="mt-1"
                           />
                         </div>
                       </div>
@@ -718,12 +742,12 @@ export default function ActiveRecordsPage() {
                   </Button>
                 )}
               </div>
-              <StreetSelect
+              <AutocompleteInput
                 value={streetFilter}
                 onValueChange={setStreetFilter}
                 placeholder="Filter by street"
-                showClearButton={false}
-                triggerClassName="mt-1"
+                fetchSuggestions={fetchStreets}
+                className="mt-1"
               />
             </div>
             <div>
@@ -743,12 +767,12 @@ export default function ActiveRecordsPage() {
                   </Button>
                 )}
               </div>
-              <PlaceSelect
+              <AutocompleteInput
                 value={placeFilter}
                 onValueChange={setPlaceFilter}
                 placeholder="Filter by place"
-                showClearButton={false}
-                triggerClassName="mt-1"
+                fetchSuggestions={fetchPlaces}
+                className="mt-1"
               />
             </div>
           </div>
