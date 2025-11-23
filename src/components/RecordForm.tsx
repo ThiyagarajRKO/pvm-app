@@ -516,7 +516,7 @@ export default function RecordForm({
                               const digits = e.target.value
                                 .replace(/\D/g, '')
                                 .slice(0, 10);
-                              field.onChange(digits);
+                              field.onChange(digits === '' ? null : digits);
                               // Trigger search for suggestions
                               if (digits.length >= 3) {
                                 debouncedMobileSearch(digits);
@@ -620,7 +620,11 @@ export default function RecordForm({
                               className={`${
                                 fieldState.error ? 'border-destructive' : ''
                               } cursor-pointer pr-10 [&::-moz-focus-inner]:border-0 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
-                              onChange={(e) => field.onChange(e.target.value)}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value === '' ? null : e.target.value
+                                )
+                              }
                             />
                             <button
                               type="button"
@@ -658,7 +662,12 @@ export default function RecordForm({
                           className={
                             fieldState.error ? 'border-destructive' : ''
                           }
-                          {...field}
+                          value={field.value || ''}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === '' ? null : e.target.value
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage className="text-xs" />
@@ -679,7 +688,12 @@ export default function RecordForm({
                           className={
                             fieldState.error ? 'border-destructive' : ''
                           }
-                          {...field}
+                          value={field.value || ''}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === '' ? null : e.target.value
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage className="text-xs" />
@@ -705,8 +719,10 @@ export default function RecordForm({
                       <FormLabel className="text-foreground">Street</FormLabel>
                       <FormControl>
                         <AutocompleteInput
-                          value={field.value}
-                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                          onValueChange={(value) =>
+                            field.onChange(value === '' ? null : value)
+                          }
                           placeholder="Enter street name"
                           suggestions={DEFAULT_STREETS}
                           className={
@@ -726,8 +742,10 @@ export default function RecordForm({
                       <FormLabel className="text-foreground">Place</FormLabel>
                       <FormControl>
                         <AutocompleteInput
-                          value={field.value}
-                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                          onValueChange={(value) =>
+                            field.onChange(value === '' ? null : value)
+                          }
                           placeholder="Enter place name"
                           suggestions={DEFAULT_PLACES}
                           className={
@@ -757,8 +775,10 @@ export default function RecordForm({
                       <FormLabel className="text-foreground">Item</FormLabel>
                       <FormControl>
                         <AutocompleteInput
-                          value={field.value}
-                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                          onValueChange={(value) =>
+                            field.onChange(value === '' ? null : value)
+                          }
                           placeholder="Enter item name (e.g., Ring, Necklace)"
                           suggestions={DEFAULT_ITEMS}
                           className={
@@ -790,7 +810,7 @@ export default function RecordForm({
                           onChange={(e) =>
                             field.onChange(
                               e.target.value === ''
-                                ? undefined
+                                ? null
                                 : parseFloat(e.target.value)
                             )
                           }
@@ -861,7 +881,7 @@ export default function RecordForm({
                           onChange={(e) =>
                             field.onChange(
                               e.target.value === ''
-                                ? undefined
+                                ? null
                                 : parseInt(e.target.value)
                             )
                           }

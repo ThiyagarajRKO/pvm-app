@@ -40,7 +40,60 @@ export const recordCreateSchema = z.object({
   itemReturnImageUrl: z.string().url().optional().nullable(),
 });
 
-export const recordUpdateSchema = recordCreateSchema.partial().extend({
+export const recordUpdateSchema = z.object({
+  slNo: z
+    .string()
+    .min(1)
+    .transform((s) => s.trim()),
+  date: z.string().nullable().optional(),
+  name: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((s) => s?.trim() || ''),
+  fatherName: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((s) => s?.trim() || ''),
+  street: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((s) => s?.trim() || ''),
+  place: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((s) => s?.trim() || ''),
+  item: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((s) => s?.trim() || ''),
+  weightGrams: z
+    .preprocess(
+      (v) => (v === null ? null : Number(v)),
+      z.number().positive().nullable()
+    )
+    .optional(),
+  itemType: z.enum(['Gold', 'Silver']).nullable().optional(),
+  itemCategory: z.enum(['active', 'archived', 'big']).optional(),
+  amount: z
+    .preprocess(
+      (v) => (v === null ? null : Number(v)),
+      z.number().nonnegative().nullable()
+    )
+    .optional(),
+  mobile: z
+    .string()
+    .regex(/^[0-9]{10}$/)
+    .nullable()
+    .optional()
+    .or(z.literal('')),
+  personImageUrl: z.string().url().optional().nullable(),
+  itemImageUrl: z.string().url().optional().nullable(),
+  itemReturnImageUrl: z.string().url().optional().nullable(),
   isReturned: z.boolean().optional(),
   returnedAmount: z
     .preprocess(
