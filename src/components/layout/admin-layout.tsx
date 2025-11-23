@@ -723,7 +723,7 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
   );
 
   const Header = () => (
-    <header className="fixed-header fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 lg:px-6">
+    <header className="fixed-header fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-t-0 bg-background px-4 lg:px-6">
       <div className="flex items-center">
         {/* Mobile menu button - styled like partner-web */}
         <div className="mr-4 lg:hidden">
