@@ -26,7 +26,6 @@ export const recordCreateSchema = z.object({
     .string()
     .optional()
     .transform((s) => s?.trim() || ''),
-  weightGrams: z.preprocess((v) => Number(v), z.number().positive()).optional(),
   goldWeightGrams: z
     .preprocess((v) => Number(v), z.number().positive())
     .optional(),
@@ -77,12 +76,6 @@ export const recordUpdateSchema = z.object({
     .nullable()
     .optional()
     .transform((s) => s?.trim() || ''),
-  weightGrams: z
-    .preprocess(
-      (v) => (v === null ? null : Number(v)),
-      z.number().positive().nullable()
-    )
-    .optional(),
   goldWeightGrams: z
     .preprocess(
       (v) => (v === null ? null : Number(v)),

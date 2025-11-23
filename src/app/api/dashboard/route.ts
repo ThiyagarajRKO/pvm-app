@@ -65,6 +65,15 @@ export const GET = withAuth(async (req: Request, user) => {
         ],
         [
           fn(
+            'COUNT',
+            literal(
+              'CASE WHEN "itemType" = \'Both\' AND "isReturned" = false THEN 1 END'
+            )
+          ),
+          'totalBothCount',
+        ],
+        [
+          fn(
             'SUM',
             literal('CASE WHEN "isReturned" = false THEN "goldWeightGrams" END')
           ),
@@ -143,6 +152,15 @@ export const GET = withAuth(async (req: Request, user) => {
             )
           ),
           'totalReturnedSilverCount',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal(
+              'CASE WHEN "itemType" = \'Both\' AND "isReturned" = true THEN 1 END'
+            )
+          ),
+          'totalReturnedBothCount',
         ],
         [
           fn(
@@ -251,6 +269,15 @@ export const GET = withAuth(async (req: Request, user) => {
             )
           ),
           'currentMonthSilver',
+        ],
+        [
+          fn(
+            'COUNT',
+            literal(
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "itemType" = 'Both' AND "isReturned" = false THEN 1 END`
+            )
+          ),
+          'currentMonthBoth',
         ],
 
         // Previous month stats (excluding returned items)
@@ -375,6 +402,7 @@ export const GET = withAuth(async (req: Request, user) => {
       totalRecords: Number(statsResult.totalRecords || 0),
       totalGoldCount: Number(statsResult.totalGoldCount || 0),
       totalSilverCount: Number(statsResult.totalSilverCount || 0),
+      totalBothCount: Number(statsResult.totalBothCount || 0),
       totalGoldWeight: Number(statsResult.totalGoldWeight || 0),
       totalSilverWeight: Number(statsResult.totalSilverWeight || 0),
       totalGoldAmount: Number(statsResult.totalGoldAmount || 0),
@@ -393,6 +421,7 @@ export const GET = withAuth(async (req: Request, user) => {
       currentMonthAmount: Number(statsResult.currentMonthAmount || 0),
       currentMonthGold: Number(statsResult.currentMonthGold || 0),
       currentMonthSilver: Number(statsResult.currentMonthSilver || 0),
+      currentMonthBoth: Number(statsResult.currentMonthBoth || 0),
       previousMonthRecords: Number(statsResult.previousMonthRecords || 0),
       previousMonthWeight:
         Number(statsResult.previousMonthGoldWeight || 0) +
@@ -414,6 +443,7 @@ export const GET = withAuth(async (req: Request, user) => {
       totalReturnedSilverCount: Number(
         statsResult.totalReturnedSilverCount || 0
       ),
+      totalReturnedBothCount: Number(statsResult.totalReturnedBothCount || 0),
       totalReturnedAmount: Number(statsResult.totalReturnedAmount || 0),
       totalReturnedWeightGrams:
         Number(statsResult.totalReturnedGoldWeightGrams || 0) +
@@ -496,6 +526,7 @@ export const GET = withAuth(async (req: Request, user) => {
           totalRecords: stats.totalRecords,
           totalGoldCount: stats.totalGoldCount,
           totalSilverCount: stats.totalSilverCount,
+          totalBothCount: stats.totalBothCount,
           totalGoldWeight: stats.totalGoldWeight,
           totalSilverWeight: stats.totalSilverWeight,
           totalGoldAmount: stats.totalGoldAmount,
@@ -509,6 +540,7 @@ export const GET = withAuth(async (req: Request, user) => {
           totalRecords: stats.totalReturnedRecords,
           totalGoldCount: stats.totalReturnedGoldCount,
           totalSilverCount: stats.totalReturnedSilverCount,
+          totalBothCount: stats.totalReturnedBothCount,
           totalAmount: stats.totalReturnedAmount,
           totalWeightGrams: stats.totalReturnedWeightGrams,
         },
@@ -523,6 +555,7 @@ export const GET = withAuth(async (req: Request, user) => {
           amount: stats.currentMonthAmount,
           goldCount: stats.currentMonthGold,
           silverCount: stats.currentMonthSilver,
+          bothCount: stats.currentMonthBoth,
         },
         trends: {
           monthly: monthlyTrends,

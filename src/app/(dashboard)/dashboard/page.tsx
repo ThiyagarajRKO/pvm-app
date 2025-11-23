@@ -29,6 +29,7 @@ interface DashboardStats {
     totalRecords: number;
     totalGoldCount: number;
     totalSilverCount: number;
+    totalBothCount: number;
     totalGoldWeight: number;
     totalSilverWeight: number;
     totalGoldAmount: number;
@@ -42,6 +43,7 @@ interface DashboardStats {
     totalRecords: number;
     totalGoldCount: number;
     totalSilverCount: number;
+    totalBothCount: number;
     totalAmount: number;
     totalWeightGrams: number;
   };
@@ -56,6 +58,7 @@ interface DashboardStats {
     amount: number;
     goldCount: number;
     silverCount: number;
+    bothCount: number;
   };
   trends: {
     monthly: {
@@ -516,13 +519,13 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Gold / Silver
+                  Gold / Silver / Both
                 </p>
                 <p className="text-sm font-semibold text-purple-600">
                   {refreshing ? (
                     <RefreshCw className="inline h-5 w-5 animate-spin" />
                   ) : (
-                    `${stats.overview.totalGoldCount} / ${stats.overview.totalSilverCount}`
+                    `${stats.overview.totalGoldCount} / ${stats.overview.totalSilverCount} / ${stats.overview.totalBothCount}`
                   )}
                 </p>
               </div>
@@ -738,7 +741,7 @@ export default function DashboardPage() {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
-              <p className="text-base font-semibold text-blue-600">
+              <p className="text-sm font-semibold text-blue-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
@@ -757,7 +760,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-base font-semibold text-green-600">
+              <p className="text-sm font-semibold text-green-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
@@ -776,7 +779,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-base font-semibold text-yellow-600">
+              <p className="text-sm font-semibold text-yellow-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
@@ -795,14 +798,14 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-base font-semibold text-gray-600">
+              <p className="text-sm font-semibold text-gray-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
-                  `${stats.currentMonth.goldCount}G / ${stats.currentMonth.silverCount}S`
+                  `${stats.currentMonth.goldCount}G / ${stats.currentMonth.silverCount}S / ${stats.currentMonth.bothCount}B`
                 )}
               </p>
-              <p className="text-sm text-gray-600">Gold/Silver</p>
+              <p className="text-sm text-gray-600">Gold/Silver/Both</p>
             </div>
           </div>
         </CardContent>
@@ -819,7 +822,7 @@ export default function DashboardPage() {
         <CardContent>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
-              <p className="text-base font-semibold text-blue-600">
+              <p className="text-sm font-semibold text-blue-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
@@ -829,7 +832,7 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600">Total Returned</p>
             </div>
             <div className="text-center">
-              <p className="text-base font-semibold text-green-600">
+              <p className="text-sm font-semibold text-green-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
@@ -839,7 +842,7 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600">Returned Value</p>
             </div>
             <div className="text-center">
-              <p className="text-base font-semibold text-yellow-600">
+              <p className="text-sm font-semibold text-yellow-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
@@ -849,14 +852,14 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600">Returned Weight</p>
             </div>
             <div className="text-center">
-              <p className="text-base font-semibold text-gray-600">
+              <p className="text-sm font-semibold text-gray-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
                 ) : (
-                  `${stats.returned.totalGoldCount}G / ${stats.returned.totalSilverCount}S`
+                  `${stats.returned.totalGoldCount}G / ${stats.returned.totalSilverCount}S / ${stats.returned.totalBothCount}B`
                 )}
               </p>
-              <p className="text-sm text-gray-600">Gold/Silver</p>
+              <p className="text-sm text-gray-600">Gold/Silver/Both</p>
             </div>
           </div>
         </CardContent>

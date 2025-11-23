@@ -411,7 +411,6 @@ export default function RecordForm({
       street: initialData?.street || '',
       place: initialData?.place || '',
       item: initialData?.item || '',
-      weightGrams: initialData?.weightGrams,
       goldWeightGrams: initialData?.goldWeightGrams,
       silverWeightGrams: initialData?.silverWeightGrams,
       itemType: initialData?.itemType || 'Gold',

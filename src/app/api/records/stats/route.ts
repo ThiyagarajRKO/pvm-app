@@ -12,8 +12,14 @@ export const GET = withAuth(async (req: Request, user) => {
     const totalSilverCount = await RecordModel.count({
       where: { itemType: 'Silver' },
     });
-    const totalWeightGrams = Number(
-      (await RecordModel.sum('weightGrams')) || 0
+    const totalBothCount = await RecordModel.count({
+      where: { itemType: 'Both' },
+    });
+    const totalGoldWeightGrams = Number(
+      (await RecordModel.sum('goldWeightGrams')) || 0
+    );
+    const totalSilverWeightGrams = Number(
+      (await RecordModel.sum('silverWeightGrams')) || 0
     );
     const totalAmount = Number((await RecordModel.sum('amount')) || 0);
 
@@ -21,7 +27,9 @@ export const GET = withAuth(async (req: Request, user) => {
       totalRecords,
       totalGoldCount,
       totalSilverCount,
-      totalWeightGrams,
+      totalBothCount,
+      totalGoldWeightGrams,
+      totalSilverWeightGrams,
       totalAmount,
     });
   } catch (err) {

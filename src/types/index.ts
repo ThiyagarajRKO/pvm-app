@@ -21,7 +21,8 @@ export interface Record {
   fatherName: string;
   street: string;
   place: string;
-  weightGrams: number;
+  goldWeightGrams?: number;
+  silverWeightGrams?: number;
   itemType: 'Gold' | 'Silver' | 'Both';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
@@ -48,7 +49,9 @@ export interface RecordStats {
   totalRecords: number;
   totalGoldCount: number;
   totalSilverCount: number;
-  totalWeightGrams: number;
+  totalBothCount: number;
+  totalGoldWeightGrams: number;
+  totalSilverWeightGrams: number;
   totalAmount: number;
 }
 

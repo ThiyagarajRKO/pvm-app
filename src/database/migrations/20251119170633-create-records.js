@@ -33,10 +33,6 @@ module.exports = {
           type: Sequelize.STRING,
           allowNull: true,
         },
-        weightGrams: {
-          type: Sequelize.FLOAT,
-          allowNull: true,
-        },
         itemType: {
           type: Sequelize.ENUM('Gold', 'Silver'),
           allowNull: true,

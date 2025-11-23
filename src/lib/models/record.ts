@@ -12,7 +12,6 @@ interface RecordAttributes {
   fatherName?: string;
   street?: string;
   place?: string;
-  weightGrams?: number;
   goldWeightGrams?: number;
   silverWeightGrams?: number;
   item?: string | null;
@@ -40,7 +39,6 @@ type RecordCreationAttributes = Optional<
   | 'fatherName'
   | 'street'
   | 'place'
-  | 'weightGrams'
   | 'goldWeightGrams'
   | 'silverWeightGrams'
   | 'itemType'
@@ -66,7 +64,6 @@ export class Record
   declare fatherName?: string;
   declare street?: string;
   declare place?: string;
-  declare weightGrams?: number;
   declare goldWeightGrams?: number;
   declare silverWeightGrams?: number;
   declare item?: string | null;
@@ -112,7 +109,6 @@ async function initializeModel() {
         fatherName: { type: DataTypes.STRING, allowNull: true },
         street: { type: DataTypes.STRING, allowNull: true },
         place: { type: DataTypes.STRING, allowNull: true },
-        weightGrams: { type: DataTypes.FLOAT, allowNull: true },
         goldWeightGrams: { type: DataTypes.FLOAT, allowNull: true },
         silverWeightGrams: { type: DataTypes.FLOAT, allowNull: true },
         item: { type: DataTypes.STRING, allowNull: true },
