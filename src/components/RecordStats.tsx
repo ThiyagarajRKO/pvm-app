@@ -113,7 +113,7 @@ export default function RecordStats({
               <p className="text-xs font-medium text-muted-foreground">
                 {stat.title}
               </p>
-              <p className={`text-lg font-semibold ${stat.color}`}>
+              <p className={`text-sm font-semibold ${stat.color}`}>
                 {loading ? (
                   <Loader2 className="inline h-5 w-5 animate-spin" />
                 ) : (
@@ -180,7 +180,7 @@ export default function RecordStats({
     <div className="space-y-6">
       {/* Record Status Overview */}
       <div>
-        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
           <FileText className="h-5 w-5 text-blue-600" />
           Record Overview
         </h3>
@@ -199,7 +199,7 @@ export default function RecordStats({
                   <p className="text-xs font-medium text-muted-foreground">
                     Total Weight
                   </p>
-                  <p className="text-base font-semibold text-purple-600">
+                  <p className="text-sm font-semibold text-purple-600">
                     {loading ? (
                       <Loader2 className="inline h-6 w-6 animate-spin" />
                     ) : (
@@ -221,7 +221,7 @@ export default function RecordStats({
                   <p className="text-xs font-medium text-muted-foreground">
                     Total Amount
                   </p>
-                  <p className="text-base font-semibold text-green-600">
+                  <p className="text-sm font-semibold text-green-600">
                     {loading ? (
                       <Loader2 className="inline h-6 w-6 animate-spin" />
                     ) : (
@@ -240,7 +240,7 @@ export default function RecordStats({
 
       {/* Item Type Breakdown */}
       <div>
-        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
           <Scale className="h-5 w-5 text-purple-600" />
           Item Type Breakdown
         </h3>
