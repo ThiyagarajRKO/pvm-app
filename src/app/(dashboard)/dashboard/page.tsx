@@ -145,11 +145,16 @@ export default function DashboardPage() {
     null
   );
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       const response = await api.get<DashboardData>('/dashboard');
       if (response.error) {
@@ -162,6 +167,7 @@ export default function DashboardPage() {
       console.error('Dashboard fetch error:', err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -187,7 +193,7 @@ export default function DashboardPage() {
     return `${sign}${value.toFixed(1)}%`;
   };
 
-  if (loading) {
+  if (loading && !dashboardData) {
     return (
       <div className="space-y-4 p-1">
         {/* Header Skeleton */}
@@ -360,7 +366,7 @@ export default function DashboardPage() {
           <XCircle className="mx-auto h-8 w-8 text-red-600" />
           <p className="mt-2 text-sm text-red-600">{error}</p>
           <Button
-            onClick={fetchDashboardData}
+            onClick={() => fetchDashboardData()}
             variant="outline"
             size="sm"
             className="mt-2"
@@ -393,7 +399,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={fetchDashboardData}
+            onClick={() => fetchDashboardData(true)}
             className="flex-1 sm:flex-none"
           >
             <RefreshCw className="mr-1 h-3 w-3 sm:mr-2" />
@@ -420,7 +426,11 @@ export default function DashboardPage() {
                   Total Records
                 </p>
                 <p className="text-base font-semibold text-blue-600">
-                  {stats.overview.totalRecords.toLocaleString()}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    stats.overview.totalRecords.toLocaleString()
+                  )}
                 </p>
               </div>
               <FileText className="h-6 w-6 text-blue-600" />
@@ -429,7 +439,11 @@ export default function DashboardPage() {
               <span
                 className={`text-xs ${stats.trends.yearly.records >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
-                {formatPercentage(stats.trends.yearly.records)} from last year
+                {refreshing ? (
+                  <RefreshCw className="inline h-3 w-3 animate-spin" />
+                ) : (
+                  `${formatPercentage(stats.trends.yearly.records)} from last year`
+                )}
               </span>
             </div>
           </CardContent>
@@ -443,7 +457,11 @@ export default function DashboardPage() {
                   Total Value
                 </p>
                 <p className="text-sm font-semibold text-green-600">
-                  {formatCurrency(stats.overview.totalAmount)}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    formatCurrency(stats.overview.totalAmount)
+                  )}
                 </p>
               </div>
               <DollarSign className="h-6 w-6 text-green-600" />
@@ -452,7 +470,11 @@ export default function DashboardPage() {
               <span
                 className={`text-xs ${stats.trends.yearly.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
-                {formatPercentage(stats.trends.yearly.amount)} from last year
+                {refreshing ? (
+                  <RefreshCw className="inline h-3 w-3 animate-spin" />
+                ) : (
+                  `${formatPercentage(stats.trends.yearly.amount)} from last year`
+                )}
               </span>
             </div>
           </CardContent>
@@ -466,7 +488,11 @@ export default function DashboardPage() {
                   Total Weight
                 </p>
                 <p className="text-sm font-semibold text-yellow-600">
-                  {formatWeight(stats.overview.totalWeightGrams)}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    formatWeight(stats.overview.totalWeightGrams)
+                  )}
                 </p>
               </div>
               <Scale className="h-6 w-6 text-yellow-600" />
@@ -475,7 +501,11 @@ export default function DashboardPage() {
               <span
                 className={`text-xs ${stats.trends.yearly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
-                {formatPercentage(stats.trends.yearly.weight)} from last year
+                {refreshing ? (
+                  <RefreshCw className="inline h-3 w-3 animate-spin" />
+                ) : (
+                  `${formatPercentage(stats.trends.yearly.weight)} from last year`
+                )}
               </span>
             </div>
           </CardContent>
@@ -489,8 +519,11 @@ export default function DashboardPage() {
                   Gold / Silver
                 </p>
                 <p className="text-sm font-semibold text-purple-600">
-                  {stats.overview.totalGoldCount} /{' '}
-                  {stats.overview.totalSilverCount}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    `${stats.overview.totalGoldCount} / ${stats.overview.totalSilverCount}`
+                  )}
                 </p>
               </div>
               <Gem className="h-6 w-6 text-purple-600" />
@@ -530,19 +563,31 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-yellow-700">Count</span>
                 <span className="text-sm font-semibold text-yellow-800">
-                  {stats.overview.totalGoldCount.toLocaleString()}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-4 w-4 animate-spin" />
+                  ) : (
+                    stats.overview.totalGoldCount.toLocaleString()
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-yellow-700">Total Weight</span>
                 <span className="text-sm font-semibold text-yellow-800">
-                  {formatWeight(stats.overview.totalGoldWeight)}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-4 w-4 animate-spin" />
+                  ) : (
+                    formatWeight(stats.overview.totalGoldWeight)
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-yellow-700">Total Amount</span>
                 <span className="text-sm font-semibold text-yellow-800">
-                  {formatCurrency(stats.overview.totalGoldAmount)}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-4 w-4 animate-spin" />
+                  ) : (
+                    formatCurrency(stats.overview.totalGoldAmount)
+                  )}
                 </span>
               </div>
             </div>
@@ -567,19 +612,31 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-700">Count</span>
                 <span className="text-sm font-semibold text-gray-800">
-                  {stats.overview.totalSilverCount.toLocaleString()}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-4 w-4 animate-spin" />
+                  ) : (
+                    stats.overview.totalSilverCount.toLocaleString()
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-700">Total Weight</span>
                 <span className="text-sm font-semibold text-gray-800">
-                  {formatWeight(stats.overview.totalSilverWeight)}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-4 w-4 animate-spin" />
+                  ) : (
+                    formatWeight(stats.overview.totalSilverWeight)
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-700">Total Amount</span>
                 <span className="text-sm font-semibold text-gray-800">
-                  {formatCurrency(stats.overview.totalSilverAmount)}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-4 w-4 animate-spin" />
+                  ) : (
+                    formatCurrency(stats.overview.totalSilverAmount)
+                  )}
                 </span>
               </div>
             </div>
@@ -597,7 +654,11 @@ export default function DashboardPage() {
                   Active
                 </p>
                 <p className="text-base font-semibold text-green-600">
-                  {stats.categories.active.toLocaleString()}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    stats.categories.active.toLocaleString()
+                  )}
                 </p>
               </div>
               <CheckCircle className="h-5 w-5 text-green-600" />
@@ -613,7 +674,11 @@ export default function DashboardPage() {
                   Returned
                 </p>
                 <p className="text-base font-semibold text-blue-600">
-                  {stats.returned.totalRecords.toLocaleString()}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    stats.returned.totalRecords.toLocaleString()
+                  )}
                 </p>
               </div>
               <RotateCcw className="h-5 w-5 text-blue-600" />
@@ -629,7 +694,11 @@ export default function DashboardPage() {
                   Archived
                 </p>
                 <p className="text-base font-semibold text-orange-600">
-                  {stats.categories.archived.toLocaleString()}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    stats.categories.archived.toLocaleString()
+                  )}
                 </p>
               </div>
               <Archive className="h-5 w-5 text-orange-600" />
@@ -645,7 +714,11 @@ export default function DashboardPage() {
                   Big Records
                 </p>
                 <p className="text-base font-semibold text-purple-600">
-                  {stats.categories.big.toLocaleString()}
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    stats.categories.big.toLocaleString()
+                  )}
                 </p>
               </div>
               <Star className="h-5 w-5 text-purple-600" />
@@ -666,41 +739,68 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
               <p className="text-base font-semibold text-blue-600">
-                {stats.currentMonth.records}
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  stats.currentMonth.records
+                )}
               </p>
               <p className="text-sm text-gray-600">Records</p>
               <p
                 className={`text-xs ${stats.trends.monthly.records >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
-                {formatPercentage(stats.trends.monthly.records)} vs last month
+                {refreshing ? (
+                  <RefreshCw className="inline h-3 w-3 animate-spin" />
+                ) : (
+                  `${formatPercentage(stats.trends.monthly.records)} vs last month`
+                )}
               </p>
             </div>
             <div className="text-center">
               <p className="text-base font-semibold text-green-600">
-                {formatCurrency(stats.currentMonth.amount)}
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  formatCurrency(stats.currentMonth.amount)
+                )}
               </p>
               <p className="text-sm text-gray-600">Total Value</p>
               <p
                 className={`text-xs ${stats.trends.monthly.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
-                {formatPercentage(stats.trends.monthly.amount)} vs last month
+                {refreshing ? (
+                  <RefreshCw className="inline h-3 w-3 animate-spin" />
+                ) : (
+                  `${formatPercentage(stats.trends.monthly.amount)} vs last month`
+                )}
               </p>
             </div>
             <div className="text-center">
               <p className="text-base font-semibold text-yellow-600">
-                {formatWeight(stats.currentMonth.weight)}
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  formatWeight(stats.currentMonth.weight)
+                )}
               </p>
               <p className="text-sm text-gray-600">Total Weight</p>
               <p
                 className={`text-xs ${stats.trends.monthly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
-                {formatPercentage(stats.trends.monthly.weight)} vs last month
+                {refreshing ? (
+                  <RefreshCw className="inline h-3 w-3 animate-spin" />
+                ) : (
+                  `${formatPercentage(stats.trends.monthly.weight)} vs last month`
+                )}
               </p>
             </div>
             <div className="text-center">
               <p className="text-base font-semibold text-gray-600">
-                {stats.currentMonth.goldCount}G /{' '}
-                {stats.currentMonth.silverCount}S
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  `${stats.currentMonth.goldCount}G / ${stats.currentMonth.silverCount}S`
+                )}
               </p>
               <p className="text-sm text-gray-600">Gold/Silver</p>
             </div>
@@ -720,26 +820,41 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
               <p className="text-base font-semibold text-blue-600">
-                {stats.returned.totalRecords}
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  stats.returned.totalRecords
+                )}
               </p>
               <p className="text-sm text-gray-600">Total Returned</p>
             </div>
             <div className="text-center">
               <p className="text-base font-semibold text-green-600">
-                {formatCurrency(stats.returned.totalAmount)}
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  formatCurrency(stats.returned.totalAmount)
+                )}
               </p>
               <p className="text-sm text-gray-600">Returned Value</p>
             </div>
             <div className="text-center">
               <p className="text-base font-semibold text-yellow-600">
-                {formatWeight(stats.returned.totalWeightGrams)}
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  formatWeight(stats.returned.totalWeightGrams)
+                )}
               </p>
               <p className="text-sm text-gray-600">Returned Weight</p>
             </div>
             <div className="text-center">
               <p className="text-base font-semibold text-gray-600">
-                {stats.returned.totalGoldCount}G /{' '}
-                {stats.returned.totalSilverCount}S
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  `${stats.returned.totalGoldCount}G / ${stats.returned.totalSilverCount}S`
+                )}
               </p>
               <p className="text-sm text-gray-600">Gold/Silver</p>
             </div>
@@ -757,72 +872,105 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 sm:space-y-4">
-              {recentRecords.map((record) => (
-                <div
-                  key={record.id}
-                  className="relative flex flex-col gap-3 rounded-lg border p-3 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between sm:p-4"
-                >
-                  {/* Category Badge - Top Right on Mobile Only */}
-                  <div className="absolute right-2 top-2 sm:hidden">
-                    <Badge
-                      variant={
-                        record.itemCategory === 'active'
-                          ? 'default'
-                          : 'secondary'
-                      }
-                      className="text-xs"
-                    >
-                      {record.itemCategory}
-                    </Badge>
-                  </div>
+            {refreshing ? (
+              <div className="space-y-3 sm:space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="relative flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4"
+                  >
+                    {/* Category Badge Skeleton - Top Right on Mobile Only */}
+                    <div className="absolute right-2 top-2 h-5 w-12 animate-pulse rounded bg-gray-200 sm:hidden"></div>
 
-                  <div className="flex items-center gap-3 pr-16 sm:pr-0">
-                    <div
-                      className={`rounded-lg p-2 ${record.itemType === 'Gold' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}
-                    >
-                      {record.itemType === 'Gold' ? (
-                        <Gem className="h-4 w-4 sm:h-5 sm:w-5" />
-                      ) : (
-                        <Scale className="h-4 w-4 sm:h-5 sm:w-5" />
-                      )}
+                    <div className="flex items-center gap-3 pr-16 sm:pr-0">
+                      <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-200"></div>
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-2 h-4 w-32 animate-pulse rounded bg-gray-200"></div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="h-3 w-12 animate-pulse rounded bg-gray-200"></div>
+                          <div className="h-3 w-16 animate-pulse rounded bg-gray-200"></div>
+                          {/* Category Badge Skeleton - Inline on Desktop/Tablet */}
+                          <div className="hidden h-4 w-14 animate-pulse rounded bg-gray-200 sm:block"></div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-sm font-semibold">
-                        {record.name}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 sm:gap-3">
-                        <span>{formatWeight(record.weightGrams)}</span>
-                        <span>{formatCurrency(record.amount)}</span>
-                        {/* Category Badge - Inline on Desktop/Tablet */}
-                        <Badge
-                          variant={
-                            record.itemCategory === 'active'
-                              ? 'default'
-                              : 'secondary'
-                          }
-                          className="hidden text-xs sm:inline-flex"
-                        >
-                          {record.itemCategory}
-                        </Badge>
+                    <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
+                      <div className="h-4 w-8 animate-pulse rounded bg-gray-200"></div>
+                      <div className="mt-1 h-3 w-16 animate-pulse rounded bg-gray-200"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3 sm:space-y-4">
+                {recentRecords.map((record) => (
+                  <div
+                    key={record.id}
+                    className="relative flex flex-col gap-3 rounded-lg border p-3 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between sm:p-4"
+                  >
+                    {/* Category Badge - Top Right on Mobile Only */}
+                    <div className="absolute right-2 top-2 sm:hidden">
+                      <Badge
+                        variant={
+                          record.itemCategory === 'active'
+                            ? 'default'
+                            : 'secondary'
+                        }
+                        className="text-xs"
+                      >
+                        {record.itemCategory}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-3 pr-16 sm:pr-0">
+                      <div
+                        className={`rounded-lg p-2 ${record.itemType === 'Gold' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}
+                      >
+                        {record.itemType === 'Gold' ? (
+                          <Gem className="h-4 w-4 sm:h-5 sm:w-5" />
+                        ) : (
+                          <Scale className="h-4 w-4 sm:h-5 sm:w-5" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-semibold">
+                          {record.name}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 sm:gap-3">
+                          <span>{formatWeight(record.weightGrams)}</span>
+                          <span>{formatCurrency(record.amount)}</span>
+                          {/* Category Badge - Inline on Desktop/Tablet */}
+                          <Badge
+                            variant={
+                              record.itemCategory === 'active'
+                                ? 'default'
+                                : 'secondary'
+                            }
+                            className="hidden text-xs sm:inline-flex"
+                          >
+                            {record.itemCategory}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
+                      <div className="text-sm font-semibold">
+                        #{record.slNo}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(record.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
-                    <div className="text-sm font-semibold">#{record.slNo}</div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(record.createdAt).toLocaleDateString()}
-                    </div>
+                ))}
+                {recentRecords.length === 0 && (
+                  <div className="py-8 text-center text-gray-500">
+                    <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                    <p className="mt-2">No records found</p>
                   </div>
-                </div>
-              ))}
-              {recentRecords.length === 0 && (
-                <div className="py-8 text-center text-gray-500">
-                  <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                  <p className="mt-2">No records found</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
