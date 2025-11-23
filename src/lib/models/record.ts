@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { getSequelize } from '../db';
 
-export type ItemType = 'Gold' | 'Silver';
+export type ItemType = 'Gold' | 'Silver' | 'Both';
 export type ItemCategory = 'archived' | 'active' | 'big';
 
 interface RecordAttributes {
@@ -13,6 +13,8 @@ interface RecordAttributes {
   street?: string;
   place?: string;
   weightGrams?: number;
+  goldWeightGrams?: number;
+  silverWeightGrams?: number;
   item?: string | null;
   itemType?: ItemType;
   itemCategory?: ItemCategory;
@@ -39,6 +41,8 @@ type RecordCreationAttributes = Optional<
   | 'street'
   | 'place'
   | 'weightGrams'
+  | 'goldWeightGrams'
+  | 'silverWeightGrams'
   | 'itemType'
   | 'amount'
   | 'interest'
@@ -63,6 +67,8 @@ export class Record
   declare street?: string;
   declare place?: string;
   declare weightGrams?: number;
+  declare goldWeightGrams?: number;
+  declare silverWeightGrams?: number;
   declare item?: string | null;
   declare itemType?: ItemType;
   declare itemCategory?: ItemCategory;
@@ -107,8 +113,13 @@ async function initializeModel() {
         street: { type: DataTypes.STRING, allowNull: true },
         place: { type: DataTypes.STRING, allowNull: true },
         weightGrams: { type: DataTypes.FLOAT, allowNull: true },
+        goldWeightGrams: { type: DataTypes.FLOAT, allowNull: true },
+        silverWeightGrams: { type: DataTypes.FLOAT, allowNull: true },
         item: { type: DataTypes.STRING, allowNull: true },
-        itemType: { type: DataTypes.ENUM('Gold', 'Silver'), allowNull: true },
+        itemType: {
+          type: DataTypes.ENUM('Gold', 'Silver', 'Both'),
+          allowNull: true,
+        },
         itemCategory: {
           type: DataTypes.STRING,
           allowNull: true,

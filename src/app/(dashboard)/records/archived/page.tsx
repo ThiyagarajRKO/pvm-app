@@ -38,7 +38,7 @@ interface Record {
   street: string;
   place: string;
   weightGrams: number;
-  itemType: 'Gold' | 'Silver';
+  itemType: 'Gold' | 'Silver' | 'Both';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
   mobile: string;
@@ -500,6 +500,7 @@ export default function ArchivedRecordsPage() {
                           <SelectItem value="all">All Types</SelectItem>
                           <SelectItem value="Gold">Gold</SelectItem>
                           <SelectItem value="Silver">Silver</SelectItem>
+                          <SelectItem value="Both">Both</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -694,6 +695,7 @@ export default function ArchivedRecordsPage() {
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="Gold">Gold</SelectItem>
                   <SelectItem value="Silver">Silver</SelectItem>
+                  <SelectItem value="Both">Both</SelectItem>
                 </SelectContent>
               </Select>
             </div>

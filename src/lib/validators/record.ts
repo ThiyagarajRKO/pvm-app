@@ -27,7 +27,13 @@ export const recordCreateSchema = z.object({
     .optional()
     .transform((s) => s?.trim() || ''),
   weightGrams: z.preprocess((v) => Number(v), z.number().positive()).optional(),
-  itemType: z.enum(['Gold', 'Silver']).optional(),
+  goldWeightGrams: z
+    .preprocess((v) => Number(v), z.number().positive())
+    .optional(),
+  silverWeightGrams: z
+    .preprocess((v) => Number(v), z.number().positive())
+    .optional(),
+  itemType: z.enum(['Gold', 'Silver', 'Both']).optional(),
   itemCategory: z.enum(['active', 'archived', 'big']).optional(),
   amount: z.preprocess((v) => Number(v), z.number().nonnegative()).optional(),
   mobile: z
@@ -77,7 +83,19 @@ export const recordUpdateSchema = z.object({
       z.number().positive().nullable()
     )
     .optional(),
-  itemType: z.enum(['Gold', 'Silver']).nullable().optional(),
+  goldWeightGrams: z
+    .preprocess(
+      (v) => (v === null ? null : Number(v)),
+      z.number().positive().nullable()
+    )
+    .optional(),
+  silverWeightGrams: z
+    .preprocess(
+      (v) => (v === null ? null : Number(v)),
+      z.number().positive().nullable()
+    )
+    .optional(),
+  itemType: z.enum(['Gold', 'Silver', 'Both']).nullable().optional(),
   itemCategory: z.enum(['active', 'archived', 'big']).optional(),
   amount: z
     .preprocess(

@@ -79,8 +79,8 @@ interface RecentRecord {
   fatherName: string;
   street: string;
   place: string;
-  weightGrams: number;
-  itemType: 'Gold' | 'Silver';
+  totalWeight: number;
+  itemType: 'Gold' | 'Silver' | 'Both';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
   interest: number;
@@ -937,7 +937,7 @@ export default function DashboardPage() {
                           {record.name}
                         </h3>
                         <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 sm:gap-3">
-                          <span>{formatWeight(record.weightGrams)}</span>
+                          <span>{formatWeight(record.totalWeight)}</span>
                           <span>{formatCurrency(record.amount)}</span>
                           {/* Category Badge - Inline on Desktop/Tablet */}
                           <Badge

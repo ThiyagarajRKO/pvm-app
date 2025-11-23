@@ -9,13 +9,13 @@ const querySchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
   search: z.string().optional(),
-  itemType: z.enum(['Gold', 'Silver']).optional(),
+  itemType: z.enum(['Gold', 'Silver', 'Both']).optional(),
   status: z.enum(['active', 'archived', 'big', 'returned']).optional(),
   street: z.string().optional(),
   place: z.string().optional(),
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
-  sortBy: z.enum(['createdAt', 'amount', 'weightGrams']).optional(),
+  sortBy: z.enum(['createdAt', 'amount']).optional(),
   sortDir: z.enum(['asc', 'desc']).optional(),
 });
 
@@ -114,19 +114,30 @@ export const GET = withAuth(async (req: NextRequest, user) => {
       silverAmount,
       goldCount,
       silverCount,
+      bothCount,
       bigRecords,
+      totalGoldWeight,
+      totalSilverWeight,
     ] = await Promise.all([
-      RecordModel.sum('weightGrams', { where }),
+      // Total weight is sum of all gold and silver weights from new columns
+      Promise.resolve(
+        (await RecordModel.sum('goldWeightGrams', { where })) ||
+          0 + (await RecordModel.sum('silverWeightGrams', { where })) ||
+          0
+      ),
       RecordModel.sum('amount', { where }),
-      RecordModel.sum('weightGrams', { where: { ...where, itemType: 'Gold' } }),
+      // Gold weight is sum of all goldWeightGrams (includes Gold and Both items)
+      RecordModel.sum('goldWeightGrams', { where }),
       RecordModel.sum('amount', { where: { ...where, itemType: 'Gold' } }),
-      RecordModel.sum('weightGrams', {
-        where: { ...where, itemType: 'Silver' },
-      }),
+      // Silver weight is sum of all silverWeightGrams (includes Silver and Both items)
+      RecordModel.sum('silverWeightGrams', { where }),
       RecordModel.sum('amount', { where: { ...where, itemType: 'Silver' } }),
       RecordModel.count({ where: { ...where, itemType: 'Gold' } }),
       RecordModel.count({ where: { ...where, itemType: 'Silver' } }),
+      RecordModel.count({ where: { ...where, itemType: 'Both' } }),
       RecordModel.count({ where: { ...where, itemCategory: 'big' } }),
+      RecordModel.sum('goldWeightGrams', { where }),
+      RecordModel.sum('silverWeightGrams', { where }),
     ]);
 
     return NextResponse.json({
@@ -143,7 +154,10 @@ export const GET = withAuth(async (req: NextRequest, user) => {
         silverAmount: Number(silverAmount || 0),
         goldCount,
         silverCount,
+        bothCount,
         bigRecords,
+        totalGoldWeight: Number(totalGoldWeight || 0),
+        totalSilverWeight: Number(totalSilverWeight || 0),
       },
     });
   } catch (err) {

@@ -412,6 +412,8 @@ export default function RecordForm({
       place: initialData?.place || '',
       item: initialData?.item || '',
       weightGrams: initialData?.weightGrams,
+      goldWeightGrams: initialData?.goldWeightGrams,
+      silverWeightGrams: initialData?.silverWeightGrams,
       itemType: initialData?.itemType || 'Gold',
       amount: initialData?.amount,
       mobile: initialData?.mobile || '',
@@ -792,11 +794,11 @@ export default function RecordForm({
                 />
                 <FormField
                   control={form.control}
-                  name="weightGrams"
+                  name="goldWeightGrams"
                   render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel className="text-foreground">
-                        Weight (grams)
+                        Gold Weight (grams)
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -814,6 +816,38 @@ export default function RecordForm({
                                 : parseFloat(e.target.value)
                             )
                           }
+                          onWheel={(e) => e.currentTarget.blur()}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="silverWeightGrams"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground">
+                        Silver Weight (grams)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ''
+                                ? null
+                                : parseFloat(e.target.value)
+                            )
+                          }
+                          onWheel={(e) => e.currentTarget.blur()}
                         />
                       </FormControl>
                       <FormMessage className="text-xs" />
@@ -828,7 +862,7 @@ export default function RecordForm({
                       <FormLabel className="text-foreground">
                         Item Type
                       </FormLabel>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {[
                           {
                             type: 'Gold',
@@ -842,19 +876,27 @@ export default function RecordForm({
                             color: 'bg-gray-300',
                             hoverColor: 'hover:bg-gray-400',
                           },
+                          {
+                            type: 'Both',
+                            icon: '🥇🥈',
+                            color:
+                              'bg-gradient-to-r from-yellow-300 to-gray-300',
+                            hoverColor:
+                              'hover:from-yellow-400 hover:to-gray-400',
+                          },
                         ].map(({ type, icon, color, hoverColor }) => (
                           <button
                             key={type}
                             type="button"
                             onClick={() => field.onChange(type)}
-                            className={`flex items-center justify-center gap-2 rounded-lg border-2 p-3 transition-all duration-200 ${
+                            className={`flex min-w-0 flex-shrink-0 items-center justify-center gap-1.5 rounded-lg border-2 px-3 py-2 transition-all duration-200 ${
                               field.value === type
                                 ? `${color} border-transparent text-white shadow-md`
                                 : `border-gray-300 bg-white text-gray-700 ${hoverColor} hover:text-white hover:shadow-sm`
                             } ${fieldState.error ? 'border-red-300' : ''}`}
                           >
-                            <span className="text-lg">{icon}</span>
-                            <span className="text-sm font-medium text-black">
+                            <span className="text-base">{icon}</span>
+                            <span className="whitespace-nowrap text-xs font-medium text-black">
                               {type}
                             </span>
                           </button>
@@ -885,6 +927,7 @@ export default function RecordForm({
                                 : parseInt(e.target.value)
                             )
                           }
+                          onWheel={(e) => e.currentTarget.blur()}
                         />
                       </FormControl>
                       <FormMessage className="text-xs" />

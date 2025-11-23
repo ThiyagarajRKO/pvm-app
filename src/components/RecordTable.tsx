@@ -58,7 +58,9 @@ interface Record {
   place: string;
   item?: string | null;
   weightGrams: number;
-  itemType: 'Gold' | 'Silver';
+  goldWeightGrams?: number;
+  silverWeightGrams?: number;
+  itemType: 'Gold' | 'Silver' | 'Both';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
   interest: number;
@@ -235,7 +237,12 @@ export default function RecordTable({
                 Place
               </TableHead>
               <TableHead className="min-w-[60px]">Type</TableHead>
-              <TableHead className="min-w-[70px] text-right">Weight</TableHead>
+              <TableHead className="min-w-[70px] text-right">
+                Gold Weight
+              </TableHead>
+              <TableHead className="min-w-[70px] text-right">
+                Silver Weight
+              </TableHead>
               <TableHead className="min-w-[90px] text-right">Amount</TableHead>
               <TableHead className="hidden min-w-[60px] text-right md:table-cell">
                 Interest
@@ -265,6 +272,9 @@ export default function RecordTable({
                     </TableCell>
                     <TableCell className="min-w-[60px]">
                       <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell className="min-w-[70px] text-right">
+                      <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
                     </TableCell>
                     <TableCell className="min-w-[70px] text-right">
                       <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
@@ -336,7 +346,9 @@ export default function RecordTable({
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             record.itemType === 'Gold'
                               ? 'bg-yellow-500 text-white'
-                              : 'bg-gray-400 text-white'
+                              : record.itemType === 'Silver'
+                                ? 'bg-gray-400 text-white'
+                                : 'bg-gradient-to-r from-yellow-500 to-gray-400 text-white'
                           }`}
                         >
                           {record.itemType}
@@ -346,7 +358,14 @@ export default function RecordTable({
                       )}
                     </TableCell>
                     <TableCell className="min-w-[70px] text-right">
-                      {record.weightGrams ? `${record.weightGrams}g` : '-'}
+                      {record.goldWeightGrams
+                        ? `${record.goldWeightGrams}g`
+                        : '-'}
+                    </TableCell>
+                    <TableCell className="min-w-[70px] text-right">
+                      {record.silverWeightGrams
+                        ? `${record.silverWeightGrams}g`
+                        : '-'}
                     </TableCell>
                     <TableCell className="min-w-[90px] text-right">
                       {record.amount
@@ -538,17 +557,21 @@ export default function RecordTable({
                     <span className="font-medium text-muted-foreground">
                       Item Type:
                     </span>
-                    <div className="mt-1">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          recordToDelete.itemType === 'Gold'
-                            ? 'bg-yellow-500 text-white'
-                            : 'bg-gray-400 text-white'
-                        }`}
-                      >
-                        {recordToDelete.itemType}
-                      </span>
-                    </div>
+                    <p>
+                      {recordToRevert && (
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            recordToRevert.itemType === 'Gold'
+                              ? 'bg-yellow-500 text-white'
+                              : recordToRevert.itemType === 'Silver'
+                                ? 'bg-gray-400 text-white'
+                                : 'bg-gradient-to-r from-yellow-500 to-gray-400 text-white'
+                          }`}
+                        >
+                          {recordToRevert.itemType}
+                        </span>
+                      )}
+                    </p>
                   </div>
                   <div>
                     <span className="font-medium text-muted-foreground">
@@ -557,6 +580,26 @@ export default function RecordTable({
                     <p className="font-medium">
                       {recordToDelete.weightGrams
                         ? `${recordToDelete.weightGrams}g`
+                        : '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Gold Weight:
+                    </span>
+                    <p className="font-medium">
+                      {recordToDelete.goldWeightGrams
+                        ? `${recordToDelete.goldWeightGrams}g`
+                        : '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Silver Weight:
+                    </span>
+                    <p className="font-medium">
+                      {recordToDelete.silverWeightGrams
+                        ? `${recordToDelete.silverWeightGrams}g`
                         : '-'}
                     </p>
                   </div>
@@ -667,7 +710,9 @@ export default function RecordTable({
                       className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         recordToMove.itemType === 'Gold'
                           ? 'bg-yellow-500 text-white'
-                          : 'bg-gray-400 text-white'
+                          : recordToMove.itemType === 'Silver'
+                            ? 'bg-gray-400 text-white'
+                            : 'bg-gradient-to-r from-yellow-500 to-gray-400 text-white'
                       }`}
                     >
                       {recordToMove.itemType}
@@ -810,16 +855,36 @@ export default function RecordTable({
                     <span className="font-medium text-muted-foreground">
                       Item Type:
                     </span>
-                    <p>
+                    {recordToMove && (
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          recordToRevert.itemType === 'Gold'
+                        className={`ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          recordToMove.itemType === 'Gold'
                             ? 'bg-yellow-500 text-white'
                             : 'bg-gray-400 text-white'
                         }`}
                       >
-                        {recordToRevert.itemType}
+                        {recordToMove.itemType}
                       </span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Gold Weight:
+                    </span>
+                    <p className="font-medium">
+                      {recordToMove?.goldWeightGrams
+                        ? `${recordToMove.goldWeightGrams}g`
+                        : '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">
+                      Silver Weight:
+                    </span>
+                    <p className="font-medium">
+                      {recordToMove?.silverWeightGrams
+                        ? `${recordToMove.silverWeightGrams}g`
+                        : '-'}
                     </p>
                   </div>
                   <div>

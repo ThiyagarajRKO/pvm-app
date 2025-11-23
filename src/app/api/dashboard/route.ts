@@ -66,9 +66,7 @@ export const GET = withAuth(async (req: Request, user) => {
         [
           fn(
             'SUM',
-            literal(
-              'CASE WHEN "itemType" = \'Gold\' AND "isReturned" = false THEN "weightGrams" END'
-            )
+            literal('CASE WHEN "isReturned" = false THEN "goldWeightGrams" END')
           ),
           'totalGoldWeight',
         ],
@@ -76,7 +74,7 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              'CASE WHEN "itemType" = \'Silver\' AND "isReturned" = false THEN "weightGrams" END'
+              'CASE WHEN "isReturned" = false THEN "silverWeightGrams" END'
             )
           ),
           'totalSilverWeight',
@@ -102,9 +100,18 @@ export const GET = withAuth(async (req: Request, user) => {
         [
           fn(
             'SUM',
-            literal('CASE WHEN "isReturned" = false THEN "weightGrams" END')
+            literal('CASE WHEN "isReturned" = false THEN "goldWeightGrams" END')
           ),
-          'totalWeightGrams',
+          'totalGoldWeightGrams',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              'CASE WHEN "isReturned" = false THEN "silverWeightGrams" END'
+            )
+          ),
+          'totalSilverWeightGrams',
         ],
         [
           fn(
@@ -147,9 +154,18 @@ export const GET = withAuth(async (req: Request, user) => {
         [
           fn(
             'SUM',
-            literal('CASE WHEN "isReturned" = true THEN "weightGrams" END')
+            literal('CASE WHEN "isReturned" = true THEN "goldWeightGrams" END')
           ),
-          'totalReturnedWeightGrams',
+          'totalReturnedGoldWeightGrams',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              'CASE WHEN "isReturned" = true THEN "silverWeightGrams" END'
+            )
+          ),
+          'totalReturnedSilverWeightGrams',
         ],
 
         // Category counts (excluding returned items)
@@ -195,10 +211,19 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "isReturned" = false THEN "goldWeightGrams" END`
             )
           ),
-          'currentMonthWeight',
+          'currentMonthGoldWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${currentMonthRange[Op.gte]}' AND "date" <= '${currentMonthRange[Op.lte]}' AND "isReturned" = false THEN "silverWeightGrams" END`
+            )
+          ),
+          'currentMonthSilverWeight',
         ],
         [
           fn(
@@ -242,10 +267,19 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' AND "isReturned" = false THEN "goldWeightGrams" END`
             )
           ),
-          'previousMonthWeight',
+          'previousMonthGoldWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${previousMonthRange[Op.gte]}' AND "date" <= '${previousMonthRange[Op.lte]}' AND "isReturned" = false THEN "silverWeightGrams" END`
+            )
+          ),
+          'previousMonthSilverWeight',
         ],
         [
           fn(
@@ -271,10 +305,19 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' AND "isReturned" = false THEN "goldWeightGrams" END`
             )
           ),
-          'currentYearWeight',
+          'currentYearGoldWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${currentYearRange[Op.gte]}' AND "date" <= '${currentYearRange[Op.lte]}' AND "isReturned" = false THEN "silverWeightGrams" END`
+            )
+          ),
+          'currentYearSilverWeight',
         ],
         [
           fn(
@@ -300,10 +343,19 @@ export const GET = withAuth(async (req: Request, user) => {
           fn(
             'SUM',
             literal(
-              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' AND "isReturned" = false THEN "weightGrams" END`
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' AND "isReturned" = false THEN "goldWeightGrams" END`
             )
           ),
-          'previousYearWeight',
+          'previousYearGoldWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              `CASE WHEN "date" >= '${previousYearRange[Op.gte]}' AND "date" <= '${previousYearRange[Op.lte]}' AND "isReturned" = false THEN "silverWeightGrams" END`
+            )
+          ),
+          'previousYearSilverWeight',
         ],
         [
           fn(
@@ -327,24 +379,34 @@ export const GET = withAuth(async (req: Request, user) => {
       totalSilverWeight: Number(statsResult.totalSilverWeight || 0),
       totalGoldAmount: Number(statsResult.totalGoldAmount || 0),
       totalSilverAmount: Number(statsResult.totalSilverAmount || 0),
-      totalWeightGrams: Number(statsResult.totalWeightGrams || 0),
+      totalWeightGrams:
+        Number(statsResult.totalGoldWeightGrams || 0) +
+        Number(statsResult.totalSilverWeightGrams || 0),
       totalAmount: Number(statsResult.totalAmount || 0),
       activeRecords: Number(statsResult.activeRecords || 0),
       archivedRecords: Number(statsResult.archivedRecords || 0),
       bigRecords: Number(statsResult.bigRecords || 0),
       currentMonthRecords: Number(statsResult.currentMonthRecords || 0),
-      currentMonthWeight: Number(statsResult.currentMonthWeight || 0),
+      currentMonthWeight:
+        Number(statsResult.currentMonthGoldWeight || 0) +
+        Number(statsResult.currentMonthSilverWeight || 0),
       currentMonthAmount: Number(statsResult.currentMonthAmount || 0),
       currentMonthGold: Number(statsResult.currentMonthGold || 0),
       currentMonthSilver: Number(statsResult.currentMonthSilver || 0),
       previousMonthRecords: Number(statsResult.previousMonthRecords || 0),
-      previousMonthWeight: Number(statsResult.previousMonthWeight || 0),
+      previousMonthWeight:
+        Number(statsResult.previousMonthGoldWeight || 0) +
+        Number(statsResult.previousMonthSilverWeight || 0),
       previousMonthAmount: Number(statsResult.previousMonthAmount || 0),
       currentYearRecords: Number(statsResult.currentYearRecords || 0),
-      currentYearWeight: Number(statsResult.currentYearWeight || 0),
+      currentYearWeight:
+        Number(statsResult.currentYearGoldWeight || 0) +
+        Number(statsResult.currentYearSilverWeight || 0),
       currentYearAmount: Number(statsResult.currentYearAmount || 0),
       previousYearRecords: Number(statsResult.previousYearRecords || 0),
-      previousYearWeight: Number(statsResult.previousYearWeight || 0),
+      previousYearWeight:
+        Number(statsResult.previousYearGoldWeight || 0) +
+        Number(statsResult.previousYearSilverWeight || 0),
       previousYearAmount: Number(statsResult.previousYearAmount || 0),
       // Returned records stats
       totalReturnedRecords: Number(statsResult.totalReturnedRecords || 0),
@@ -353,9 +415,9 @@ export const GET = withAuth(async (req: Request, user) => {
         statsResult.totalReturnedSilverCount || 0
       ),
       totalReturnedAmount: Number(statsResult.totalReturnedAmount || 0),
-      totalReturnedWeightGrams: Number(
-        statsResult.totalReturnedWeightGrams || 0
-      ),
+      totalReturnedWeightGrams:
+        Number(statsResult.totalReturnedGoldWeightGrams || 0) +
+        Number(statsResult.totalReturnedSilverWeightGrams || 0),
     };
 
     // Calculate trends (percentage changes)
@@ -401,7 +463,9 @@ export const GET = withAuth(async (req: Request, user) => {
         'fatherName',
         'street',
         'place',
-        'weightGrams',
+        'weightGrams', // Keep for backward compatibility
+        'goldWeightGrams',
+        'silverWeightGrams',
         'itemType',
         'itemCategory',
         'amount',
@@ -410,6 +474,13 @@ export const GET = withAuth(async (req: Request, user) => {
         'personImageUrl',
         'itemImageUrl',
         'createdAt',
+        // Calculate total weight using Sequelize literal
+        [
+          literal(
+            'COALESCE("goldWeightGrams", 0) + COALESCE("silverWeightGrams", 0)'
+          ),
+          'totalWeight',
+        ],
       ],
     });
 

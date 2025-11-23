@@ -72,6 +72,7 @@ export default function RecordFilters({
           <SelectItem value="all">All Types</SelectItem>
           <SelectItem value="Gold">Gold</SelectItem>
           <SelectItem value="Silver">Silver</SelectItem>
+          <SelectItem value="Both">Both</SelectItem>
         </SelectContent>
       </Select>
 

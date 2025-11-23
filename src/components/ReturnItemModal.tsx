@@ -24,7 +24,7 @@ interface ReturnItemModalProps {
     id: number;
     name: string;
     item?: string | null;
-    itemType: 'Gold' | 'Silver';
+    itemType: 'Gold' | 'Silver' | 'Both';
     amount: number;
     weightGrams: number;
     interest: number;
@@ -229,7 +229,9 @@ export default function ReturnItemModal({
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                       record.itemType === 'Gold'
                         ? 'bg-yellow-500 text-white'
-                        : 'bg-gray-400 text-white'
+                        : record.itemType === 'Silver'
+                          ? 'bg-gray-400 text-white'
+                          : 'bg-gradient-to-r from-yellow-500 to-gray-400 text-white'
                     }`}
                   >
                     {record.itemType}
@@ -413,7 +415,9 @@ export default function ReturnItemModal({
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         record.itemType === 'Gold'
                           ? 'bg-yellow-500 text-white'
-                          : 'bg-gray-400 text-white'
+                          : record.itemType === 'Silver'
+                            ? 'bg-gray-400 text-white'
+                            : 'bg-gradient-to-r from-yellow-500 to-gray-400 text-white'
                       }`}
                     >
                       {record.itemType}
