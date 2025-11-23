@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { ChevronDown, X } from 'lucide-react';
@@ -28,6 +28,7 @@ export default function AutocompleteInput({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const lastFetchedQuery = useRef<string | null>(null);
 
   // Update input value when prop value changes
   useEffect(() => {
@@ -41,6 +42,8 @@ export default function AutocompleteInput({
   useEffect(() => {
     if (open) {
       const query = debouncedInput.trim();
+      if (query === lastFetchedQuery.current) return; // Skip if already fetched for this query
+      lastFetchedQuery.current = query;
       if (fetchSuggestions) {
         fetchSuggestions(query)
           .then((fetched) => {

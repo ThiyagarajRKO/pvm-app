@@ -494,34 +494,40 @@ export default function ActiveRecordsPage() {
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium leading-none">Filters</h4>
                         <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setItemTypeFilter('all');
-                              setStreetFilter('');
-                              setPlaceFilter('');
-                              setCurrentPage(1);
-                              setIsDesktopFilterOpen(false);
-                            }}
-                            className="h-8 px-2 text-xs"
-                          >
-                            Reset All
-                          </Button>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => {
-                              setItemTypeFilter(localItemTypeFilter);
-                              setStreetFilter(localStreetFilter);
-                              setPlaceFilter(localPlaceFilter);
-                              setCurrentPage(1);
-                              setIsDesktopFilterOpen(false);
-                            }}
-                            className="h-8 px-2 text-xs"
-                          >
-                            Apply
-                          </Button>
+                          {(localItemTypeFilter !== 'all' ||
+                            localStreetFilter ||
+                            localPlaceFilter) && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setItemTypeFilter('all');
+                                  setStreetFilter('');
+                                  setPlaceFilter('');
+                                  setCurrentPage(1);
+                                  setIsDesktopFilterOpen(false);
+                                }}
+                                className="h-8 px-2 text-xs"
+                              >
+                                Reset All
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => {
+                                  setItemTypeFilter(localItemTypeFilter);
+                                  setStreetFilter(localStreetFilter);
+                                  setPlaceFilter(localPlaceFilter);
+                                  setCurrentPage(1);
+                                  setIsDesktopFilterOpen(false);
+                                }}
+                                className="h-8 px-2 text-xs"
+                              >
+                                Apply
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
                       <div className="space-y-3">
@@ -737,20 +743,24 @@ export default function ActiveRecordsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="font-medium leading-none">Filters</h4>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setItemTypeFilter('all');
-                setStreetFilter('');
-                setPlaceFilter('');
-                setCurrentPage(1);
-                setIsMobileFilterOpen(false);
-              }}
-              className="h-8 px-2 text-xs"
-            >
-              Reset All
-            </Button>
+            {(mobileItemTypeFilter !== 'all' ||
+              mobileStreetFilter ||
+              mobilePlaceFilter) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setItemTypeFilter('all');
+                  setStreetFilter('');
+                  setPlaceFilter('');
+                  setCurrentPage(1);
+                  setIsMobileFilterOpen(false);
+                }}
+                className="h-8 px-2 text-xs"
+              >
+                Reset All
+              </Button>
+            )}
           </div>
           <div className="space-y-3">
             <div>
@@ -832,20 +842,24 @@ export default function ActiveRecordsPage() {
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              variant="default"
-              onClick={() => {
-                setItemTypeFilter(mobileItemTypeFilter);
-                setStreetFilter(mobileStreetFilter);
-                setPlaceFilter(mobilePlaceFilter);
-                setCurrentPage(1);
-                setIsMobileFilterOpen(false);
-              }}
-            >
-              Apply
-            </Button>
-          </div>
+          {(mobileItemTypeFilter !== 'all' ||
+            mobileStreetFilter ||
+            mobilePlaceFilter) && (
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="default"
+                onClick={() => {
+                  setItemTypeFilter(mobileItemTypeFilter);
+                  setStreetFilter(mobileStreetFilter);
+                  setPlaceFilter(mobilePlaceFilter);
+                  setCurrentPage(1);
+                  setIsMobileFilterOpen(false);
+                }}
+              >
+                Apply
+              </Button>
+            </div>
+          )}
         </div>
       </MobileBottomSheet>
     </div>
