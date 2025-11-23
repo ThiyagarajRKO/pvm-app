@@ -45,10 +45,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      weightGrams: {
-        type: DataTypes.FLOAT,
-        allowNull: true,
-      },
       item: {
         type: DataTypes.STRING,
         allowNull: true,

@@ -57,7 +57,6 @@ interface Record {
   street: string;
   place: string;
   item?: string | null;
-  weightGrams: number;
   goldWeightGrams?: number;
   silverWeightGrams?: number;
   itemType: 'Gold' | 'Silver' | 'Both';
@@ -571,16 +570,6 @@ export default function RecordTable({
                           {recordToRevert.itemType}
                         </span>
                       )}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-muted-foreground">
-                      Weight:
-                    </span>
-                    <p className="font-medium">
-                      {recordToDelete.weightGrams
-                        ? `${recordToDelete.weightGrams}g`
-                        : '-'}
                     </p>
                   </div>
                   <div>

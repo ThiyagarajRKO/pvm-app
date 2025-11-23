@@ -25,8 +25,9 @@ interface ReturnItemModalProps {
     name: string;
     item?: string | null;
     itemType: 'Gold' | 'Silver' | 'Both';
+    goldWeightGrams?: number;
+    silverWeightGrams?: number;
     amount: number;
-    weightGrams: number;
     interest: number;
     daysOld: number;
     monthsOld?: number;
@@ -240,9 +241,21 @@ export default function ReturnItemModal({
               </div>
               <div>
                 <span className="text-xs font-medium text-muted-foreground">
-                  Weight:
+                  Gold Weight:
                 </span>
-                <p className="text-sm font-medium">{record.weightGrams}g</p>
+                <p className="text-sm font-medium">
+                  {record.goldWeightGrams ? `${record.goldWeightGrams}g` : '-'}
+                </p>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Silver Weight:
+                </span>
+                <p className="text-sm font-medium">
+                  {record.silverWeightGrams
+                    ? `${record.silverWeightGrams}g`
+                    : '-'}
+                </p>
               </div>
               <div className="col-span-2">
                 <span className="text-xs font-medium text-muted-foreground">
@@ -426,10 +439,22 @@ export default function ReturnItemModal({
                 </div>
                 <div>
                   <span className="text-xs font-medium text-muted-foreground">
-                    Weight:
+                    Gold Weight:
                   </span>
                   <p className="text-sm font-medium">
-                    {record.weightGrams || 0}g
+                    {record.goldWeightGrams
+                      ? `${record.goldWeightGrams}g`
+                      : '-'}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Silver Weight:
+                  </span>
+                  <p className="text-sm font-medium">
+                    {record.silverWeightGrams
+                      ? `${record.silverWeightGrams}g`
+                      : '-'}
                   </p>
                 </div>
                 <div className="col-span-2">

@@ -457,6 +457,31 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Total Weight
+                </p>
+                <p className="text-sm font-semibold text-orange-600">
+                  {refreshing ? (
+                    <RefreshCw className="inline h-5 w-5 animate-spin" />
+                  ) : (
+                    formatWeight(stats.overview.totalWeightGrams)
+                  )}
+                </p>
+              </div>
+              <Scale className="h-6 w-6 text-orange-600" />
+            </div>
+            <div className="mt-2">
+              <span className="text-xs text-gray-600">
+                Combined gold & silver
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="transition-shadow hover:shadow-md">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Total Value
                 </p>
                 <p className="text-sm font-semibold text-green-600">
@@ -477,37 +502,6 @@ export default function DashboardPage() {
                   <RefreshCw className="inline h-3 w-3 animate-spin" />
                 ) : (
                   `${formatPercentage(stats.trends.yearly.amount)} from last year`
-                )}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="transition-shadow hover:shadow-md">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Total Weight
-                </p>
-                <p className="text-sm font-semibold text-yellow-600">
-                  {refreshing ? (
-                    <RefreshCw className="inline h-5 w-5 animate-spin" />
-                  ) : (
-                    formatWeight(stats.overview.totalWeightGrams)
-                  )}
-                </p>
-              </div>
-              <Scale className="h-6 w-6 text-yellow-600" />
-            </div>
-            <div className="mt-2">
-              <span
-                className={`text-xs ${stats.trends.yearly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
-              >
-                {refreshing ? (
-                  <RefreshCw className="inline h-3 w-3 animate-spin" />
-                ) : (
-                  `${formatPercentage(stats.trends.yearly.weight)} from last year`
                 )}
               </span>
             </div>
@@ -832,6 +826,16 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600">Total Returned</p>
             </div>
             <div className="text-center">
+              <p className="text-sm font-semibold text-orange-600">
+                {refreshing ? (
+                  <RefreshCw className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  formatWeight(stats.returned.totalWeightGrams)
+                )}
+              </p>
+              <p className="text-sm text-gray-600">Total Weight</p>
+            </div>
+            <div className="text-center">
               <p className="text-sm font-semibold text-green-600">
                 {refreshing ? (
                   <RefreshCw className="inline h-5 w-5 animate-spin" />
@@ -840,16 +844,6 @@ export default function DashboardPage() {
                 )}
               </p>
               <p className="text-sm text-gray-600">Returned Value</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-semibold text-yellow-600">
-                {refreshing ? (
-                  <RefreshCw className="inline h-5 w-5 animate-spin" />
-                ) : (
-                  formatWeight(stats.returned.totalWeightGrams)
-                )}
-              </p>
-              <p className="text-sm text-gray-600">Returned Weight</p>
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold text-gray-600">

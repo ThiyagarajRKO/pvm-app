@@ -54,7 +54,6 @@ interface Record {
   fatherName: string;
   street: string;
   place: string;
-  weightGrams: number;
   itemType: 'Gold' | 'Silver' | 'Both';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
@@ -558,12 +557,6 @@ export default function RecordDetailPage({
                   >
                     {record.itemType}
                   </div>
-                </div>
-                <div className="mb-4">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Weight (grams)
-                  </Label>
-                  <p className="text-sm">{record.weightGrams}g</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">

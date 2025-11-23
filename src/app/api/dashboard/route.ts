@@ -493,7 +493,6 @@ export const GET = withAuth(async (req: Request, user) => {
         'fatherName',
         'street',
         'place',
-        'weightGrams', // Keep for backward compatibility
         'goldWeightGrams',
         'silverWeightGrams',
         'itemType',

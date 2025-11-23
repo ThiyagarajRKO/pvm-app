@@ -100,7 +100,6 @@ The `records` table includes:
 - `fatherName`: Father's name
 - `street`: Street address
 - `place`: City/place
-- `weightGrams`: Item weight in grams
 - `itemType`: 'Gold' or 'Silver'
 - `amount`: Pawn amount in rupees
 - `mobile`: 10-digit mobile number

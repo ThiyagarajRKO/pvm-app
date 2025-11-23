@@ -14,7 +14,6 @@ interface Record {
   fatherName: string;
   street: string;
   place: string;
-  weightGrams: number;
   itemType: 'Gold' | 'Silver' | 'Both';
   itemCategory: 'active' | 'archived' | 'big';
   amount: number;
