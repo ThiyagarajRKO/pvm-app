@@ -255,55 +255,55 @@ export default function RecordTable({
               ? // Show loading skeleton rows
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={`loading-${index}`}>
-                    <TableCell className="min-w-[60px]">
+                    <TableCell className="min-w-[60px] whitespace-nowrap">
                       <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[80px]">
+                    <TableCell className="min-w-[80px] whitespace-nowrap">
                       <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[100px]">
+                    <TableCell className="min-w-[100px] whitespace-nowrap">
                       <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[100px]">
+                    <TableCell className="min-w-[100px] whitespace-nowrap">
                       <div className="h-4 w-20 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="hidden min-w-[80px] sm:table-cell">
+                    <TableCell className="hidden min-w-[80px] whitespace-nowrap sm:table-cell">
                       <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[60px]">
+                    <TableCell className="min-w-[60px] whitespace-nowrap">
                       <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[70px] text-right">
+                    <TableCell className="min-w-[70px] whitespace-nowrap text-right">
                       <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[70px] text-right">
+                    <TableCell className="min-w-[70px] whitespace-nowrap text-right">
                       <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[90px] text-right">
+                    <TableCell className="min-w-[90px] whitespace-nowrap text-right">
                       <div className="ml-auto h-4 w-16 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="hidden min-w-[60px] text-right md:table-cell">
+                    <TableCell className="hidden min-w-[60px] whitespace-nowrap text-right md:table-cell">
                       <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[80px] text-right">
+                    <TableCell className="min-w-[80px] whitespace-nowrap text-right">
                       <div className="ml-auto h-4 w-8 animate-pulse rounded bg-muted"></div>
                     </TableCell>
                   </TableRow>
                 ))
               : records.map((record) => (
                   <TableRow key={record.id}>
-                    <TableCell className="min-w-[60px] font-medium">
+                    <TableCell className="min-w-[60px] whitespace-nowrap font-medium">
                       {record.slNo || '-'}
                     </TableCell>
-                    <TableCell className="min-w-[80px]">
+                    <TableCell className="min-w-[80px] whitespace-nowrap">
                       {record.date
                         ? format(new Date(record.date), 'dd-MMM-yyyy')
                         : '-'}
                     </TableCell>
-                    <TableCell className="min-w-[100px] font-medium">
+                    <TableCell className="min-w-[100px] whitespace-nowrap font-medium">
                       {record.name || '-'}
                     </TableCell>
-                    <TableCell className="min-w-[100px]">
+                    <TableCell className="min-w-[100px] whitespace-nowrap">
                       {record.mobile ? (
                         <div className="flex items-center gap-2">
                           <button
@@ -337,10 +337,10 @@ export default function RecordTable({
                         '-'
                       )}
                     </TableCell>
-                    <TableCell className="hidden min-w-[80px] sm:table-cell">
+                    <TableCell className="hidden min-w-[80px] whitespace-nowrap sm:table-cell">
                       {record.place || '-'}
                     </TableCell>
-                    <TableCell className="min-w-[60px]">
+                    <TableCell className="min-w-[60px] whitespace-nowrap">
                       {record.itemType ? (
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -357,25 +357,25 @@ export default function RecordTable({
                         '-'
                       )}
                     </TableCell>
-                    <TableCell className="min-w-[70px] text-right">
+                    <TableCell className="min-w-[70px] whitespace-nowrap text-right">
                       {record.goldWeightGrams
                         ? `${record.goldWeightGrams}g`
                         : '-'}
                     </TableCell>
-                    <TableCell className="min-w-[70px] text-right">
+                    <TableCell className="min-w-[70px] whitespace-nowrap text-right">
                       {record.silverWeightGrams
                         ? `${record.silverWeightGrams}g`
                         : '-'}
                     </TableCell>
-                    <TableCell className="min-w-[90px] text-right">
+                    <TableCell className="min-w-[90px] whitespace-nowrap text-right">
                       {record.amount
                         ? `₹${record.amount.toLocaleString()}`
                         : '-'}
                     </TableCell>
-                    <TableCell className="hidden min-w-[60px] text-right md:table-cell">
+                    <TableCell className="hidden min-w-[60px] whitespace-nowrap text-right md:table-cell">
                       {record.interest ? `${record.interest}%` : '-'}
                     </TableCell>
-                    <TableCell className="min-w-[80px] text-right">
+                    <TableCell className="min-w-[80px] whitespace-nowrap text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm">
