@@ -111,6 +111,37 @@ export default function ActiveRecordsPage() {
 
   // Mobile filter state
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
+
+  // Local filter states for desktop popover
+  const [localItemTypeFilter, setLocalItemTypeFilter] =
+    useState(itemTypeFilter);
+  const [localStreetFilter, setLocalStreetFilter] = useState(streetFilter);
+  const [localPlaceFilter, setLocalPlaceFilter] = useState(placeFilter);
+
+  // Local filter states for mobile bottom sheet
+  const [mobileItemTypeFilter, setMobileItemTypeFilter] =
+    useState(itemTypeFilter);
+  const [mobileStreetFilter, setMobileStreetFilter] = useState(streetFilter);
+  const [mobilePlaceFilter, setMobilePlaceFilter] = useState(placeFilter);
+
+  // Sync local filters when opening desktop popover
+  useEffect(() => {
+    if (isDesktopFilterOpen) {
+      setLocalItemTypeFilter(itemTypeFilter);
+      setLocalStreetFilter(streetFilter);
+      setLocalPlaceFilter(placeFilter);
+    }
+  }, [isDesktopFilterOpen, itemTypeFilter, streetFilter, placeFilter]);
+
+  // Sync local filters when opening mobile bottom sheet
+  useEffect(() => {
+    if (isMobileFilterOpen) {
+      setMobileItemTypeFilter(itemTypeFilter);
+      setMobileStreetFilter(streetFilter);
+      setMobilePlaceFilter(placeFilter);
+    }
+  }, [isMobileFilterOpen, itemTypeFilter, streetFilter, placeFilter]);
 
   const resetFilters = () => {
     setSearchTerm('');
@@ -449,7 +480,10 @@ export default function ActiveRecordsPage() {
             </div>
             <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-center">
               <div className="hidden sm:block">
-                <Popover>
+                <Popover
+                  open={isDesktopFilterOpen}
+                  onOpenChange={setIsDesktopFilterOpen}
+                >
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm">
                       <Filter className="h-4 w-4" />
@@ -459,14 +493,36 @@ export default function ActiveRecordsPage() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium leading-none">Filters</h4>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={resetFilters}
-                          className="h-8 px-2 text-xs"
-                        >
-                          Reset All
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setItemTypeFilter('all');
+                              setStreetFilter('');
+                              setPlaceFilter('');
+                              setCurrentPage(1);
+                              setIsDesktopFilterOpen(false);
+                            }}
+                            className="h-8 px-2 text-xs"
+                          >
+                            Reset All
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => {
+                              setItemTypeFilter(localItemTypeFilter);
+                              setStreetFilter(localStreetFilter);
+                              setPlaceFilter(localPlaceFilter);
+                              setCurrentPage(1);
+                              setIsDesktopFilterOpen(false);
+                            }}
+                            className="h-8 px-2 text-xs"
+                          >
+                            Apply
+                          </Button>
+                        </div>
                       </div>
                       <div className="space-y-3">
                         <div>
@@ -474,14 +530,13 @@ export default function ActiveRecordsPage() {
                             <label className="text-sm font-medium">
                               Item Type
                             </label>
-                            {itemTypeFilter !== 'all' && (
+                            {localItemTypeFilter !== 'all' && (
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 className="h-6 w-6 p-0 hover:bg-muted"
                                 onClick={() => {
-                                  setItemTypeFilter('all');
-                                  setCurrentPage(1);
+                                  setLocalItemTypeFilter('all');
                                 }}
                               >
                                 <X className="h-3 w-3" />
@@ -489,8 +544,8 @@ export default function ActiveRecordsPage() {
                             )}
                           </div>
                           <Select
-                            value={itemTypeFilter}
-                            onValueChange={setItemTypeFilter}
+                            value={localItemTypeFilter}
+                            onValueChange={setLocalItemTypeFilter}
                           >
                             <SelectTrigger className="mt-1 w-full">
                               <SelectValue placeholder="Filter by type" />
@@ -507,14 +562,13 @@ export default function ActiveRecordsPage() {
                             <label className="text-sm font-medium">
                               Street
                             </label>
-                            {streetFilter && (
+                            {localStreetFilter && (
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 className="h-6 w-6 p-0 hover:bg-muted"
                                 onClick={() => {
-                                  setStreetFilter('');
-                                  setCurrentPage(1);
+                                  setLocalStreetFilter('');
                                 }}
                               >
                                 <X className="h-3 w-3" />
@@ -522,8 +576,8 @@ export default function ActiveRecordsPage() {
                             )}
                           </div>
                           <AutocompleteInput
-                            value={streetFilter}
-                            onValueChange={setStreetFilter}
+                            value={localStreetFilter}
+                            onValueChange={setLocalStreetFilter}
                             placeholder="Filter by street"
                             fetchSuggestions={fetchStreets}
                             className="mt-1"
@@ -532,14 +586,13 @@ export default function ActiveRecordsPage() {
                         <div>
                           <div className="flex items-center justify-between">
                             <label className="text-sm font-medium">Place</label>
-                            {placeFilter && (
+                            {localPlaceFilter && (
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 className="h-6 w-6 p-0 hover:bg-muted"
                                 onClick={() => {
-                                  setPlaceFilter('');
-                                  setCurrentPage(1);
+                                  setLocalPlaceFilter('');
                                 }}
                               >
                                 <X className="h-3 w-3" />
@@ -547,8 +600,8 @@ export default function ActiveRecordsPage() {
                             )}
                           </div>
                           <AutocompleteInput
-                            value={placeFilter}
-                            onValueChange={setPlaceFilter}
+                            value={localPlaceFilter}
+                            onValueChange={setLocalPlaceFilter}
                             placeholder="Filter by place"
                             fetchSuggestions={fetchPlaces}
                             className="mt-1"
@@ -688,7 +741,10 @@ export default function ActiveRecordsPage() {
               variant="ghost"
               size="sm"
               onClick={() => {
-                resetFilters();
+                setItemTypeFilter('all');
+                setStreetFilter('');
+                setPlaceFilter('');
+                setCurrentPage(1);
                 setIsMobileFilterOpen(false);
               }}
               className="h-8 px-2 text-xs"
@@ -700,21 +756,23 @@ export default function ActiveRecordsPage() {
             <div>
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium">Item Type</label>
-                {itemTypeFilter !== 'all' && (
+                {mobileItemTypeFilter !== 'all' && (
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 w-6 p-0 hover:bg-muted"
                     onClick={() => {
-                      setItemTypeFilter('all');
-                      setCurrentPage(1);
+                      setMobileItemTypeFilter('all');
                     }}
                   >
                     <X className="h-3 w-3" />
                   </Button>
                 )}
               </div>
-              <Select value={itemTypeFilter} onValueChange={setItemTypeFilter}>
+              <Select
+                value={mobileItemTypeFilter}
+                onValueChange={setMobileItemTypeFilter}
+              >
                 <SelectTrigger className="mt-1 w-full">
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
@@ -728,14 +786,13 @@ export default function ActiveRecordsPage() {
             <div>
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium">Street</label>
-                {streetFilter && (
+                {mobileStreetFilter && (
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 w-6 p-0 hover:bg-muted"
                     onClick={() => {
-                      setStreetFilter('');
-                      setCurrentPage(1);
+                      setMobileStreetFilter('');
                     }}
                   >
                     <X className="h-3 w-3" />
@@ -743,8 +800,8 @@ export default function ActiveRecordsPage() {
                 )}
               </div>
               <AutocompleteInput
-                value={streetFilter}
-                onValueChange={setStreetFilter}
+                value={mobileStreetFilter}
+                onValueChange={setMobileStreetFilter}
                 placeholder="Filter by street"
                 fetchSuggestions={fetchStreets}
                 className="mt-1"
@@ -753,14 +810,13 @@ export default function ActiveRecordsPage() {
             <div>
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium">Place</label>
-                {placeFilter && (
+                {mobilePlaceFilter && (
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 w-6 p-0 hover:bg-muted"
                     onClick={() => {
-                      setPlaceFilter('');
-                      setCurrentPage(1);
+                      setMobilePlaceFilter('');
                     }}
                   >
                     <X className="h-3 w-3" />
@@ -768,13 +824,27 @@ export default function ActiveRecordsPage() {
                 )}
               </div>
               <AutocompleteInput
-                value={placeFilter}
-                onValueChange={setPlaceFilter}
+                value={mobilePlaceFilter}
+                onValueChange={setMobilePlaceFilter}
                 placeholder="Filter by place"
                 fetchSuggestions={fetchPlaces}
                 className="mt-1"
               />
             </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              variant="default"
+              onClick={() => {
+                setItemTypeFilter(mobileItemTypeFilter);
+                setStreetFilter(mobileStreetFilter);
+                setPlaceFilter(mobilePlaceFilter);
+                setCurrentPage(1);
+                setIsMobileFilterOpen(false);
+              }}
+            >
+              Apply
+            </Button>
           </div>
         </div>
       </MobileBottomSheet>
