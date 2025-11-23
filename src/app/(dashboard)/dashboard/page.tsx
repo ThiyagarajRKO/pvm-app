@@ -427,7 +427,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-2">
               <span
-                className={`text-sm ${stats.trends.yearly.records >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                className={`text-xs ${stats.trends.yearly.records >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
                 {formatPercentage(stats.trends.yearly.records)} from last year
               </span>
@@ -442,7 +442,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Total Value
                 </p>
-                <p className="text-base font-semibold text-green-600">
+                <p className="text-sm font-semibold text-green-600">
                   {formatCurrency(stats.overview.totalAmount)}
                 </p>
               </div>
@@ -450,7 +450,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-2">
               <span
-                className={`text-sm ${stats.trends.yearly.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                className={`text-xs ${stats.trends.yearly.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
                 {formatPercentage(stats.trends.yearly.amount)} from last year
               </span>
@@ -465,7 +465,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Total Weight
                 </p>
-                <p className="text-base font-semibold text-yellow-600">
+                <p className="text-sm font-semibold text-yellow-600">
                   {formatWeight(stats.overview.totalWeightGrams)}
                 </p>
               </div>
@@ -473,7 +473,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-2">
               <span
-                className={`text-sm ${stats.trends.yearly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                className={`text-xs ${stats.trends.yearly.weight >= 0 ? 'text-green-600' : 'text-red-600'}`}
               >
                 {formatPercentage(stats.trends.yearly.weight)} from last year
               </span>
@@ -488,7 +488,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Gold / Silver
                 </p>
-                <p className="text-lg font-semibold text-purple-600">
+                <p className="text-sm font-semibold text-purple-600">
                   {stats.overview.totalGoldCount} /{' '}
                   {stats.overview.totalSilverCount}
                 </p>
@@ -496,7 +496,7 @@ export default function DashboardPage() {
               <Gem className="h-6 w-6 text-purple-600" />
             </div>
             <div className="mt-2">
-              <span className="text-sm text-gray-600">
+              <span className="text-xs text-gray-600">
                 Item type distribution
               </span>
             </div>
