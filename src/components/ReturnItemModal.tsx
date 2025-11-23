@@ -87,7 +87,7 @@ export default function ReturnItemModal({
     if (record) {
       if (mode === 'edit' && record.returnedAmount) {
         // For editing, use existing returned amount
-        setReturnedAmount(record.returnedAmount.toString());
+        setReturnedAmount(record.returnedAmount?.toString() || '');
       } else if (mode === 'return' && amounts.totalAmount > 0) {
         // For returning, use calculated total amount
         setReturnedAmount(amounts.totalAmount.toString());
@@ -150,36 +150,36 @@ export default function ReturnItemModal({
               </h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Interest Rate & Months:
                   </span>
-                  <p className="font-medium">
-                    {record.interest}% for {amounts.interestMonths} month
+                  <p className="text-sm font-medium">
+                    {record.interest || 0}% for {amounts.interestMonths} month
                     {amounts.interestMonths !== 1 ? 's' : ''}
                   </p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Record Age:
                   </span>
-                  <p className="font-medium">
+                  <p className="text-sm font-medium">
                     {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
                     months ({record.daysOld % 30} days remaining)
                   </p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Interest Amount:
                   </span>
-                  <p className="font-medium text-green-600">
+                  <p className="text-sm font-medium text-green-600">
                     ₹{amounts.interestAmount.toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Total Amount to Pay:
                   </span>
-                  <p className="font-semibold text-blue-600">
+                  <p className="text-sm font-semibold text-blue-600">
                     ₹{amounts.totalAmount.toLocaleString()}
                   </p>
                 </div>
@@ -194,11 +194,11 @@ export default function ReturnItemModal({
                 Current Returned Amount
               </h4>
               <div className="text-sm">
-                <span className="font-medium text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   Previously Returned:
                 </span>
-                <p className="font-semibold text-green-600">
-                  ₹{record.returnedAmount.toLocaleString()}
+                <p className="text-sm font-semibold text-green-600">
+                  ₹{record.returnedAmount?.toLocaleString() || '0'}
                 </p>
               </div>
             </div>
@@ -209,15 +209,21 @@ export default function ReturnItemModal({
             <h4 className="mb-3 text-sm font-medium">Record Information</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium text-muted-foreground">Name:</span>
-                <p className="font-medium">{record.name}</p>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Name:
+                </span>
+                <p className="text-sm font-medium">{record.name}</p>
               </div>
               <div>
-                <span className="font-medium text-muted-foreground">Item:</span>
-                <p className="font-medium">{record.item || '-'}</p>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Item:
+                </span>
+                <p className="text-sm font-medium">{record.item || '-'}</p>
               </div>
               <div>
-                <span className="font-medium text-muted-foreground">Type:</span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Type:
+                </span>
                 <p>
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -231,16 +237,18 @@ export default function ReturnItemModal({
                 </p>
               </div>
               <div>
-                <span className="font-medium text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   Weight:
                 </span>
-                <p className="font-medium">{record.weightGrams}g</p>
+                <p className="text-sm font-medium">{record.weightGrams}g</p>
               </div>
               <div className="col-span-2">
-                <span className="font-medium text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   Original Amount:
                 </span>
-                <p className="font-medium">₹{record.amount.toLocaleString()}</p>
+                <p className="text-sm font-medium">
+                  ₹{record.amount?.toLocaleString() || '0'}
+                </p>
               </div>
             </div>
           </div>
@@ -344,36 +352,36 @@ export default function ReturnItemModal({
               </h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Interest Rate & Months:
                   </span>
-                  <p className="font-medium">
-                    {record.interest}% for {amounts.interestMonths} month
+                  <p className="text-sm font-medium">
+                    {record.interest || 0}% for {amounts.interestMonths} month
                     {amounts.interestMonths !== 1 ? 's' : ''}
                   </p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Record Age:
                   </span>
-                  <p className="font-medium">
+                  <p className="text-sm font-medium">
                     {record.daysOld} days / {(record.daysOld / 30).toFixed(1)}{' '}
                     months ({record.daysOld % 30} days remaining)
                   </p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Interest Amount:
                   </span>
-                  <p className="font-medium text-green-600">
+                  <p className="text-sm font-medium text-green-600">
                     ₹{amounts.interestAmount.toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Total Amount to Pay:
                   </span>
-                  <p className="font-semibold text-blue-600">
+                  <p className="text-sm font-semibold text-blue-600">
                     ₹{amounts.totalAmount.toLocaleString()}
                   </p>
                 </div>
@@ -385,19 +393,19 @@ export default function ReturnItemModal({
               <h4 className="mb-3 text-sm font-medium">Record Information</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Name:
                   </span>
-                  <p className="font-medium">{record.name}</p>
+                  <p className="text-sm font-medium">{record.name}</p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Item:
                   </span>
-                  <p className="font-medium">{record.item || '-'}</p>
+                  <p className="text-sm font-medium">{record.item || '-'}</p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Type:
                   </span>
                   <p>
@@ -413,17 +421,19 @@ export default function ReturnItemModal({
                   </p>
                 </div>
                 <div>
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Weight:
                   </span>
-                  <p className="font-medium">{record.weightGrams}g</p>
+                  <p className="text-sm font-medium">
+                    {record.weightGrams || 0}g
+                  </p>
                 </div>
                 <div className="col-span-2">
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Original Amount:
                   </span>
-                  <p className="font-medium">
-                    ₹{record.amount.toLocaleString()}
+                  <p className="text-sm font-medium">
+                    ₹{record.amount?.toLocaleString() || '0'}
                   </p>
                 </div>
               </div>
@@ -434,7 +444,9 @@ export default function ReturnItemModal({
         <form onSubmit={handleSubmit} className="flex-shrink-0">
           <div className="grid gap-4 py-4 pt-1">
             <div className="grid gap-2">
-              <Label htmlFor="returnedAmount">Returned Amount (₹)</Label>
+              <Label className="text-xs" htmlFor="returnedAmount">
+                Returned Amount (₹)
+              </Label>
               <Input
                 id="returnedAmount"
                 type="number"
