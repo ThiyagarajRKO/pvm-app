@@ -393,12 +393,102 @@ export default function ReturnedRecordsPage() {
       {/* Stats */}
       <RecordStats
         {...stats}
+        totalAmount={stats.totalReturnedAmount}
         activeRecords={0}
         archivedRecords={0}
         bigRecords={0}
         exclude={['activeRecords', 'archivedRecords', 'bigRecords']}
         loading={filtering}
+        totalAmountLabel="Total Returned Amount"
       />
+
+      {/* Active Filters Indicator */}
+      {(searchTerm ||
+        itemTypeFilter !== 'all' ||
+        streetFilter ||
+        placeFilter) && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 p-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Filter className="h-4 w-4" />
+            Active Filters:
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {searchTerm && (
+              <div className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                Search: "{searchTerm}"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-blue-200 dark:hover:bg-blue-800"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setLocalSearchTerm('');
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            {itemTypeFilter !== 'all' && (
+              <div className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs text-green-800 dark:bg-green-900 dark:text-green-200">
+                Type: {itemTypeFilter}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-green-200 dark:hover:bg-green-800"
+                  onClick={() => {
+                    setItemTypeFilter('all');
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            {streetFilter && (
+              <div className="flex items-center gap-1 rounded-full bg-purple-100 px-2 py-1 text-xs text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                Street: {streetFilter}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-purple-200 dark:hover:bg-purple-800"
+                  onClick={() => {
+                    setStreetFilter('');
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            {placeFilter && (
+              <div className="flex items-center gap-1 rounded-full bg-orange-100 px-2 py-1 text-xs text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                Place: {placeFilter}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-orange-200 dark:hover:bg-orange-800"
+                  onClick={() => {
+                    setPlaceFilter('');
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetFilters}
+              className="ml-2 h-7 text-xs"
+            >
+              Clear All
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] mt-8 sm:mb-0">

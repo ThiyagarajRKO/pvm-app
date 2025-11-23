@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -338,6 +339,103 @@ export default function BigRecordsPage() {
         exclude={['activeRecords', 'archivedRecords', 'bigRecords']}
         loading={filtering}
       />
+
+      {/* Active Filters Indicator */}
+      {(searchTerm ||
+        itemTypeFilter !== 'all' ||
+        streetFilter ||
+        placeFilter) && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 p-3">
+          <span className="text-sm font-medium text-muted-foreground">
+            Active filters:
+          </span>
+          {searchTerm && (
+            <Badge
+              variant="secondary"
+              className="bg-blue-100 text-blue-800 hover:bg-blue-200"
+            >
+              Search: {searchTerm}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
+                onClick={() => {
+                  setSearchTerm('');
+                  setLocalSearchTerm('');
+                  setCurrentPage(1);
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </Badge>
+          )}
+          {itemTypeFilter !== 'all' && (
+            <Badge
+              variant="secondary"
+              className="bg-green-100 text-green-800 hover:bg-green-200"
+            >
+              Type: {itemTypeFilter}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
+                onClick={() => {
+                  setItemTypeFilter('all');
+                  setCurrentPage(1);
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </Badge>
+          )}
+          {streetFilter && (
+            <Badge
+              variant="secondary"
+              className="bg-purple-100 text-purple-800 hover:bg-purple-200"
+            >
+              Street: {streetFilter}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
+                onClick={() => {
+                  setStreetFilter('');
+                  setCurrentPage(1);
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </Badge>
+          )}
+          {placeFilter && (
+            <Badge
+              variant="secondary"
+              className="bg-orange-100 text-orange-800 hover:bg-orange-200"
+            >
+              Place: {placeFilter}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
+                onClick={() => {
+                  setPlaceFilter('');
+                  setCurrentPage(1);
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </Badge>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={resetFilters}
+            className="ml-2 h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            Clear All
+          </Button>
+        </div>
+      )}
 
       <FloatingNewRecord />
 

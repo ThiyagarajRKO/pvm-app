@@ -29,6 +29,7 @@ interface RecordStatsProps {
   silverAmount?: number;
   exclude?: Array<'activeRecords' | 'archivedRecords' | 'bigRecords'>;
   loading?: boolean;
+  totalAmountLabel?: string;
 }
 
 export default function RecordStats({
@@ -46,6 +47,7 @@ export default function RecordStats({
   silverAmount = 0,
   exclude = [],
   loading = false,
+  totalAmountLabel = 'Total Amount',
 }: RecordStatsProps) {
   const recordStats = [
     {
@@ -219,7 +221,7 @@ export default function RecordStats({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">
-                    Total Amount
+                    {totalAmountLabel}
                   </p>
                   <p className="text-sm font-semibold text-green-600">
                     {loading ? (
