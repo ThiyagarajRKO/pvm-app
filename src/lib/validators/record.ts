@@ -49,7 +49,8 @@ export const recordUpdateSchema = z.object({
   slNo: z
     .string()
     .min(1)
-    .transform((s) => s.trim()),
+    .transform((s) => s.trim())
+    .optional(),
   date: z.string().nullable().optional(),
   name: z
     .string()

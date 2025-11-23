@@ -115,17 +115,27 @@ export default function RecordTable({
   const [recordToReturn, setRecordToReturn] = useState<Record | null>(null);
   const [revertDialogOpen, setRevertDialogOpen] = useState(false);
   const [recordToRevert, setRecordToRevert] = useState<Record | null>(null);
+  const [revertLoading, setRevertLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteClick = (record: Record) => {
     setRecordToDelete(record);
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (recordToDelete) {
-      onDelete?.(recordToDelete.id);
-      setDeleteDialogOpen(false);
-      setRecordToDelete(null);
+      setDeleteLoading(true);
+      try {
+        await onDelete?.(recordToDelete.id);
+        setDeleteDialogOpen(false);
+        setRecordToDelete(null);
+      } catch (error) {
+        // Error handling is done in the parent component
+        console.error('Delete operation failed:', error);
+      } finally {
+        setDeleteLoading(false);
+      }
     }
   };
 
@@ -215,11 +225,19 @@ export default function RecordTable({
     setRevertDialogOpen(true);
   };
 
-  const handleRevertConfirm = () => {
+  const handleRevertConfirm = async () => {
     if (recordToRevert) {
-      onRevert?.(recordToRevert.id);
-      setRevertDialogOpen(false);
-      setRecordToRevert(null);
+      setRevertLoading(true);
+      try {
+        await onRevert?.(recordToRevert.id);
+        setRevertDialogOpen(false);
+        setRecordToRevert(null);
+      } catch (error) {
+        // Error handling is done in the parent component
+        console.error('Revert operation failed:', error);
+      } finally {
+        setRevertLoading(false);
+      }
     }
   };
   return (
@@ -627,13 +645,20 @@ export default function RecordTable({
             )}
 
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={deleteLoading}>
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteConfirm}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={deleteLoading}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Record
+                {deleteLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="mr-2 h-4 w-4" />
+                )}
+                {deleteLoading ? 'Deleting...' : 'Delete Record'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -932,15 +957,23 @@ export default function RecordTable({
             )}
 
             <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
-              <AlertDialogCancel className="w-full sm:w-auto">
+              <AlertDialogCancel
+                disabled={revertLoading}
+                className="w-full sm:w-auto"
+              >
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleRevertConfirm}
-                className="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto"
+                disabled={revertLoading}
+                className="w-full bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 sm:w-auto"
               >
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Revert Record
+                {revertLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                )}
+                {revertLoading ? 'Reverting...' : 'Revert Record'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

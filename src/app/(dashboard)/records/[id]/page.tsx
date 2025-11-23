@@ -89,6 +89,7 @@ export default function RecordDetailPage({
   >(null);
   const [moveLoading, setMoveLoading] = useState(false);
   const [revertDialogOpen, setRevertDialogOpen] = useState(false);
+  const [revertLoading, setRevertLoading] = useState(false);
   const [record, setRecord] = useState<Record | null>(null);
   const [personImageLoading, setPersonImageLoading] = useState(true);
   const [itemImageLoading, setItemImageLoading] = useState(true);
@@ -280,6 +281,7 @@ export default function RecordDetailPage({
   const handleRevertConfirm = async () => {
     if (!record) return;
 
+    setRevertLoading(true);
     try {
       const response = await api.put(`/records/${record.id}`, {
         isReturned: false,
@@ -289,24 +291,19 @@ export default function RecordDetailPage({
       if (response.error) throw new Error(response.error);
 
       // Refresh record data after successful revert
-      const fetchRecord = async () => {
-        try {
-          const response = await api.get<Record>(`/records/${params.id}`);
-          if (response.error || !response.data) {
-            throw new Error(response.error || 'No data received');
-          }
-          setRecord(response.data);
-        } catch (error) {
-          console.error('Failed to refresh record:', error);
-        }
-      };
-      fetchRecord();
+      const refreshResponse = await api.get<Record>(`/records/${params.id}`);
+      if (refreshResponse.error || !refreshResponse.data) {
+        throw new Error(refreshResponse.error || 'No data received');
+      }
+      setRecord(refreshResponse.data);
 
       toast.success('Record reverted successfully');
       setRevertDialogOpen(false);
     } catch (error) {
       console.error('Failed to revert record:', error);
       toast.error('Failed to revert record');
+    } finally {
+      setRevertLoading(false);
     }
   };
 
@@ -1034,15 +1031,26 @@ export default function RecordDetailPage({
           )}
 
           <AlertDialogFooter className="flex-col gap-1 pt-2 sm:flex-row sm:gap-2 sm:pt-0">
-            <AlertDialogCancel className="w-full sm:w-auto">
+            <AlertDialogCancel
+              disabled={revertLoading}
+              className="w-full sm:w-auto"
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleRevertConfirm}
-              className="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto"
+              onClick={(e) => {
+                e.preventDefault();
+                handleRevertConfirm();
+              }}
+              disabled={revertLoading}
+              className="w-full bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 sm:w-auto"
             >
-              <Undo2 className="mr-2 h-4 w-4" />
-              Revert Record
+              {revertLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Undo2 className="mr-2 h-4 w-4" />
+              )}
+              {revertLoading ? 'Reverting...' : 'Revert Record'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
