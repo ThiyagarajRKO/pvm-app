@@ -4,6 +4,7 @@ import { getRecordModel } from '@/lib/models/record';
 import { recordCreateSchema } from '@/lib/validators/record';
 import { Op } from 'sequelize';
 import { withAuth } from '@/lib/auth-middleware';
+import { getSequelize } from '@/lib/db';
 
 const querySchema = z.object({
   page: z.string().optional(),
@@ -18,6 +19,53 @@ const querySchema = z.object({
   sortBy: z.enum(['createdAt', 'amount', 'weightGrams']).optional(),
   sortDir: z.enum(['asc', 'desc']).optional(),
 });
+
+// Helper function to build WHERE clause for raw SQL
+function buildWhereClause(where: any): string {
+  const conditions: string[] = [];
+
+  if (where[Op.or]) {
+    const orConditions = where[Op.or]
+      .map((condition: any) => {
+        if (condition.name)
+          return `"name" ILIKE '%${condition.name[Op.iLike].replace(/'/g, "''")}%'`;
+        if (condition.fatherName)
+          return `"fatherName" ILIKE '%${condition.fatherName[Op.iLike].replace(/'/g, "''")}%'`;
+        if (condition.place)
+          return `"place" ILIKE '%${condition.place[Op.iLike].replace(/'/g, "''")}%'`;
+        if (condition.mobile)
+          return `"mobile" ILIKE '%${condition.mobile[Op.iLike].replace(/'/g, "''")}%'`;
+        if (condition.slNo)
+          return `"slNo" ILIKE '%${condition.slNo[Op.iLike].replace(/'/g, "''")}%'`;
+        return '';
+      })
+      .filter(Boolean);
+    if (orConditions.length) conditions.push(`(${orConditions.join(' OR ')})`);
+  }
+
+  if (where.itemType) conditions.push(`"itemType" = '${where.itemType}'`);
+  if (where.itemCategory)
+    conditions.push(`"itemCategory" = '${where.itemCategory}'`);
+  if (where.isReturned !== undefined)
+    conditions.push(`"isReturned" = ${where.isReturned}`);
+  if (where.street)
+    conditions.push(
+      `"street" ILIKE '%${where.street[Op.iLike].replace(/'/g, "''")}%'`
+    );
+  if (where.place)
+    conditions.push(
+      `"place" ILIKE '%${where.place[Op.iLike].replace(/'/g, "''")}%'`
+    );
+
+  if (where.date) {
+    if (where.date[Op.gte])
+      conditions.push(`"date" >= '${where.date[Op.gte]}'`);
+    if (where.date[Op.lte])
+      conditions.push(`"date" <= '${where.date[Op.lte]}'`);
+  }
+
+  return conditions.length ? conditions.join(' AND ') : '1=1';
+}
 
 export const GET = withAuth(async (req: NextRequest, user) => {
   try {
@@ -61,9 +109,7 @@ export const GET = withAuth(async (req: NextRequest, user) => {
       if (parsed.dateTo) where.date[Op.lte] = parsed.dateTo;
     }
 
-    const order: any = [
-      [parsed.sortBy || 'createdAt', parsed.sortDir || 'desc'],
-    ];
+    const order: any = [[parsed.sortBy || 'date', parsed.sortDir || 'desc']];
 
     const RecordModel = await getRecordModel();
 
@@ -106,15 +152,30 @@ export const GET = withAuth(async (req: NextRequest, user) => {
       };
     });
 
-    // some stats for current filter
-    const totalWeight = await RecordModel.sum('weightGrams', { where });
-    const totalAmount = await RecordModel.sum('amount', { where });
-    const goldCount = await RecordModel.count({
-      where: { ...where, itemType: 'Gold' },
-    });
-    const silverCount = await RecordModel.count({
-      where: { ...where, itemType: 'Silver' },
-    });
+    // Calculate stats using Sequelize aggregate functions
+    const [
+      totalWeight,
+      totalAmount,
+      goldWeight,
+      goldAmount,
+      silverWeight,
+      silverAmount,
+      goldCount,
+      silverCount,
+      bigRecords,
+    ] = await Promise.all([
+      RecordModel.sum('weightGrams', { where }),
+      RecordModel.sum('amount', { where }),
+      RecordModel.sum('weightGrams', { where: { ...where, itemType: 'Gold' } }),
+      RecordModel.sum('amount', { where: { ...where, itemType: 'Gold' } }),
+      RecordModel.sum('weightGrams', {
+        where: { ...where, itemType: 'Silver' },
+      }),
+      RecordModel.sum('amount', { where: { ...where, itemType: 'Silver' } }),
+      RecordModel.count({ where: { ...where, itemType: 'Gold' } }),
+      RecordModel.count({ where: { ...where, itemType: 'Silver' } }),
+      RecordModel.count({ where: { ...where, itemCategory: 'big' } }),
+    ]);
 
     return NextResponse.json({
       data: enhancedData,
@@ -124,8 +185,13 @@ export const GET = withAuth(async (req: NextRequest, user) => {
       stats: {
         totalWeight: Number(totalWeight || 0),
         totalAmount: Number(totalAmount || 0),
+        goldWeight: Number(goldWeight || 0),
+        goldAmount: Number(goldAmount || 0),
+        silverWeight: Number(silverWeight || 0),
+        silverAmount: Number(silverAmount || 0),
         goldCount,
         silverCount,
+        bigRecords,
       },
     });
   } catch (err) {

@@ -21,6 +21,10 @@ interface RecordStatsProps {
   totalAmount: number;
   goldCount: number;
   silverCount: number;
+  goldWeight?: number;
+  goldAmount?: number;
+  silverWeight?: number;
+  silverAmount?: number;
   exclude?: Array<'activeRecords' | 'archivedRecords' | 'bigRecords'>;
   loading?: boolean;
 }
@@ -34,6 +38,10 @@ export default function RecordStats({
   totalAmount,
   goldCount,
   silverCount,
+  goldWeight = 0,
+  goldAmount = 0,
+  silverWeight = 0,
+  silverAmount = 0,
   exclude = [],
   loading = false,
 }: RecordStatsProps) {
@@ -102,11 +110,43 @@ export default function RecordStats({
       color: 'text-gray-500',
       bgColor: 'bg-gray-50',
     },
+    {
+      key: 'goldWeight',
+      title: 'Gold Weight',
+      value: `${goldWeight.toFixed(2)}g`,
+      icon: TrendingUp,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50',
+    },
+    {
+      key: 'goldAmount',
+      title: 'Gold Amount',
+      value: `₹${goldAmount.toLocaleString()}`,
+      icon: TrendingDown,
+      color: 'text-yellow-700',
+      bgColor: 'bg-yellow-50',
+    },
+    {
+      key: 'silverWeight',
+      title: 'Silver Weight',
+      value: `${silverWeight.toFixed(2)}g`,
+      icon: TrendingUp,
+      color: 'text-gray-600',
+      bgColor: 'bg-gray-50',
+    },
+    {
+      key: 'silverAmount',
+      title: 'Silver Amount',
+      value: `₹${silverAmount.toLocaleString()}`,
+      icon: TrendingDown,
+      color: 'text-gray-700',
+      bgColor: 'bg-gray-50',
+    },
   ];
 
   return (
     // Show stats in a responsive grid
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
       {stats
         .filter((s) => !exclude.includes(s.key as any))
         .map((stat, index) => {
