@@ -228,25 +228,41 @@ export default function RecordTable({
         <Table className="min-w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-[60px]">SL No</TableHead>
-              <TableHead className="min-w-[80px]">Date</TableHead>
-              <TableHead className="min-w-[100px]">Name</TableHead>
-              <TableHead className="min-w-[100px]">Mobile</TableHead>
-              <TableHead className="hidden min-w-[80px] sm:table-cell">
+              <TableHead className="min-w-[60px] whitespace-nowrap">
+                SL No
+              </TableHead>
+              <TableHead className="min-w-[80px] whitespace-nowrap">
+                Date
+              </TableHead>
+              <TableHead className="min-w-[100px] whitespace-nowrap">
+                Name
+              </TableHead>
+              <TableHead className="min-w-[100px] whitespace-nowrap">
+                Mobile
+              </TableHead>
+              <TableHead className="hidden min-w-[80px] whitespace-nowrap sm:table-cell">
                 Place
               </TableHead>
-              <TableHead className="min-w-[60px]">Type</TableHead>
-              <TableHead className="min-w-[70px] text-right">
+              <TableHead className="min-w-[60px] whitespace-nowrap">
+                Type
+              </TableHead>
+              <TableHead className="min-w-[70px] whitespace-nowrap text-right">
                 Gold Weight
               </TableHead>
-              <TableHead className="min-w-[70px] text-right">
+              <TableHead className="min-w-[70px] whitespace-nowrap text-right">
                 Silver Weight
               </TableHead>
-              <TableHead className="min-w-[90px] text-right">Amount</TableHead>
-              <TableHead className="hidden min-w-[60px] text-right md:table-cell">
+              <TableHead className="min-w-[90px] whitespace-nowrap text-right">
+                {records.some((r) => r.isReturned)
+                  ? 'Returned Amount'
+                  : 'Amount'}
+              </TableHead>
+              <TableHead className="hidden min-w-[60px] whitespace-nowrap text-right md:table-cell">
                 Interest
               </TableHead>
-              <TableHead className="min-w-[80px] text-right">Actions</TableHead>
+              <TableHead className="sticky right-0 min-w-[80px] whitespace-nowrap border-l bg-background text-right">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -284,8 +300,8 @@ export default function RecordTable({
                     <TableCell className="hidden min-w-[60px] whitespace-nowrap text-right md:table-cell">
                       <div className="ml-auto h-4 w-14 animate-pulse rounded bg-muted"></div>
                     </TableCell>
-                    <TableCell className="min-w-[80px] whitespace-nowrap text-right">
-                      <div className="ml-auto h-4 w-8 animate-pulse rounded bg-muted"></div>
+                    <TableCell className="sticky right-0 min-w-[80px] whitespace-nowrap border-l bg-background text-right">
+                      <div className="h-4 w-8 animate-pulse rounded bg-muted"></div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -367,14 +383,18 @@ export default function RecordTable({
                         : '-'}
                     </TableCell>
                     <TableCell className="min-w-[90px] whitespace-nowrap text-right">
-                      {record.amount
-                        ? `₹${record.amount.toLocaleString()}`
-                        : '-'}
+                      {record.isReturned
+                        ? record.returnedAmount
+                          ? `₹${record.returnedAmount.toLocaleString()}`
+                          : '-'
+                        : record.amount
+                          ? `₹${record.amount.toLocaleString()}`
+                          : '-'}
                     </TableCell>
                     <TableCell className="hidden min-w-[60px] whitespace-nowrap text-right md:table-cell">
                       {record.interest ? `${record.interest}%` : '-'}
                     </TableCell>
-                    <TableCell className="min-w-[80px] whitespace-nowrap text-right">
+                    <TableCell className="sticky right-0 min-w-[80px] whitespace-nowrap border-l bg-background text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm">
@@ -460,7 +480,7 @@ export default function RecordTable({
         </Table>
 
         {records.length === 0 && !loading && (
-          <div className="py-12 text-center">
+          <div className="relative py-12 text-center">
             <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium text-muted-foreground">
               No records found
