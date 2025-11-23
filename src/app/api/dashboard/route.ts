@@ -66,6 +66,42 @@ export const GET = withAuth(async (req: Request, user) => {
         [
           fn(
             'SUM',
+            literal(
+              'CASE WHEN "itemType" = \'Gold\' AND "isReturned" = false THEN "weightGrams" END'
+            )
+          ),
+          'totalGoldWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              'CASE WHEN "itemType" = \'Silver\' AND "isReturned" = false THEN "weightGrams" END'
+            )
+          ),
+          'totalSilverWeight',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              'CASE WHEN "itemType" = \'Gold\' AND "isReturned" = false THEN "amount" END'
+            )
+          ),
+          'totalGoldAmount',
+        ],
+        [
+          fn(
+            'SUM',
+            literal(
+              'CASE WHEN "itemType" = \'Silver\' AND "isReturned" = false THEN "amount" END'
+            )
+          ),
+          'totalSilverAmount',
+        ],
+        [
+          fn(
+            'SUM',
             literal('CASE WHEN "isReturned" = false THEN "weightGrams" END')
           ),
           'totalWeightGrams',
@@ -287,6 +323,10 @@ export const GET = withAuth(async (req: Request, user) => {
       totalRecords: Number(statsResult.totalRecords || 0),
       totalGoldCount: Number(statsResult.totalGoldCount || 0),
       totalSilverCount: Number(statsResult.totalSilverCount || 0),
+      totalGoldWeight: Number(statsResult.totalGoldWeight || 0),
+      totalSilverWeight: Number(statsResult.totalSilverWeight || 0),
+      totalGoldAmount: Number(statsResult.totalGoldAmount || 0),
+      totalSilverAmount: Number(statsResult.totalSilverAmount || 0),
       totalWeightGrams: Number(statsResult.totalWeightGrams || 0),
       totalAmount: Number(statsResult.totalAmount || 0),
       activeRecords: Number(statsResult.activeRecords || 0),
@@ -385,6 +425,10 @@ export const GET = withAuth(async (req: Request, user) => {
           totalRecords: stats.totalRecords,
           totalGoldCount: stats.totalGoldCount,
           totalSilverCount: stats.totalSilverCount,
+          totalGoldWeight: stats.totalGoldWeight,
+          totalSilverWeight: stats.totalSilverWeight,
+          totalGoldAmount: stats.totalGoldAmount,
+          totalSilverAmount: stats.totalSilverAmount,
           totalWeightGrams: stats.totalWeightGrams,
           totalAmount: stats.totalAmount,
           averageWeight,

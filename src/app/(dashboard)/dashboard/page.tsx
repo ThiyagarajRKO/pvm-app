@@ -29,6 +29,10 @@ interface DashboardStats {
     totalRecords: number;
     totalGoldCount: number;
     totalSilverCount: number;
+    totalGoldWeight: number;
+    totalSilverWeight: number;
+    totalGoldAmount: number;
+    totalSilverAmount: number;
     totalWeightGrams: number;
     totalAmount: number;
     averageWeight: number;
@@ -482,16 +486,105 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Average Value
+                  Gold / Silver
                 </p>
-                <p className="text-base font-semibold text-purple-600">
-                  {formatCurrency(stats.overview.averageAmount)}
+                <p className="text-lg font-semibold text-purple-600">
+                  {stats.overview.totalGoldCount} /{' '}
+                  {stats.overview.totalSilverCount}
                 </p>
               </div>
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+              <Gem className="h-6 w-6 text-purple-600" />
+            </div>
+            <div className="mt-2">
+              <span className="text-sm text-gray-600">
+                Item type distribution
+              </span>
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Item Type Breakdown */}
+      <div>
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+          <Scale className="h-5 w-5 text-purple-600" />
+          Item Type Breakdown
+        </h3>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Gold Items */}
+          <div className="rounded-lg border bg-card p-4">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="rounded-lg bg-yellow-200 p-2">
+                <Star className="h-5 w-5 text-yellow-700" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-yellow-800">
+                  Gold Items
+                </h3>
+                <p className="text-xs text-yellow-600">
+                  {stats.overview.totalGoldCount.toLocaleString()} records
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-yellow-700">Count</span>
+                <span className="text-sm font-semibold text-yellow-800">
+                  {stats.overview.totalGoldCount.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-yellow-700">Total Weight</span>
+                <span className="text-sm font-semibold text-yellow-800">
+                  {formatWeight(stats.overview.totalGoldWeight)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-yellow-700">Total Amount</span>
+                <span className="text-sm font-semibold text-yellow-800">
+                  {formatCurrency(stats.overview.totalGoldAmount)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Silver Items */}
+          <div className="rounded-lg border bg-card p-4">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="rounded-lg bg-gray-200 p-2">
+                <Scale className="h-5 w-5 text-gray-700" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">
+                  Silver Items
+                </h3>
+                <p className="text-xs text-gray-600">
+                  {stats.overview.totalSilverCount.toLocaleString()} records
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-700">Count</span>
+                <span className="text-sm font-semibold text-gray-800">
+                  {stats.overview.totalSilverCount.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-700">Total Weight</span>
+                <span className="text-sm font-semibold text-gray-800">
+                  {formatWeight(stats.overview.totalSilverWeight)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-700">Total Amount</span>
+                <span className="text-sm font-semibold text-gray-800">
+                  {formatCurrency(stats.overview.totalSilverAmount)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Record Status Breakdown */}
@@ -564,7 +657,7 @@ export default function DashboardPage() {
       {/* Current Month Performance */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
             <Calendar className="h-5 w-5" />
             This Month Performance
           </CardTitle>
@@ -618,7 +711,7 @@ export default function DashboardPage() {
       {/* Returned Records Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
             <RotateCcw className="h-5 w-5" />
             Returned Records Summary
           </CardTitle>
@@ -658,7 +751,7 @@ export default function DashboardPage() {
         {/* Recent Records */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+            <CardTitle className="flex items-center justify-between text-sm">
               Recent Records
               <Badge variant="outline">Latest</Badge>
             </CardTitle>
@@ -736,7 +829,9 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Record Actions</CardTitle>
+            <CardTitle className="text-sm font-semibold">
+              Record Actions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
