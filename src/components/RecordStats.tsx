@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FileText,
   CheckCircle,
@@ -10,6 +10,8 @@ import {
   TrendingUp,
   TrendingDown,
   Loader2,
+  Coins,
+  Scale,
 } from 'lucide-react';
 
 interface RecordStatsProps {
@@ -45,7 +47,7 @@ export default function RecordStats({
   exclude = [],
   loading = false,
 }: RecordStatsProps) {
-  const stats = [
+  const recordStats = [
     {
       key: 'totalRecords',
       title: 'Total Records',
@@ -56,7 +58,7 @@ export default function RecordStats({
     },
     {
       key: 'activeRecords',
-      title: 'Active Records',
+      title: 'Active',
       value: activeRecords.toLocaleString(),
       icon: CheckCircle,
       color: 'text-green-600',
@@ -64,7 +66,7 @@ export default function RecordStats({
     },
     {
       key: 'archivedRecords',
-      title: 'Archived Records',
+      title: 'Archived',
       value: archivedRecords.toLocaleString(),
       icon: Archive,
       color: 'text-gray-600',
@@ -72,109 +74,182 @@ export default function RecordStats({
     },
     {
       key: 'bigRecords',
-      title: 'Big Records',
+      title: 'Big Items',
       value: bigRecords.toLocaleString(),
       icon: Star,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
     },
+  ];
+
+  const itemTypeStats = [
     {
-      key: 'totalWeight',
-      title: 'Total Weight',
-      value: `${totalWeight.toFixed(2)}g`,
-      icon: TrendingUp,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-    },
-    {
-      key: 'totalAmount',
-      title: 'Total Amount',
-      value: `₹${totalAmount.toLocaleString()}`,
-      icon: TrendingDown,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-    },
-    {
-      key: 'goldCount',
       title: 'Gold Items',
-      value: goldCount.toLocaleString(),
-      icon: Star,
-      color: 'text-yellow-500',
-      bgColor: 'bg-yellow-50',
-    },
-    {
-      key: 'silverCount',
-      title: 'Silver Items',
-      value: silverCount.toLocaleString(),
-      icon: FileText,
-      color: 'text-gray-500',
-      bgColor: 'bg-gray-50',
-    },
-    {
-      key: 'goldWeight',
-      title: 'Gold Weight',
-      value: `${goldWeight.toFixed(2)}g`,
-      icon: TrendingUp,
+      count: goldCount,
+      weight: goldWeight,
+      amount: goldAmount,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
+      icon: Star,
     },
     {
-      key: 'goldAmount',
-      title: 'Gold Amount',
-      value: `₹${goldAmount.toLocaleString()}`,
-      icon: TrendingDown,
-      color: 'text-yellow-700',
-      bgColor: 'bg-yellow-50',
-    },
-    {
-      key: 'silverWeight',
-      title: 'Silver Weight',
-      value: `${silverWeight.toFixed(2)}g`,
-      icon: TrendingUp,
+      title: 'Silver Items',
+      count: silverCount,
+      weight: silverWeight,
+      amount: silverAmount,
       color: 'text-gray-600',
       bgColor: 'bg-gray-50',
-    },
-    {
-      key: 'silverAmount',
-      title: 'Silver Amount',
-      value: `₹${silverAmount.toLocaleString()}`,
-      icon: TrendingDown,
-      color: 'text-gray-700',
-      bgColor: 'bg-gray-50',
+      icon: Coins,
     },
   ];
 
+  const StatCard = ({ stat }: { stat: any }) => {
+    const Icon = stat.icon;
+    return (
+      <Card className="transition-shadow hover:shadow-md">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                {stat.title}
+              </p>
+              <p className={`text-lg font-semibold ${stat.color}`}>
+                {loading ? (
+                  <Loader2 className="inline h-5 w-5 animate-spin" />
+                ) : (
+                  stat.value
+                )}
+              </p>
+            </div>
+            <div className={`rounded-lg p-2 ${stat.bgColor}`}>
+              <Icon className={`h-5 w-5 ${stat.color}`} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const ItemTypeCard = ({ item }: { item: any }) => {
+    const Icon = item.icon;
+    return (
+      <Card className="transition-shadow hover:shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm font-medium">
+            <Icon className={`h-4 w-4 ${item.color}`} />
+            {item.title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Count</span>
+            <span className={`text-sm font-semibold ${item.color}`}>
+              {loading ? (
+                <Loader2 className="inline h-3 w-3 animate-spin" />
+              ) : (
+                item.count.toLocaleString()
+              )}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Weight</span>
+            <span className={`text-sm font-semibold ${item.color}`}>
+              {loading ? (
+                <Loader2 className="inline h-3 w-3 animate-spin" />
+              ) : (
+                `${item.weight.toFixed(2)}g`
+              )}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Amount</span>
+            <span className={`text-sm font-semibold ${item.color}`}>
+              {loading ? (
+                <Loader2 className="inline h-3 w-3 animate-spin" />
+              ) : (
+                `₹${item.amount.toLocaleString()}`
+              )}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
-    // Show stats in a responsive grid
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-      {stats
-        .filter((s) => !exclude.includes(s.key as any))
-        .map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="transition-shadow hover:shadow-md">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">
-                      {stat.title}
-                    </p>
-                    <p className={`text-base font-semibold ${stat.color}`}>
-                      {loading ? (
-                        <Loader2 className="inline h-5 w-5 animate-spin" />
-                      ) : (
-                        stat.value
-                      )}
-                    </p>
-                  </div>
-                  <div className={`rounded-lg p-2 ${stat.bgColor}`}>
-                    <Icon className={`h-5 w-5 ${stat.color}`} />
-                  </div>
+    <div className="space-y-6">
+      {/* Record Status Overview */}
+      <div>
+        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+          <FileText className="h-5 w-5 text-blue-600" />
+          Record Overview
+        </h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+          {recordStats
+            .filter((s) => !exclude.includes(s.key as any))
+            .map((stat, index) => (
+              <StatCard key={index} stat={stat} />
+            ))}
+
+          {/* Summary Totals within Record Overview */}
+          <Card className="transition-shadow hover:shadow-md">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Total Weight
+                  </p>
+                  <p className="text-base font-semibold text-purple-600">
+                    {loading ? (
+                      <Loader2 className="inline h-6 w-6 animate-spin" />
+                    ) : (
+                      `${totalWeight.toFixed(2)}g`
+                    )}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                <div className="rounded-lg bg-purple-50 p-2">
+                  <Scale className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="transition-shadow hover:shadow-md">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Total Amount
+                  </p>
+                  <p className="text-base font-semibold text-green-600">
+                    {loading ? (
+                      <Loader2 className="inline h-6 w-6 animate-spin" />
+                    ) : (
+                      `₹${totalAmount.toLocaleString()}`
+                    )}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-green-50 p-2">
+                  <TrendingDown className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Item Type Breakdown */}
+      <div>
+        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+          <Scale className="h-5 w-5 text-purple-600" />
+          Item Type Breakdown
+        </h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {itemTypeStats.map((item, index) => (
+            <ItemTypeCard key={index} item={item} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -50,7 +50,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 dark:from-gray-900 dark:to-gray-800">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
             PVM Admin Panel
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">

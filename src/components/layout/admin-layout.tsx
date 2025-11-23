@@ -740,7 +740,7 @@ function AdminLayoutComponent({ children }: AdminLayoutProps) {
         {/* Mobile PVM Branding */}
         <div className="flex items-center space-x-2 md:hidden">
           <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          <div className="whitespace-nowrap text-base font-bold tracking-tight text-blue-600 dark:text-blue-400">
+          <div className="whitespace-nowrap text-base font-semibold tracking-tight text-blue-600 dark:text-blue-400">
             PVM
           </div>
         </div>

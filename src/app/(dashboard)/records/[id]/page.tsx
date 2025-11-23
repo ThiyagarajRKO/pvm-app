@@ -651,7 +651,7 @@ export default function RecordDetailPage({
                       Total Amount to Pay
                     </Label>
                     {record.amountToBePaid !== null ? (
-                      <p className="text-sm font-bold text-blue-600">
+                      <p className="text-sm font-semibold text-blue-600">
                         ₹{record.amountToBePaid.toLocaleString()}
                       </p>
                     ) : (

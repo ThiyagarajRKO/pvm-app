@@ -58,6 +58,10 @@ interface Stats {
   totalAmount: number;
   goldCount: number;
   silverCount: number;
+  goldWeight: number;
+  goldAmount: number;
+  silverWeight: number;
+  silverAmount: number;
 }
 
 export default function BigRecordsPage() {
@@ -71,6 +75,10 @@ export default function BigRecordsPage() {
     totalAmount: 0,
     goldCount: 0,
     silverCount: 0,
+    goldWeight: 0,
+    goldAmount: 0,
+    silverWeight: 0,
+    silverAmount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [filtering, setFiltering] = useState(false);
@@ -156,6 +164,10 @@ export default function BigRecordsPage() {
           totalAmount,
           goldCount,
           silverCount,
+          goldWeight: data.stats.goldWeight,
+          goldAmount: data.stats.goldAmount,
+          silverWeight: data.stats.silverWeight,
+          silverAmount: data.stats.silverAmount,
         });
       } catch (err) {
         setError(

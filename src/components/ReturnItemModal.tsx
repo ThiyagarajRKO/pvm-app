@@ -179,7 +179,7 @@ export default function ReturnItemModal({
                   <span className="font-medium text-muted-foreground">
                     Total Amount to Pay:
                   </span>
-                  <p className="font-bold text-blue-600">
+                  <p className="font-semibold text-blue-600">
                     ₹{amounts.totalAmount.toLocaleString()}
                   </p>
                 </div>
@@ -197,7 +197,7 @@ export default function ReturnItemModal({
                 <span className="font-medium text-muted-foreground">
                   Previously Returned:
                 </span>
-                <p className="font-bold text-green-600">
+                <p className="font-semibold text-green-600">
                   ₹{record.returnedAmount.toLocaleString()}
                 </p>
               </div>
@@ -373,7 +373,7 @@ export default function ReturnItemModal({
                   <span className="font-medium text-muted-foreground">
                     Total Amount to Pay:
                   </span>
-                  <p className="font-bold text-blue-600">
+                  <p className="font-semibold text-blue-600">
                     ₹{amounts.totalAmount.toLocaleString()}
                   </p>
                 </div>
