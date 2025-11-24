@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, X, Loader2 } from 'lucide-react';
 import { useDebouncedCallback, useDebounce } from '@/hooks/use-debounce';
 
 interface AutocompleteInputProps {
@@ -28,6 +28,7 @@ export default function AutocompleteInput({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const lastFetchedQuery = useRef<string | null>(null);
 
   // Update input value when prop value changes
@@ -45,6 +46,7 @@ export default function AutocompleteInput({
       if (query === lastFetchedQuery.current) return; // Skip if already fetched for this query
       lastFetchedQuery.current = query;
       if (fetchSuggestions) {
+        setLoading(true);
         fetchSuggestions(query)
           .then((fetched) => {
             setSuggestions(fetched);
@@ -52,6 +54,9 @@ export default function AutocompleteInput({
           .catch((error) => {
             console.error('Failed to fetch suggestions:', error);
             setSuggestions([]);
+          })
+          .finally(() => {
+            setLoading(false);
           });
       } else {
         // Use static suggestions, filter by query
@@ -103,6 +108,9 @@ export default function AutocompleteInput({
         onBlur={handleBlur}
       />
       <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+        {loading && (
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        )}
         {inputValue && (
           <Button
             type="button"
@@ -128,7 +136,14 @@ export default function AutocompleteInput({
       {open && (
         <div className="absolute top-full z-50 mt-1 w-full rounded-md border bg-popover p-0 shadow-md">
           <div className="max-h-48 overflow-y-auto">
-            {suggestions.length === 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center p-4">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">
+                  Loading...
+                </span>
+              </div>
+            ) : suggestions.length === 0 ? (
               <div className="p-2 text-sm text-muted-foreground">
                 No suggestions found.
               </div>

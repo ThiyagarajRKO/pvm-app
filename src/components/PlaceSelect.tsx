@@ -9,6 +9,7 @@ import {
   SelectItem,
   SelectValue,
 } from './ui/select';
+import { Loader2 } from 'lucide-react';
 import { DEFAULT_PLACES } from '@/lib/constants';
 
 interface PlaceSelectProps {
@@ -33,13 +34,41 @@ export default function PlaceSelect({
 }: PlaceSelectProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const [places, setPlaces] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const searchRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Fetch places from API
+  React.useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/records/unique-places');
+        if (!response.ok) {
+          throw new Error('Failed to fetch places');
+        }
+        const data = await response.json();
+        setPlaces(data);
+      } catch (err) {
+        console.error('Error fetching places:', err);
+        setError('Failed to load places');
+        // Fallback to default places
+        setPlaces(DEFAULT_PLACES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlaces();
+  }, []);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return DEFAULT_PLACES;
-    return DEFAULT_PLACES.filter((p) => p.toLowerCase().includes(q));
-  }, [query]);
+    if (!q) return places;
+    return places.filter((p) => p.toLowerCase().includes(q));
+  }, [query, places]);
 
   React.useEffect(() => {
     if (open) {
@@ -56,8 +85,13 @@ export default function PlaceSelect({
       onOpenChange={setOpen}
     >
       <SelectTrigger className={`text-left ${triggerClassName}`}>
-        <div className="w-full text-left">
-          <SelectValue placeholder={placeholder} />
+        <div className="flex w-full items-center justify-between">
+          <div className="flex-1 text-left">
+            <SelectValue placeholder={placeholder} />
+          </div>
+          {loading && (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          )}
         </div>
       </SelectTrigger>
       <SelectContent
@@ -82,16 +116,24 @@ export default function PlaceSelect({
             />
           </div>
           <div className="p-2">
-            {filtered.length === 0 && (
+            {loading && (
+              <div className="p-2 text-sm text-muted-foreground">
+                Loading...
+              </div>
+            )}
+            {error && <div className="p-2 text-sm text-red-500">{error}</div>}
+            {!loading && !error && filtered.length === 0 && (
               <div className="p-2 text-sm text-muted-foreground">
                 No results
               </div>
             )}
-            {filtered.map((p) => (
-              <SelectItem key={p} value={p} className="text-left">
-                {p}
-              </SelectItem>
-            ))}
+            {!loading &&
+              !error &&
+              filtered.map((p) => (
+                <SelectItem key={p} value={p} className="text-left">
+                  {p}
+                </SelectItem>
+              ))}
           </div>
         </div>
       </SelectContent>

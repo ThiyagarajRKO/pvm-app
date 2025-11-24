@@ -9,6 +9,7 @@ import {
   SelectItem,
   SelectValue,
 } from './ui/select';
+import { Loader2 } from 'lucide-react';
 import { DEFAULT_STREETS } from '@/lib/constants';
 
 interface StreetSelectProps {
@@ -33,13 +34,41 @@ export default function StreetSelect({
 }: StreetSelectProps) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const [streets, setStreets] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const searchRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Fetch streets from API
+  React.useEffect(() => {
+    const fetchStreets = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/records/unique-streets');
+        if (!response.ok) {
+          throw new Error('Failed to fetch streets');
+        }
+        const data = await response.json();
+        setStreets(data);
+      } catch (err) {
+        console.error('Error fetching streets:', err);
+        setError('Failed to load streets');
+        // Fallback to default streets
+        setStreets(DEFAULT_STREETS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStreets();
+  }, []);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return DEFAULT_STREETS;
-    return DEFAULT_STREETS.filter((s) => s.toLowerCase().includes(q));
-  }, [query]);
+    if (!q) return streets;
+    return streets.filter((s) => s.toLowerCase().includes(q));
+  }, [query, streets]);
 
   React.useEffect(() => {
     if (open) {
@@ -56,8 +85,13 @@ export default function StreetSelect({
       onOpenChange={setOpen}
     >
       <SelectTrigger className={`text-left ${triggerClassName}`}>
-        <div className="w-full text-left">
-          <SelectValue placeholder={placeholder} />
+        <div className="flex w-full items-center justify-between">
+          <div className="flex-1 text-left">
+            <SelectValue placeholder={placeholder} />
+          </div>
+          {loading && (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          )}
         </div>
       </SelectTrigger>
       <SelectContent
@@ -82,16 +116,24 @@ export default function StreetSelect({
             />
           </div>
           <div className="p-2">
-            {filtered.length === 0 && (
+            {loading && (
+              <div className="p-2 text-sm text-muted-foreground">
+                Loading...
+              </div>
+            )}
+            {error && <div className="p-2 text-sm text-red-500">{error}</div>}
+            {!loading && !error && filtered.length === 0 && (
               <div className="p-2 text-sm text-muted-foreground">
                 No results
               </div>
             )}
-            {filtered.map((s) => (
-              <SelectItem key={s} value={s} className="text-left">
-                {s}
-              </SelectItem>
-            ))}
+            {!loading &&
+              !error &&
+              filtered.map((s) => (
+                <SelectItem key={s} value={s} className="text-left">
+                  {s}
+                </SelectItem>
+              ))}
           </div>
         </div>
       </SelectContent>
