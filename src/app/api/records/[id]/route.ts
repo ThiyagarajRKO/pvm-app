@@ -101,7 +101,19 @@ export const PUT = withAuth(
         }
       }
 
-      await record.update(parsed as any);
+      // Filter out fields that were not actually provided in the request
+      // This prevents schema transforms from setting default values for missing fields
+      const originalBody = body;
+      const updateData: any = {};
+
+      // Only include fields that were explicitly provided in the original request
+      Object.keys(originalBody).forEach((key) => {
+        if (key in parsed) {
+          updateData[key] = parsed[key];
+        }
+      });
+
+      await record.update(updateData);
       return NextResponse.json(record);
     } catch (err: any) {
       console.error(err);
