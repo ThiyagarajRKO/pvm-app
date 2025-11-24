@@ -108,8 +108,8 @@ export const PUT = withAuth(
 
       // Only include fields that were explicitly provided in the original request
       Object.keys(originalBody).forEach((key) => {
-        if (key in parsed) {
-          updateData[key] = parsed[key];
+        if (key in parsed && parsed.hasOwnProperty(key)) {
+          updateData[key] = (parsed as any)[key];
         }
       });
 
