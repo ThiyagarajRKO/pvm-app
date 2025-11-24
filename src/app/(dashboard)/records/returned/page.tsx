@@ -333,7 +333,9 @@ export default function ReturnedRecordsPage() {
       // Refresh the data to get updated stats
       fetchRecords(false);
     } catch (err) {
+      console.error('Revert error:', err);
       toast.error('Failed to revert record');
+      throw err; // Re-throw the error so the loading state persists on failure
     }
   };
 

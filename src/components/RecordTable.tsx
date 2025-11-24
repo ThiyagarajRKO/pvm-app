@@ -964,7 +964,10 @@ export default function RecordTable({
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                onClick={handleRevertConfirm}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleRevertConfirm();
+                }}
                 disabled={revertLoading}
                 className="w-full bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 sm:w-auto"
               >
