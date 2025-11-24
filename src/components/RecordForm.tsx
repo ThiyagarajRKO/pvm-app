@@ -453,7 +453,32 @@ export default function RecordForm({
         method === 'POST'
           ? await api.post(url, recordData)
           : await api.put(url, recordData);
-      if (response.error) throw new Error(response.error);
+
+      if (response.error) {
+        // Handle validation errors specifically
+        if (response.error === 'validation' && response.data?.issues) {
+          const issues = response.data.issues;
+          // Set form errors for each validation issue
+          issues.forEach((issue: any) => {
+            if (issue.path && issue.path.length > 0) {
+              const fieldName = issue.path[0];
+              form.setError(fieldName, {
+                type: 'server',
+                message: issue.message,
+              });
+            }
+          });
+          // Show specific error messages in toast
+          const errorMessages = issues
+            .map((issue: any) => issue.message)
+            .join(', ');
+          toast.warning(errorMessages);
+          return;
+        }
+        // For other errors, throw to show generic error
+        throw new Error(response.error);
+      }
+
       // close sheet if onCancel is provided (mobile) or navigate back on desktop
       if (onCancel) onCancel();
       else router.push('/records/active');
