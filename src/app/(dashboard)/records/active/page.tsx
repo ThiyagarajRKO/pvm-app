@@ -431,7 +431,7 @@ export default function ActiveRecordsPage() {
         itemTypeFilter !== 'all' ||
         streetFilter ||
         placeFilter) && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 p-3">
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 p-3">
           <span className="text-sm font-medium text-muted-foreground">
             Active filters:
           </span>
@@ -526,7 +526,7 @@ export default function ActiveRecordsPage() {
       <FloatingNewRecord />
 
       {/* Table */}
-      <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] mt-8 sm:mb-0">
+      <div className="mb-[calc(4rem+env(safe-area-inset-bottom))] mt-4 sm:mb-0">
         <div className="mb-4 flex flex-col gap-4">
           <div className="flex items-center justify-between sm:hidden">
             <div className="flex items-center gap-2">
