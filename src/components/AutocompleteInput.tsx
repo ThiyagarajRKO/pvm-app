@@ -70,6 +70,7 @@ export default function AutocompleteInput({
 
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue);
+    onValueChange?.(newValue);
     if (!open) setOpen(true);
   };
 
