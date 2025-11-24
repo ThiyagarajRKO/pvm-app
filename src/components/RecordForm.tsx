@@ -770,91 +770,6 @@ export default function RecordForm({
               >
                 <FormField
                   control={form.control}
-                  name="item"
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">Item</FormLabel>
-                      <FormControl>
-                        <AutocompleteInput
-                          value={field.value || ''}
-                          onValueChange={(value) =>
-                            field.onChange(value === '' ? null : value)
-                          }
-                          placeholder="Enter item name (e.g., Ring, Necklace)"
-                          suggestions={DEFAULT_ITEMS}
-                          className={
-                            fieldState.error ? 'border-destructive' : ''
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="goldWeightGrams"
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">
-                        Gold Weight (grams)
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          className={
-                            fieldState.error ? 'border-destructive' : ''
-                          }
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === ''
-                                ? null
-                                : parseFloat(e.target.value)
-                            )
-                          }
-                          onWheel={(e) => e.currentTarget.blur()}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="silverWeightGrams"
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">
-                        Silver Weight (grams)
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          className={
-                            fieldState.error ? 'border-destructive' : ''
-                          }
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === ''
-                                ? null
-                                : parseFloat(e.target.value)
-                            )
-                          }
-                          onWheel={(e) => e.currentTarget.blur()}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="itemType"
                   render={({ field, fieldState }) => (
                     <FormItem>
@@ -905,6 +820,97 @@ export default function RecordForm({
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="item"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground">Item</FormLabel>
+                      <FormControl>
+                        <AutocompleteInput
+                          value={field.value || ''}
+                          onValueChange={(value) =>
+                            field.onChange(value === '' ? null : value)
+                          }
+                          placeholder="Enter item name (e.g., Ring, Necklace)"
+                          suggestions={DEFAULT_ITEMS}
+                          className={
+                            fieldState.error ? 'border-destructive' : ''
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                {(form.watch('itemType') === 'Gold' ||
+                  form.watch('itemType') === 'Both') && (
+                  <FormField
+                    control={form.control}
+                    name="goldWeightGrams"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground">
+                          Gold Weight (grams)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            className={
+                              fieldState.error ? 'border-destructive' : ''
+                            }
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value === ''
+                                  ? null
+                                  : parseFloat(e.target.value)
+                              )
+                            }
+                            onWheel={(e) => e.currentTarget.blur()}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {(form.watch('itemType') === 'Silver' ||
+                  form.watch('itemType') === 'Both') && (
+                  <FormField
+                    control={form.control}
+                    name="silverWeightGrams"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormLabel className="text-foreground">
+                          Silver Weight (grams)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            className={
+                              fieldState.error ? 'border-destructive' : ''
+                            }
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value === ''
+                                  ? null
+                                  : parseFloat(e.target.value)
+                              )
+                            }
+                            onWheel={(e) => e.currentTarget.blur()}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="amount"
