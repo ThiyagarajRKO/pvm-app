@@ -474,12 +474,12 @@ export default function ReturnedRecordsPage() {
         placeFilter) && (
         <>
           {/* Desktop Layout */}
-          <div className="mt-4 hidden flex-wrap items-center gap-2 rounded-lg border bg-muted/50 p-3 sm:flex">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Filter className="h-4 w-4" />
-              Active Filters:
-            </div>
+          <div className="mt-4 hidden items-center justify-between rounded-lg border bg-muted/50 p-3 sm:flex">
             <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Filter className="h-4 w-4" />
+                Active Filters:
+              </div>
               {searchTerm && (
                 <Badge
                   variant="secondary"
@@ -557,15 +557,15 @@ export default function ReturnedRecordsPage() {
                   </Button>
                 </Badge>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetFilters}
-                className="ml-2 h-7 text-xs"
-              >
-                Clear All
-              </Button>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetFilters}
+              className="h-7 text-xs"
+            >
+              Clear All
+            </Button>
           </div>
 
           {/* Mobile Layout */}
