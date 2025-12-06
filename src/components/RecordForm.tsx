@@ -411,11 +411,15 @@ export default function RecordForm({
       street: initialData?.street || '',
       place: initialData?.place || '',
       item: initialData?.item || '',
-      goldWeightGrams: initialData?.goldWeightGrams,
-      silverWeightGrams: initialData?.silverWeightGrams,
+      goldWeightGrams: initialData?.goldWeightGrams
+        ? Number(initialData.goldWeightGrams)
+        : undefined,
+      silverWeightGrams: initialData?.silverWeightGrams
+        ? Number(initialData.silverWeightGrams)
+        : undefined,
       itemType: initialData?.itemType || 'Gold',
-      amount: initialData?.amount,
-      mobile: initialData?.mobile || '',
+      amount: initialData?.amount ? Number(initialData.amount) : undefined,
+      mobile: initialData?.mobile ? String(initialData.mobile) : '',
       personImageUrl: initialData?.personImageUrl,
       itemImageUrl: initialData?.itemImageUrl,
       itemCategory: initialData?.itemCategory || defaultCategory,
@@ -535,14 +539,16 @@ export default function RecordForm({
                       <FormControl>
                         <div className="relative">
                           <Input
+                            type="number"
                             placeholder="Enter 10-digit mobile number"
-                            value={field.value}
+                            value={field.value ? Number(field.value) : ''}
                             onChange={(e) => {
-                              // Strip non-digits and limit to 10 characters
-                              const digits = e.target.value
+                              // Get the numeric value and convert to string
+                              const numericValue = e.target.value;
+                              const digits = numericValue
                                 .replace(/\D/g, '')
                                 .slice(0, 10);
-                              field.onChange(digits === '' ? null : digits);
+                              field.onChange(digits === '' ? '' : digits);
                               // Trigger search for suggestions
                               if (digits.length >= 3) {
                                 debouncedMobileSearch(digits);
@@ -886,7 +892,7 @@ export default function RecordForm({
                             className={
                               fieldState.error ? 'border-destructive' : ''
                             }
-                            {...field}
+                            value={field.value || ''}
                             onChange={(e) =>
                               field.onChange(
                                 e.target.value === ''
@@ -920,7 +926,7 @@ export default function RecordForm({
                             className={
                               fieldState.error ? 'border-destructive' : ''
                             }
-                            {...field}
+                            value={field.value || ''}
                             onChange={(e) =>
                               field.onChange(
                                 e.target.value === ''
@@ -949,7 +955,7 @@ export default function RecordForm({
                           className={
                             fieldState.error ? 'border-destructive' : ''
                           }
-                          {...field}
+                          value={field.value || ''}
                           onChange={(e) =>
                             field.onChange(
                               e.target.value === ''
