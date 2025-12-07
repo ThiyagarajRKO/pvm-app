@@ -218,10 +218,10 @@ export default function RecordTable({
       return; // WhatsApp feature is temporarily disabled
     }
 
-    // Check rate limiting - warn if less than 3 seconds since last message
+    // Check rate limiting - warn if less than 5 seconds since last message
     const now = Date.now();
     const timeSinceLastMessage = now - lastWhatsappTime;
-    const cooldownPeriod = 3000; // 3 seconds (WhatsApp's minimum safe interval)
+    const cooldownPeriod = 5000; // 5 seconds (WhatsApp's minimum safe interval)
 
     if (lastWhatsappTime > 0 && timeSinceLastMessage < cooldownPeriod) {
       setPendingWhatsappData({ mobile, record });
@@ -1132,7 +1132,7 @@ export default function RecordTable({
                     <br />
                     <strong className="text-foreground">Tips:</strong>
                     <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-xs sm:text-sm">
-                      <li>Wait 3-5 seconds between messages</li>
+                      <li>Wait 5-7 seconds between messages</li>
                       <li>Use "Copy Message" for manual sending</li>
                       <li>Avoid sending identical messages repeatedly</li>
                     </ul>
