@@ -42,11 +42,11 @@ import {
   Phone,
   Copy,
   Loader2,
-  MessageCircle,
   FileText,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import ReturnItemModal from './ReturnItemModal';
+import { WhatsAppIcon } from './icons/WhatsAppIcon';
 
 interface Record {
   id: number;
@@ -432,7 +432,7 @@ export default function RecordTable({
                                 : 'Send WhatsApp message (Use sparingly to avoid ban)'
                             }
                           >
-                            <MessageCircle className="h-4 w-4" />
+                            <WhatsAppIcon className="h-4 w-4" />
                           </button>
                         </div>
                       ) : (
@@ -666,7 +666,7 @@ export default function RecordTable({
                               : 'Send WhatsApp message (Use sparingly)'
                           }
                         >
-                          <MessageCircle className="h-4 w-4" />
+                          <WhatsAppIcon className="h-4 w-4" />
                         </button>
                       </div>
                     ) : (
@@ -838,7 +838,7 @@ export default function RecordTable({
                               : 'Send WhatsApp message (Use sparingly)'
                           }
                         >
-                          <MessageCircle className="h-4 w-4" />
+                          <WhatsAppIcon className="h-4 w-4" />
                         </button>
                       </div>
                     ) : (
@@ -1007,7 +1007,7 @@ export default function RecordTable({
                               : 'Send WhatsApp message (Use sparingly)'
                           }
                         >
-                          <MessageCircle className="h-4 w-4" />
+                          <WhatsAppIcon className="h-4 w-4" />
                         </button>
                       </div>
                     ) : (
