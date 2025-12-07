@@ -405,35 +405,38 @@ export default function RecordTable({
                               <Copy className="h-3 w-3 text-green-600" />
                             )}
                           </button>
-                          <button
-                            onClick={() => handleCopyMessage(record)}
-                            className="text-blue-600 transition-colors hover:text-blue-800"
-                            title="Copy WhatsApp message"
-                          >
-                            {copiedMessage === record.mobile ? (
-                              <Copy className="h-4 w-4 text-green-600" />
-                            ) : (
-                              <FileText className="h-4 w-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleWhatsAppClick(record.mobile, record)
-                            }
-                            disabled={whatsappDisabled}
-                            className={`transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                              whatsappDisabled
-                                ? 'text-gray-400 hover:text-gray-600'
-                                : 'text-green-600 hover:text-green-800'
-                            }`}
-                            title={
-                              whatsappDisabled
-                                ? 'WhatsApp feature temporarily disabled'
-                                : 'Send WhatsApp message (Use sparingly to avoid ban)'
-                            }
-                          >
-                            <WhatsAppIcon className="h-4 w-4" />
-                          </button>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleCopyMessage(record)}
+                              className="relative ml-2"
+                              title="Copy WhatsApp message"
+                            >
+                              <WhatsAppIcon
+                                className={`h-4 w-4 text-green-600 transition-colors`}
+                              />
+                              <Copy
+                                className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-white text-green-600`}
+                              />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleWhatsAppClick(record.mobile, record)
+                              }
+                              disabled={whatsappDisabled}
+                              className={`ml-2 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                                whatsappDisabled
+                                  ? 'text-gray-400 hover:text-gray-600'
+                                  : 'text-green-600 hover:text-green-800'
+                              }`}
+                              title={
+                                whatsappDisabled
+                                  ? 'WhatsApp feature temporarily disabled'
+                                  : 'Send WhatsApp message (Use sparingly to avoid ban)'
+                              }
+                            >
+                              <WhatsAppIcon className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         '-'
