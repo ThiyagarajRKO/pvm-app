@@ -111,12 +111,20 @@ export default function RecordTable({
   >(null);
   const [moveLoading, setMoveLoading] = useState(false);
   const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
+  const [copiedMessage, setCopiedMessage] = useState<string | null>(null);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [recordToReturn, setRecordToReturn] = useState<Record | null>(null);
   const [revertDialogOpen, setRevertDialogOpen] = useState(false);
   const [recordToRevert, setRecordToRevert] = useState<Record | null>(null);
   const [revertLoading, setRevertLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [whatsappWarningOpen, setWhatsappWarningOpen] = useState(false);
+  const [whatsappDisabled, setWhatsappDisabled] = useState(false); // Enabled with rate limiting
+  const [lastWhatsappTime, setLastWhatsappTime] = useState<number>(0);
+  const [pendingWhatsappData, setPendingWhatsappData] = useState<{
+    mobile: string;
+    record?: Record;
+  } | null>(null);
 
   const handleDeleteClick = (record: Record) => {
     setRecordToDelete(record);
@@ -127,7 +135,7 @@ export default function RecordTable({
     if (recordToDelete) {
       setDeleteLoading(true);
       try {
-        await onDelete?.(recordToDelete.id);
+        onDelete?.(recordToDelete.id);
         setDeleteDialogOpen(false);
         setRecordToDelete(null);
       } catch (error) {
@@ -152,7 +160,7 @@ export default function RecordTable({
     if (recordToMove && moveTargetCategory) {
       setMoveLoading(true);
       try {
-        await onMove?.(recordToMove.id, moveTargetCategory);
+        onMove?.(recordToMove.id, moveTargetCategory);
         setMoveDialogOpen(false);
         setRecordToMove(null);
         setMoveTargetCategory(null);
@@ -188,7 +196,44 @@ export default function RecordTable({
     }
   };
 
+  const getWhatsAppMessage = (record?: Record) => {
+    return record
+      ? `வணக்கம்\n\nநீங்கள் அடகு வைத்த நகைக்கு (${record.slNo} - ${record.itemType}) கெடு முடிந்தது விட்டது மீட்டு கொள்ளவும் அல்லது வட்டி செலுத்தி கணக்கை புதுப்பித்து கொள்ளவும் ஒரு வாரத்துக்குள் வர தவறினால் ஏலம் விடப்படும் உடனே நேரில் வரவும்.\n\nPVM நகை கடை,\nஅன்னை மெடிக்கல்,\nஎறையூர் - 607201.`
+      : `வணக்கம்\n\nநீங்கள் அடகு வைத்த நகைக்கு கெடு முடிந்தது விட்டது மீட்டு கொள்ளவும் அல்லது வட்டி செலுத்தி கணக்கை புதுப்பித்து கொள்ளவும் ஒரு வாரத்துக்குள் வர தவறினால் ஏலம் விடப்படும் உடனே நேரில் வரவும்.\n\nPVM நகை கடை,\nஅன்னை மெடிக்கல்,\nஎறையூர் - 607201.`;
+  };
+
+  const handleCopyMessage = async (record?: Record) => {
+    try {
+      const message = getWhatsAppMessage(record);
+      await navigator.clipboard.writeText(message);
+      setCopiedMessage(record?.mobile || 'message');
+      setTimeout(() => setCopiedMessage(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy message:', err);
+    }
+  };
+
   const handleWhatsAppClick = (mobile: string, record?: Record) => {
+    if (whatsappDisabled) {
+      return; // WhatsApp feature is temporarily disabled
+    }
+
+    // Check rate limiting - warn if less than 3 seconds since last message
+    const now = Date.now();
+    const timeSinceLastMessage = now - lastWhatsappTime;
+    const cooldownPeriod = 3000; // 3 seconds (WhatsApp's minimum safe interval)
+
+    if (lastWhatsappTime > 0 && timeSinceLastMessage < cooldownPeriod) {
+      setPendingWhatsappData({ mobile, record });
+      setWhatsappWarningOpen(true);
+      return;
+    }
+
+    // Proceed with sending
+    openWhatsApp(mobile, record);
+  };
+
+  const openWhatsApp = (mobile: string, record?: Record) => {
     // Remove any non-numeric characters and ensure it starts with country code
     const cleanNumber = mobile.replace(/\D/g, '');
     // If number doesn't start with country code, assume India (+91)
@@ -196,15 +241,19 @@ export default function RecordTable({
       ? cleanNumber
       : `91${cleanNumber}`;
 
-    // Pre-formatted message in Tamil with serial number
-    const message = record
-      ? `வணக்கம்\n\nநீங்கள் அடகு வைத்த நகைக்கு (${record.slNo} - ${record.itemType}) கெடு முடிந்தது விட்டது மீட்டு கொள்ளவும் அல்லது வட்டி செலுத்தி கணக்கை புதுப்பித்து கொள்ளவும் ஒரு வாரத்துக்குள் வர தவறினால் ஏலம் விடப்படும் உடனே நேரில் வரவும்.\n\nPVM நகை கடை,\nஅன்னை மெடிக்கல்,\nஎறையூர் - 607201.`
-      : `வணக்கம்\n\nநீங்கள் அடகு வைத்த நகைக்கு கெடு முடிந்தது விட்டது மீட்டு கொள்ளவும் அல்லது வட்டி செலுத்தி கணக்கை புதுப்பித்து கொள்ளவும் ஒரு வாரத்துக்குள் வர தவறினால் ஏலம் விடப்படும் உடனே நேரில் வரவும்.\n\nPVM நகை கடை,\nஅன்னை மெடிக்கல்,\nஎறையூர் - 607201.`;
-
-    // Encode the message for URL
+    const message = getWhatsAppMessage(record);
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
+    setLastWhatsappTime(Date.now());
+  };
+
+  const handleWhatsAppWarningConfirm = () => {
+    if (pendingWhatsappData) {
+      openWhatsApp(pendingWhatsappData.mobile, pendingWhatsappData.record);
+      setPendingWhatsappData(null);
+    }
+    setWhatsappWarningOpen(false);
   };
 
   const handleReturnItemClick = (record: Record) => {
@@ -214,7 +263,7 @@ export default function RecordTable({
 
   const handleReturnConfirm = async (returnedAmount: number) => {
     if (recordToReturn) {
-      await onReturnItem?.(recordToReturn.id, returnedAmount);
+      onReturnItem?.(recordToReturn.id, returnedAmount);
       setReturnModalOpen(false);
       setRecordToReturn(null);
     }
@@ -229,7 +278,7 @@ export default function RecordTable({
     if (recordToRevert) {
       setRevertLoading(true);
       try {
-        await onRevert?.(recordToRevert.id);
+        onRevert?.(recordToRevert.id);
         setRevertDialogOpen(false);
         setRecordToRevert(null);
       } catch (error) {
@@ -357,11 +406,31 @@ export default function RecordTable({
                             )}
                           </button>
                           <button
+                            onClick={() => handleCopyMessage(record)}
+                            className="text-blue-600 transition-colors hover:text-blue-800"
+                            title="Copy WhatsApp message"
+                          >
+                            {copiedMessage === record.mobile ? (
+                              <Copy className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <FileText className="h-4 w-4" />
+                            )}
+                          </button>
+                          <button
                             onClick={() =>
                               handleWhatsAppClick(record.mobile, record)
                             }
-                            className="text-green-600 transition-colors hover:text-green-800"
-                            title="Send WhatsApp message"
+                            disabled={whatsappDisabled}
+                            className={`transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                              whatsappDisabled
+                                ? 'text-gray-400 hover:text-gray-600'
+                                : 'text-green-600 hover:text-green-800'
+                            }`}
+                            title={
+                              whatsappDisabled
+                                ? 'WhatsApp feature temporarily disabled'
+                                : 'Send WhatsApp message (Use sparingly to avoid ban)'
+                            }
                           >
                             <MessageCircle className="h-4 w-4" />
                           </button>
@@ -568,14 +637,34 @@ export default function RecordTable({
                           )}
                         </button>
                         <button
+                          onClick={() => handleCopyMessage(recordToDelete)}
+                          className="text-blue-600 transition-colors hover:text-blue-800"
+                          title="Copy WhatsApp message"
+                        >
+                          {copiedMessage === recordToDelete.mobile ? (
+                            <Copy className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <FileText className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
                           onClick={() =>
                             handleWhatsAppClick(
                               recordToDelete.mobile,
                               recordToDelete
                             )
                           }
-                          className="text-green-600 transition-colors hover:text-green-800"
-                          title="Send WhatsApp message"
+                          disabled={whatsappDisabled}
+                          className={`transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                            whatsappDisabled
+                              ? 'text-gray-400 hover:text-gray-600'
+                              : 'text-green-600 hover:text-green-800'
+                          }`}
+                          title={
+                            whatsappDisabled
+                              ? 'WhatsApp feature temporarily disabled'
+                              : 'Send WhatsApp message (Use sparingly)'
+                          }
                         >
                           <MessageCircle className="h-4 w-4" />
                         </button>
@@ -720,14 +809,34 @@ export default function RecordTable({
                           )}
                         </button>
                         <button
+                          onClick={() => handleCopyMessage(recordToMove)}
+                          className="text-blue-600 transition-colors hover:text-blue-800"
+                          title="Copy WhatsApp message"
+                        >
+                          {copiedMessage === recordToMove.mobile ? (
+                            <Copy className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <FileText className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
                           onClick={() =>
                             handleWhatsAppClick(
                               recordToMove.mobile,
                               recordToMove
                             )
                           }
-                          className="text-green-600 transition-colors hover:text-green-800"
-                          title="Send WhatsApp message"
+                          disabled={whatsappDisabled}
+                          className={`transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                            whatsappDisabled
+                              ? 'text-gray-400 hover:text-gray-600'
+                              : 'text-green-600 hover:text-green-800'
+                          }`}
+                          title={
+                            whatsappDisabled
+                              ? 'WhatsApp feature temporarily disabled'
+                              : 'Send WhatsApp message (Use sparingly)'
+                          }
                         >
                           <MessageCircle className="h-4 w-4" />
                         </button>
@@ -869,14 +978,34 @@ export default function RecordTable({
                           )}
                         </button>
                         <button
+                          onClick={() => handleCopyMessage(recordToRevert)}
+                          className="text-blue-600 transition-colors hover:text-blue-800"
+                          title="Copy WhatsApp message"
+                        >
+                          {copiedMessage === recordToRevert.mobile ? (
+                            <Copy className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <FileText className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
                           onClick={() =>
                             handleWhatsAppClick(
                               recordToRevert.mobile,
                               recordToRevert
                             )
                           }
-                          className="text-green-600 transition-colors hover:text-green-800"
-                          title="Send WhatsApp message"
+                          disabled={whatsappDisabled}
+                          className={`transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                            whatsappDisabled
+                              ? 'text-gray-400 hover:text-gray-600'
+                              : 'text-green-600 hover:text-green-800'
+                          }`}
+                          title={
+                            whatsappDisabled
+                              ? 'WhatsApp feature temporarily disabled'
+                              : 'Send WhatsApp message (Use sparingly)'
+                          }
                         >
                           <MessageCircle className="h-4 w-4" />
                         </button>
@@ -977,6 +1106,50 @@ export default function RecordTable({
                   <RotateCcw className="mr-2 h-4 w-4" />
                 )}
                 {revertLoading ? 'Reverting...' : 'Revert Record'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* WhatsApp Rate Limiting Warning Dialog */}
+        <AlertDialog
+          open={whatsappWarningOpen}
+          onOpenChange={setWhatsappWarningOpen}
+        >
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 sm:h-10 sm:w-10">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 sm:h-5 sm:w-5" />
+                </div>
+                <div className="flex-1">
+                  <AlertDialogTitle className="text-base sm:text-lg">
+                    Rate Limit Warning
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="my-4 text-sm">
+                    Sending messages too quickly may trigger spam detection.
+                    <br />
+                    <br />
+                    <strong className="text-foreground">Tips:</strong>
+                    <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-xs sm:text-sm">
+                      <li>Wait 3-5 seconds between messages</li>
+                      <li>Use "Copy Message" for manual sending</li>
+                      <li>Avoid sending identical messages repeatedly</li>
+                    </ul>
+                  </AlertDialogDescription>
+                </div>
+              </div>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter className="mt-6 flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3">
+              <AlertDialogCancel className="m-0 w-full bg-orange-600 text-sm text-white hover:bg-orange-700 sm:w-auto">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleWhatsAppWarningConfirm}
+                className="m-0 w-full border-0 bg-transparent !text-sm text-amber-600 hover:bg-amber-50 hover:text-amber-700 focus:ring-0 focus:ring-offset-0 sm:w-auto"
+              >
+                Send Anyway
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
