@@ -407,16 +407,21 @@ export default function RecordTable({
                           </button>
                           <div className="flex gap-1">
                             <button
-                              onClick={() => handleCopyMessage(record)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopyMessage(record);
+                              }}
                               className="relative ml-2"
                               title="Copy WhatsApp message"
                             >
-                              <WhatsAppIcon
-                                className={`h-4 w-4 text-green-600 transition-colors`}
-                              />
-                              <Copy
-                                className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-white text-green-600`}
-                              />
+                              {copiedMessage === record.mobile ? (
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                              ) : (
+                                <WhatsAppIcon className="h-4 w-4 text-green-600 transition-colors hover:text-green-800" />
+                              )}
+                              {copiedMessage !== record.mobile && (
+                                <Copy className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-white text-green-600" />
+                              )}
                             </button>
                             <button
                               onClick={() =>
@@ -640,14 +645,20 @@ export default function RecordTable({
                           )}
                         </button>
                         <button
-                          onClick={() => handleCopyMessage(recordToDelete)}
-                          className="text-blue-600 transition-colors hover:text-blue-800"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyMessage(recordToDelete);
+                          }}
+                          className="relative ml-2"
                           title="Copy WhatsApp message"
                         >
                           {copiedMessage === recordToDelete.mobile ? (
-                            <Copy className="h-4 w-4 text-green-600" />
+                            <CheckCircle className="h-4 w-4 text-green-600" />
                           ) : (
-                            <FileText className="h-4 w-4" />
+                            <WhatsAppIcon className="h-4 w-4 text-green-600 transition-colors hover:text-green-800" />
+                          )}
+                          {copiedMessage !== recordToDelete.mobile && (
+                            <Copy className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-white text-green-500" />
                           )}
                         </button>
                         <button
@@ -812,14 +823,20 @@ export default function RecordTable({
                           )}
                         </button>
                         <button
-                          onClick={() => handleCopyMessage(recordToMove)}
-                          className="text-blue-600 transition-colors hover:text-blue-800"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyMessage(recordToMove);
+                          }}
+                          className="relative ml-2"
                           title="Copy WhatsApp message"
                         >
                           {copiedMessage === recordToMove.mobile ? (
-                            <Copy className="h-4 w-4 text-green-600" />
+                            <CheckCircle className="h-4 w-4 text-green-600" />
                           ) : (
-                            <FileText className="h-4 w-4" />
+                            <WhatsAppIcon className="h-4 w-4 text-green-600 transition-colors hover:text-green-800" />
+                          )}
+                          {copiedMessage !== recordToMove.mobile && (
+                            <Copy className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-white text-green-500" />
                           )}
                         </button>
                         <button
@@ -981,14 +998,20 @@ export default function RecordTable({
                           )}
                         </button>
                         <button
-                          onClick={() => handleCopyMessage(recordToRevert)}
-                          className="text-blue-600 transition-colors hover:text-blue-800"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyMessage(recordToRevert);
+                          }}
+                          className="relative ml-2"
                           title="Copy WhatsApp message"
                         >
                           {copiedMessage === recordToRevert.mobile ? (
-                            <Copy className="h-4 w-4 text-green-600" />
+                            <CheckCircle className="h-4 w-4 text-green-600" />
                           ) : (
-                            <FileText className="h-4 w-4" />
+                            <WhatsAppIcon className="h-4 w-4 text-green-600 transition-colors hover:text-green-800" />
+                          )}
+                          {copiedMessage !== recordToRevert.mobile && (
+                            <Copy className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-white text-green-500" />
                           )}
                         </button>
                         <button
